@@ -234,10 +234,116 @@ def plotstraincontours(EG,XS,ne,elements):
     plt.grid()
     plt.show()
 #
+def locstrain4nQ(ul,coord,enu,Emod):
+#
+# Plot the strain and the stress field for a linear 4-noded quad
+# element in the natural space.
+#
+    r=np.zeros([4,2])
+    eG=np.zeros([3,4])
+    sG=np.zeros([3,4])
+    eps=np.zeros([3,4])
+    e=np.zeros([4])
+    s=np.zeros([4])
+    C=np.zeros([3,3])
+#
+    r[0,0]=-1.0
+    r[0,1]=-1.0
+    r[1,0]= 1.0
+    r[1,1]=-1.0
+    r[2,0]= 1.0
+    r[2,1]= 1.0
+    r[3,0]=-1.0
+    r[3,1]= 1.0
+    C=fe.umat(enu,Emod)
+    for i in range(0,4):
+        ri=r[i,0]
+        si=r[i,1]
+        ddet, B = fe.stdm4NQ(ri,si,coord)
+        eps=B*ul
+        sig=C*eps
+        eG[:,i]=eps[:]
+        sG[:,i]=sig[:]
+    grid_x, grid_y = np.mgrid[-1:1:100j, -1:1:100j]
+#
+    print 'strain field'
+    for j in range(0,3):
+        for i in range(0,4):
+            e[i]=eG[j,i]
+        grid_z0 = griddata(r, e, (grid_x, grid_y), method='linear')
+        plt.imshow(grid_z0.T,aspect='equal', extent=(-1.0,1.0,-1.0,1.0), origin='lower')
+        plt.colorbar(orientation='vertical')
+        plt.grid()
+        plt.show()
+#
+    print 'stress field'
+    for j in range(0,3):
+        for i in range(0,4):
+            s[i]=sG[j,i]
+        grid_z0 = griddata(r, s, (grid_x, grid_y), method='linear')
+        plt.imshow(grid_z0.T,aspect='equal', extent=(-1.0,1.0,-1.0,1.0), origin='lower')
+        plt.colorbar(orientation='vertical')
+        plt.grid()
+        plt.show()        
+#
+    return
+#
+def locstrain3nT(ul,coord,enu,Emod):
+#
+# Plot the strain and the stress field for a linear 4-noded quad
+# element in the natural space.
+#
+    r=np.zeros([3,2])
+    eG=np.zeros([3,3])
+    sG=np.zeros([3,3])
+    eps=np.zeros([3,3])
+    e=np.zeros([3])
+    s=np.zeros([3])
+    C=np.zeros([3,3])
+#
+    r[0,0]= 0.0
+    r[0,1]= 0.0
+    r[1,0]= 1.0
+    r[1,1]= 0.0
+    r[2,0]= 0.0
+    r[2,1]= 1.0
+    C=fe.umat(enu,Emod)
+    for i in range(0,3):
+        ri=r[i,0]
+        si=r[i,1]
+        ddet, B = fe.stdm3NT(ri,si,coord)
+        eps=B*ul
+        sig=C*eps
+        eG[:,i]=eps[:]
+        sG[:,i]=sig[:]
+    grid_x, grid_y = np.mgrid[0:1:100j, 0:1:100j]
+#
+    print 'strain field'
+    for j in range(0,3):
+        for i in range(0,3):
+            e[i]=eG[j,i]
+        grid_z0 = griddata(r, e, (grid_x, grid_y), method='linear')
+        plt.imshow(grid_z0.T,aspect='equal', extent=(0.0,1.0,0.0,1.0), origin='lower')
+        plt.colorbar(orientation='vertical')
+        plt.grid()
+        plt.show()
+#
+    print 'stress field'
+    for j in range(0,3):
+        for i in range(0,3):
+            s[i]=sG[j,i]
+        grid_z0 = griddata(r, s, (grid_x, grid_y), method='linear')
+        plt.imshow(grid_z0.T,aspect='equal', extent=(0.0,1.0,0.0,1.0), origin='lower')
+        plt.colorbar(orientation='vertical')
+        plt.grid()
+        plt.show()        
+#
+    return
+#
 def gmeshpost(IBC,nn,UG):
 #
 # Stores the nodal displacements solution vector
-# into the file salida.txt required to produced
+# into the file salida.txt required to produce
 # Gmesh readable files.
 #
     UR=np.zeros([nn,2])
@@ -252,8 +358,6 @@ def gmeshpost(IBC,nn,UG):
     np.savetxt(nomfile1,UR, fmt='%.18e', delimiter=' ')
     
     return
-    
-    
     
     
     

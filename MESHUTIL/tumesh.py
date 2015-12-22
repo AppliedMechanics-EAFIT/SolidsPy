@@ -12,6 +12,6 @@ init_printing()
 # ***** Import Package ****
 import os
 # ***** end *****
-os.system ('/Applications/Gmsh.app/Contents/MacOS/gmsh dam.geo -2 -order 1')
+os.system ('/Applications/Gmsh.app/Contents/MacOS/gmsh bathe46.geo -2 -order 1')
 #
 print('End Proccess')
