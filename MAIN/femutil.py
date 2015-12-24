@@ -282,24 +282,4 @@ def str_el3(coord,ul):
         xl[i,1]=NN[0,0]*coord[0,1]+NN[0,2]*coord[1,1]+NN[0,4]*coord[2,1]
     epsGT=epsG.T
     return epsGT,xl     
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
