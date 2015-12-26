@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Feb 17 10:02:49 2015
+Postprocessot subroutines
+-------------------------
 
 @author: eafit
 """
 from __future__ import division
 import numpy as np
+from sympy import *
 import femutil as fe
 import preprocesor as pre
 import matplotlib.pyplot as plt
@@ -28,7 +30,8 @@ def plotdis(IBC, UG, nodes, nn, xmin, xmax, ymin, ymax, savefigs=False):
     UG : ndarray (float)
       Array with the computed displacements.
     nodes : ndarray (float)
-      Array with number and nodes coordinates `number coordX coordY.
+      Array with number and nodes coordinates:
+        `number coordX coordY BCX BCY`
     nn : int
       Number of nodes.
     xmin : float
@@ -41,10 +44,7 @@ def plotdis(IBC, UG, nodes, nn, xmin, xmax, ymin, ymax, savefigs=False):
       Maximum y value for the grid.
 
     """
-    points = np.zeros([nn, 2], dtype=np.float)
-    for i in range(nn):
-        points[i, 0] = nodes[i, 1]
-        points[i, 1] = nodes[i, 2]
+    points = nodes[:, 1:3]
     grid_x, grid_y = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
 
     UC = np.zeros([nn, 2], dtype=np.float)
