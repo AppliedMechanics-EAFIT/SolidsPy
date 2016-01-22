@@ -3,7 +3,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
 C    PROGRAM mesher                                                    C
 C                                                                      C
-C    Reads a .mesh file created with GMESH and writes a new mesh to    C
+C    Reads a .msh file created with GMESH and writes a new mesh to     C
 C    be used within the PYTHON code SOLIDS_ISO                         C
 C                                                                      C   
 C                                                                      C

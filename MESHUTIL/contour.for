@@ -3,7 +3,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
 C    PROGRAM contour                                                   C
 C                                                                      C
-C    Reads a SOLIDS_ISO results file and wrirtes .mesh files ready to  C
+C    Reads a SOLIDS_ISO results file and wrirtes .msh files ready to  C
 C    be visualized by Gmesh                                            C
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -28,7 +28,7 @@ C
       IOUT2=5
       IOUT3=6
 C
-      OPEN(UNIT=INOD,FILE="salida.txt",FORM='FORMATTED')
+      OPEN(UNIT=INOD,FILE="out.txt",FORM='FORMATTED')
       OPEN(UNIT=IOUT1,FILE =FILENAME(1:LST)//"H.msh",position='append')
       OPEN(UNIT=IOUT2,FILE =FILENAME(1:LST)//"V.msh",position='append')
       OPEN(UNIT=IOUT3,FILE =FILENAME(1:LST)//"F.msh",position='append')

@@ -5,8 +5,8 @@ PROGRAM SOLIDS
 Computes the displacement solution for a finite element assembly
 of finite elements under point loads using as input easy-to-create
 text files containing element, nodal, materials and loads data.
-Fortran subroutines mesher.for and contour.for are also availbale to
-write the required input files out of a Gmesh (.msh) generated file and
+Fortran subroutines mesher.for and contour.for are also available to
+write the required input files out of a Gmesh (.msh) generated file
 and to convert the results file into Gmesh post-processor files.
 
 Created by Juan Gomez as part of the course:
@@ -21,14 +21,12 @@ import preprocesor as pre
 import postprocesor as pos
 import assemutil as ass
 import shutil as shu
-import os
 from datetime import datetime
 import matplotlib.pyplot as plt
 
 
 start_time = datetime.now()
 name = raw_input('Enter the job name: ')
-
 #   MODEL ASSEMBLY
 #
 # Reads the model
@@ -80,7 +78,6 @@ UU = pos.scatter(DME, UG, ne, neq, elements)
 EG, XS = pos.strainGLO(IELCON, UU, ne, COORD, elements)
 # Plot strain solution
 pos.plotstrain(EG, XS, xmin, xmax, ymin, ymax)
-
 end_time = datetime.now()
 print('Duration for post processing: {}'.format(end_time - start_time))
 print('Program terminated succesfully!')
