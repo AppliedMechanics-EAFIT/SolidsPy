@@ -35,7 +35,7 @@ echo = raw_input('Do you want to echo files? (y/N): ')
 # Reads the model
 nodes, mats, elements, loads = pre.readin(folder=folder)
 if echo.upper() in ["Y", "YES"]:
-    pre.echomod(nodes, mats, elements, loads)
+    pre.echomod(nodes, mats, elements, loads, folder=folder)
 # Retrieves problem parameters
 ne, nn, nm, nl, COORD = pre.proini(nodes, mats, elements, loads)
 # Counts equations and creates BCs array IBC
