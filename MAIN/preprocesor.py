@@ -8,12 +8,12 @@ from __future__ import division
 import numpy as np
 
 
-def readin():
+def readin(folder=""):
     """Read the input file"""
-    nodes = np.loadtxt('nodes.txt')
-    mats = np.loadtxt('mater.txt')
-    elements = np.loadtxt('eles.txt')
-    loads = np.loadtxt('loads.txt')
+    nodes = np.loadtxt(folder + 'nodes.txt')
+    mats = np.loadtxt(folder + 'mater.txt')
+    elements = np.loadtxt(folder + 'eles.txt')
+    loads = np.loadtxt(folder + 'loads.txt')
 
     return nodes, mats, elements, loads
 

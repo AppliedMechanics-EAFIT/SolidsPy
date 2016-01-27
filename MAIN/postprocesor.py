@@ -495,8 +495,8 @@ def locstrain3nT(ul, coord, enu, Emod):
 def gmeshpost(IBC, nn, UG):
     """Export the nodal displacement solution
 
-    Stores the nodal displacements solution vector into the file `out.txt`
-    required to produce Gmesh readable files.
+    Stores the nodal displacements solution vector into the file
+    `out.txt` required to produce Gmesh readable files.
 
     """
     UR = np.zeros([nn, 2])

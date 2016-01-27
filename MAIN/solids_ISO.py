@@ -27,12 +27,15 @@ import matplotlib.pyplot as plt
 
 start_time = datetime.now()
 name = raw_input('Enter the job name: ')
+folder = raw_input('Enter folder (empty for the current one): ')
+echo = raw_input('Do you want to echo files? (y/N): ')
+
 #   MODEL ASSEMBLY
 #
 # Reads the model
-nodes, mats, elements, loads = pre.readin()
-# Activate to generate echo files
-#pre.echomod(nodes, mats, elements, loads)
+nodes, mats, elements, loads = pre.readin(folder=folder)
+if echo.upper() in ["Y", "YES"]:
+    pre.echomod(nodes, mats, elements, loads)
 # Retrieves problem parameters
 ne, nn, nm, nl, COORD = pre.proini(nodes, mats, elements, loads)
 # Counts equations and creates BCs array IBC
@@ -61,10 +64,10 @@ xmin, xmax, ymin, ymax = pos.axisscale(COORD, nn)
 pos.plotdis(IBC, UG, nodes, nn, xmin, xmax, ymin, ymax)
 # Generates displacement solution to be post-processed via Gmesh
 pos.gmeshpost(IBC, nn, UG)
-nomfile1 = '../MESHUTIL/' + name + '.msh'
-nomfileH = '../MESHUTIL/' + name + 'H.msh'
-nomfileV = '../MESHUTIL/' + name + 'V.msh'
-nomfileF = '../MESHUTIL/' + name + 'F.msh'
+nomfile1 = folder + name + '.msh'
+nomfileH = folder + name + 'H.msh'
+nomfileV = folder + name + 'V.msh'
+nomfileF = folder + name + 'F.msh'
 shu.copy(nomfile1, nomfileH)
 shu.copy(nomfile1, nomfileV)
 shu.copy(nomfile1, nomfileF)
