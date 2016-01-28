@@ -26,10 +26,17 @@ import matplotlib.pyplot as plt
 
 
 start_time = datetime.now()
-name = raw_input('Enter the job name: ')
-folder = raw_input('Enter folder (empty for the current one): ')
-echo = raw_input('Do you want to echo files? (y/N): ')
+#name = raw_input('Enter the job name: ')
+#folder = raw_input('Enter folder (empty for the current one): ')
+#echo = raw_input('Do you want to echo files? (y/N): ')
 
+
+name = "ring"
+folder = "../MESHES/RING/"
+echo = ""
+
+
+#%%
 #   MODEL ASSEMBLY
 #
 # Reads the model
@@ -47,6 +54,7 @@ KG = ass.matassem(IBC, mats, elements, nn, ne, neq, COORD, DME, IELCON)
 # Assembles Global Rigth Hand Side Vector RHSG
 RHSG = ass.loadasem(loads, IBC, neq, nl)
 
+#%%
 #   SYSTEM SOLUTION
 #
 # Solves the system
@@ -55,13 +63,14 @@ print(np.allclose(np.dot(KG, UG), RHSG))
 end_time = datetime.now()
 print('Duration for system solution: {}'.format(end_time - start_time))
 
+#%%
 #   POST-PROCCESSING
 #
 start_time = datetime.now()
 # Sets axis for visualization window
 xmin, xmax, ymin, ymax = pos.axisscale(COORD, nn)
 # Plot displacement solution
-pos.plotdis(IBC, UG, nodes, nn, xmin, xmax, ymin, ymax)
+pos.plot_disp2(IBC, UG, nodes, elements)
 # Generates displacement solution to be post-processed via Gmesh
 pos.gmeshpost(IBC, nn, UG)
 nomfile1 = folder + name + '.msh'
@@ -78,9 +87,8 @@ shu.copy(nomfile1, nomfileF)
 # Scatter displacements over the elements
 UU = pos.scatter(DME, UG, ne, neq, elements)
 # Generates points inside the elements and computes strain solution
-EG, XS = pos.strainGLO(IELCON, UU, ne, COORD, elements)
-# Plot strain solution
-pos.plotstrain(EG, XS, xmin, xmax, ymin, ymax)
+E_nodes = pos.strain_nodes(IELCON, UU, ne, COORD, elements)
+pos.plot_strain2(E_nodes, nodes, elements)
 end_time = datetime.now()
 print('Duration for post processing: {}'.format(end_time - start_time))
 print('Program terminated succesfully!')

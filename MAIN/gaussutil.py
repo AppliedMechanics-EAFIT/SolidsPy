@@ -15,7 +15,6 @@ References
 """
 from __future__ import division
 import numpy as np
-from sympy import *
 
 
 def gpoints2x2():
