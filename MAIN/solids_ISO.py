@@ -3,18 +3,19 @@ PROGRAM SOLIDS
 --------------
 
 Computes the displacement solution for a finite element assembly
-of finite elements under point loads using as input easy-to-create
+of 2D solids under point loads using as input easy-to-create
 text files containing element, nodal, materials and loads data.
 Fortran subroutines mesher.for and contour.for are also available to
 write the required input files out of a Gmesh (.msh) generated file
 and to convert the results file into Gmesh post-processor files.
 
-Created by Juan Gomez as part of the course:
+Created by Juan Gomez and Nicolas Guarin-Zapata as part of the course:
+
 IC0283 COMPUTATIONAL MODELLING
 Universidad EAFIT
 Departamento de Ingenieria Civil
 
-Last updated December 2015
+Last updated January 2016
 """
 import numpy as np
 import preprocesor as pre
@@ -26,14 +27,14 @@ import matplotlib.pyplot as plt
 
 
 start_time = datetime.now()
-#name = raw_input('Enter the job name: ')
-#folder = raw_input('Enter folder (empty for the current one): ')
-#echo = raw_input('Do you want to echo files? (y/N): ')
+name = raw_input('Enter the job name: ')
+folder = raw_input('Enter folder (empty for the current one): ')
+echo = raw_input('Do you want to echo files? (y/N): ')
 
 
-name = "ring"
-folder = "../MESHES/RING/"
-echo = ""
+#name = "ring"
+#folder = "../MESHES/RING/"
+#echo = ""
 
 
 #%%
