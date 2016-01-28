@@ -11,7 +11,8 @@ from sympy import *
 import femutil as fe
 import preprocesor as pre
 import matplotlib.pyplot as plt
-from scipy.interpolate import griddata
+from matplotlib.tri import Triangulation
+from scipy.interpolate import griddata, interp2d
 from matplotlib import rcParams
 
 rcParams['font.family'] = 'serif'
@@ -76,6 +77,145 @@ def plotdis(IBC, UG, nodes, nn, xmin, xmax, ymin, ymax, savefigs=False):
     plt.grid()
     if savefigs:
         plt.savefig('numvertic.pdf')
+
+
+def plot_disp2(IBC, UG, nodes, elements, plt_type="contourf", levels=12,
+               savefigs=False):
+    """Plot the nodal displacement using a triangulation
+
+    Parameters
+    ----------
+    IBC : ndarray (int)
+      IBC (Indicator of Boundary Conditions) indicates if the nodes
+      has any type of boundary conditions applied to it.
+    UG : ndarray (float)
+      Array with the computed displacements.
+    nodes : ndarray (float)
+      Array with number and nodes coordinates:
+        `number coordX coordY BCX BCY`
+    elements : ndarray (int)
+      Array with the node number for the nodes that correspond to each
+      element.
+
+    """
+    if plt_type=="pcolor":
+        disp_plot = plt.tripcolor
+    elif plt_type=="contourf":
+        disp_plot = plt.tricontourf
+    
+    nn = nodes.shape[0]
+    x = nodes[:, 1]
+    y = nodes[:, 2]
+    UC = np.zeros([nn, 2], dtype=np.float)
+    for i in range(nn):
+        for j in range(2):
+            kk = IBC[i, j]
+            if kk == -1:
+                UC[i, j] = 0.0
+            else:
+                UC[i, j] = UG[kk]
+     
+    triangs = []
+    for el in elements:
+        if el[1]==1:
+            triangs.append(el[[3, 4, 5]])
+            triangs.append(el[[5, 6, 3]])
+        if el[1]==2:
+            triangs.append(el[[3, 6, 8]])
+            triangs.append(el[[6, 7, 8]])
+            triangs.append(el[[6, 4, 7]])
+            triangs.append(el[[7, 5, 8]])
+        if el[1]==3:
+            triangs.append(el[3:])
+    
+    tri = Triangulation(x, y, np.array(triangs))
+    
+    plt.figure("Solution: Horizontal displacement")
+    disp_plot(tri, UC[:, 0], levels, shading="gourad")
+    plt.title(r'$u_x$')
+    plt.colorbar(orientation='vertical')
+    plt.axis("image")
+    plt.grid()
+    if savefigs:
+        plt.savefig('numhorizo.pdf')
+
+    plt.figure("Solution: Vertical displacement")
+    disp_plot(tri, UC[:, 1], levels, shading="gourad")
+    plt.title(r'$u_y$')
+    plt.colorbar(orientation='vertical')
+    plt.axis("image")
+    plt.grid()
+    if savefigs:
+        plt.savefig('numvertic.pdf')
+
+
+def plot_strain2(E_nodes, nodes, elements, plt_type="contourf", levels=12,
+               savefigs=False):
+    """Plot the nodal strains using a triangulation
+    
+    The strains need to be computed at nodes first.
+
+    Parameters
+    ----------
+    E_nodes : ndarray (float)
+      Array with the nodal strains.
+    nodes : ndarray (float)
+      Array with number and nodes coordinates:
+        `number coordX coordY BCX BCY`
+    elements : ndarray (int)
+      Array with the node number for the nodes that correspond to each
+      element.
+
+    """
+    if plt_type=="pcolor":
+        disp_plot = plt.tripcolor
+    elif plt_type=="contourf":
+        disp_plot = plt.tricontourf
+
+    x = nodes[:, 1]
+    y = nodes[:, 2] 
+    triangs = []
+    triangs = []
+    for el in elements:
+        if el[1]==1:
+            triangs.append(el[[3, 4, 5]])
+            triangs.append(el[[5, 6, 3]])
+        if el[1]==2:
+            triangs.append(el[[3, 6, 8]])
+            triangs.append(el[[6, 7, 8]])
+            triangs.append(el[[6, 4, 7]])
+            triangs.append(el[[7, 5, 8]])
+        if el[1]==3:
+            triangs.append(el[3:])
+    
+    tri = Triangulation(x, y, np.array(triangs))
+    
+    plt.figure("Solution: epsilon-xx strain")
+    disp_plot(tri, E_nodes[:, 0], levels, shading="gourad")
+    plt.title(r'$\epsilon_{xx}$')
+    plt.colorbar(orientation='vertical')
+    plt.axis("image")
+    plt.grid()
+    if savefigs:
+        plt.savefig('numepsixx.pdf')
+
+    plt.figure("Solution: epsilon-yy strain")
+    disp_plot(tri, E_nodes[:, 1], levels, shading="gourad")
+    plt.title(r'$\epsilon_{yy}$')
+    plt.colorbar(orientation='vertical')
+    plt.axis("image")
+    plt.grid()
+    if savefigs:
+        plt.savefig('numepsiyy.pdf')
+
+    plt.figure("Solution: gamma-xy strain")
+    disp_plot(tri, E_nodes[:, 1], levels, shading="gourad")
+    plt.title(r'$\gamma_{xy}$')
+    plt.colorbar(orientation='vertical')
+    plt.axis("image")
+    plt.grid()
+    if savefigs:
+        plt.savefig('numgammaxy.pdf')
 
 
 def grafmat(k):
@@ -282,6 +422,87 @@ def strainGLO(IELCON, UU, ne, COORD, elements):
                 EG[ngpts*i + j, k] = epsG[j, k]
 
     return EG, XS
+
+
+def strain_nodes(IELCON, UU, ne, COORD, elements):
+    """Compute averaged strains at nodes
+    
+    First, the variable is extrapolated from the Gauss
+    point to nodes for each element. Then, these values are averaged
+    according to the number of element that share that node. The theory
+    for this technique can be found in [1]_.
+    
+    Parameters
+    ----------
+    IELCON : ndarray (int)
+      Array with the nodes numbers for each element.
+    UU : ndarray (float)
+      Array with the displacements. This one contains both, the
+      computed and imposed values.
+    ne : int
+      Number of elements.
+    COORD : ndarray (float).
+      Array with nodes coordinates.
+    elements : ndarray (int)
+      Array with the node number for the nodes that correspond to each
+      element.
+      
+      
+    Returns
+    -------
+    E_nodes : ndarray
+        Strains evaluated at the nodes.
+      
+    
+    References
+    ----------
+    .. [1] O.C. Zienkiewicz and J.Z. Zhu, The Superconvergent patch
+        recovery and a posteriori error estimators. Part 1. The
+        recovery technique, Int. J. Numer. Methods Eng., 33,
+        1331-1364 (1992).
+    """
+    iet = elements[0, 1]
+    ndof, nnodes, ngpts = fe.eletype(iet)
+
+    elcoor = np.zeros([nnodes, 2])
+    E_nodes = np.zeros([COORD.shape[0], 3])
+    el_nodes = np.zeros([COORD.shape[0]], dtype=int)
+    ul = np.zeros([ndof])
+    for i in range(ne):
+        for j in range(nnodes):
+            elcoor[j, 0] = COORD[IELCON[i, j], 0]
+            elcoor[j, 1] = COORD[IELCON[i, j], 1]
+        for j in range(ndof):
+            ul[j] = UU[i, j]
+        if iet == 1:
+            epsG, xl = fe.str_el4(elcoor, ul)
+            extrap0 = interp2d(xl[:, 0], xl[:,1], epsG[:, 0])
+            extrap1 = interp2d(xl[:, 0], xl[:,1], epsG[:, 1])
+            extrap2 = interp2d(xl[:, 0], xl[:,1], epsG[:, 2])
+        elif iet == 2:
+            epsG, xl = fe.str_el6(elcoor, ul)
+            extrap0 = interp2d(xl[:, 0], xl[:,1], epsG[:, 0])
+            extrap1 = interp2d(xl[:, 0], xl[:,1], epsG[:, 1])
+            extrap2 = interp2d(xl[:, 0], xl[:,1], epsG[:, 2])
+        elif iet == 3:
+            epsG, xl = fe.str_el3(elcoor, ul)
+            extrap0 = lambda x, y: epsG[0, 0]
+            extrap1 = lambda x, y: epsG[0, 1]
+            extrap2 = lambda x, y: epsG[0, 2]
+
+        
+        
+        for node in IELCON[i, :]:
+            x, y = COORD[node, :]
+            E_nodes[node, 0] = E_nodes[node, 0] + extrap0(x, y)
+            E_nodes[node, 1] = E_nodes[node, 1]  + extrap1(x, y)
+            E_nodes[node, 2] = E_nodes[node, 2] + extrap2(x, y)
+            el_nodes[node] = el_nodes[node] + 1
+
+    E_nodes[:, 0] = E_nodes[:, 0]/el_nodes
+    E_nodes[:, 1] = E_nodes[:, 1]/el_nodes
+    E_nodes[:, 2] = E_nodes[:, 2]/el_nodes
+    return E_nodes
 
 
 def axisscale(COORD, nn):
@@ -495,8 +716,8 @@ def locstrain3nT(ul, coord, enu, Emod):
 def gmeshpost(IBC, nn, UG):
     """Export the nodal displacement solution
 
-    Stores the nodal displacements solution vector into the file `out.txt`
-    required to produce Gmesh readable files.
+    Stores the nodal displacements solution vector into the file
+    `out.txt` required to produce Gmesh readable files.
 
     """
     UR = np.zeros([nn, 2])

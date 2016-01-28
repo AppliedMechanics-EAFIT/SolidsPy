@@ -8,12 +8,12 @@ from __future__ import division
 import numpy as np
 
 
-def readin():
+def readin(folder=""):
     """Read the input file"""
-    nodes = np.loadtxt('nodes.txt')
-    mats = np.loadtxt('mater.txt')
-    elements = np.loadtxt('eles.txt')
-    loads = np.loadtxt('loads.txt')
+    nodes = np.loadtxt(folder + 'nodes.txt')
+    mats = np.loadtxt(folder + 'mater.txt')
+    elements = np.loadtxt(folder + 'eles.txt')
+    loads = np.loadtxt(folder + 'loads.txt')
 
     return nodes, mats, elements, loads
 
@@ -31,9 +31,9 @@ def proini(nodes, mats, elements, loads):
     return ne, nn, nm, nl, COORD
 
 
-def echomod(nodes, mats, elements, loads):
+def echomod(nodes, mats, elements, loads, folder=""):
     """Create echoes of the model input files"""
-    np.savetxt("KNODES.txt", nodes, fmt='%5.2f', delimiter=' ')
-    np.savetxt("KMATES.txt", mats, fmt='%5.2f', delimiter=' ')
-    np.savetxt("KELEMS.txt", elements, fmt='%5.2f', delimiter=' ')
-    np.savetxt("KLOADS.txt", loads, fmt='%5.2f', delimiter=' ')
+    np.savetxt(folder + "KNODES.txt", nodes, fmt='%5.2f', delimiter=' ')
+    np.savetxt(folder + "KMATES.txt", mats, fmt='%5.2f', delimiter=' ')
+    np.savetxt(folder + "KELEMS.txt", elements, fmt='%5.2f', delimiter=' ')
+    np.savetxt(folder + "KLOADS.txt", loads, fmt='%5.2f', delimiter=' ')
