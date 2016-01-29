@@ -32,8 +32,16 @@ folder = raw_input('Enter folder (empty for the current one): ')
 echo = raw_input('Do you want to echo files? (y/N): ')
 
 
+## Some Examples
+
+## Ring with radial load
 #name = "ring"
 #folder = "../MESHES/RING/"
+#echo = ""
+
+## Arch bridge
+#name = "Limyra bridge arch"
+#folder = "../MESHES/Limyra bridge arch/"
 #echo = ""
 
 
