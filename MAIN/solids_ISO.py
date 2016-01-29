@@ -81,7 +81,7 @@ xmin, xmax, ymin, ymax = pos.axisscale(COORD, nn)
 # Plot displacement solution
 pos.plot_disp2(IBC, UG, nodes, elements)
 # Generates displacement solution to be post-processed via Gmesh
-pos.gmeshpost(IBC, nn, UG)
+pos.gmeshpost(IBC, nn, UG, folder=folder)
 nomfile1 = folder + name + '.msh'
 nomfileH = folder + name + 'H.msh'
 nomfileV = folder + name + 'V.msh'
