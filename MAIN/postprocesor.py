@@ -713,7 +713,7 @@ def locstrain3nT(ul, coord, enu, Emod):
         plt.grid()
 
 
-def gmeshpost(IBC, nn, UG):
+def gmeshpost(IBC, nn, UG, folder=""):
     """Export the nodal displacement solution
 
     Stores the nodal displacements solution vector into the file
@@ -728,5 +728,5 @@ def gmeshpost(IBC, nn, UG):
                 UR[i, j] = 0.0
             else:
                 UR[i, j] = UG[k]
-    nomfile1 = '../MESHUTIL/out.txt'
+    nomfile1 = folder + 'out.txt'
     np.savetxt(nomfile1, UR, fmt='%.18e', delimiter=' ')
