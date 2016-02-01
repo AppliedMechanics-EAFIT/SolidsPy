@@ -209,7 +209,7 @@ def plot_strain2(E_nodes, nodes, elements, plt_type="contourf", levels=12,
         plt.savefig('numepsiyy.pdf')
 
     plt.figure("Solution: gamma-xy strain")
-    disp_plot(tri, E_nodes[:, 1], levels, shading="gourad")
+    disp_plot(tri, E_nodes[:, 2], levels, shading="gourad")
     plt.title(r'$\gamma_{xy}$')
     plt.colorbar(orientation='vertical')
     plt.axis("image")
