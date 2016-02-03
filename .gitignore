@@ -1,3 +1,14 @@
+## FEM Python files
+
+# Output files
+out.txt
+KELEMS.txt
+KLOADS.txt
+KMATES.txt
+KNODES.txt
+MESHUTIL/contour
+MESHUTIL/mesher
+
 ## Python files
 
 # Byte-compiled / optimized / DLL files
