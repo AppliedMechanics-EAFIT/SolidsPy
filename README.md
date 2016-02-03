@@ -6,13 +6,13 @@ The _repo_ contains 3 folders:
 
 1. `MAIN/` stores the python scripts divided in
 
-  - `SOLIDS_ISO.py` (the main program),
-  - `PREPROCESOR.py` (model input subroutines),
-  - `ASSEMUTILS.py` (assembly subroutines), FEMUTIL.py(general finite element method subroutines),
-  - `UELUTIL.py` (local matrix subroutines for different elements),
-  - `POSTPROCESOR.py` (results handling subroutines);
+  - `solids_ISO.py` (the main program),
+  - `preprocesor.py` (model input subroutines),
+  - `assemutil.py` (assembly subroutines), FEMUTIL.py(general finite element method subroutines),
+  - `uelutil.py` (local matrix subroutines for different elements), and
+  - `postprocesor.py` (results handling subroutines);
 
-2. `MESHES/` contains input files and meshes in `.msh` format corresponding to different examples and
+2. `MESHES/` contains input files and meshes in `.msh` format corresponding to different examples; and
 
 3. `MESHUTILS/` stores programs to conduct pre-processing and post-processing from and to GMESH. Since the code has been created for academic purposes it gives as main results the displacement vector corresponding to the nodal points of the domain. These vectors are used, together with the Python function griddata to interpolate and plot the displacement solution all over the domain. Post-processing to compute strain and stress values is left for students projects.
 
@@ -29,6 +29,10 @@ The code is written in Python 2 dialect (we believe that it will work in Python 
    
 uncompress the zip folder an run the main file in the Python console of your preference.
 
+If you want to run the examples with GUI input you will need to install [`easygui`](http://easygui.readthedocs.org/en/master/). And, you will need [`meshio`](https://github.com/nschloe/meshio) to automatically read GMSH mesh files. These two can be installed with
+
+    pip install easygui
+    pip install meshio
 
 To run the files in `MESHUTILS` you will need to have `gfortran` and run the following `make` instructions
 
