@@ -79,7 +79,8 @@ start_time = datetime.now()
 # Sets axis for visualization window
 xmin, xmax, ymin, ymax = pos.axisscale(COORD, nn)
 # Plot displacement solution
-pos.plot_disp2(IBC, UG, nodes, elements)
+UC = pos.complete_disp(IBC, nodes, UG)
+pos.plot_disp(UC, nodes, elements)
 # Generates displacement solution to be post-processed via Gmesh
 pos.gmeshpost(IBC, nn, UG, folder=folder)
 nomfile1 = folder + name + '.msh'
@@ -97,7 +98,7 @@ shu.copy(nomfile1, nomfileF)
 UU = pos.scatter(DME, UG, ne, neq, elements)
 # Generates points inside the elements and computes strain solution
 E_nodes = pos.strain_nodes(IELCON, UU, ne, COORD, elements)
-pos.plot_strain2(E_nodes, nodes, elements)
+pos.plot_strain(E_nodes, nodes, elements)
 end_time = datetime.now()
 print('Duration for post processing: {}'.format(end_time - start_time))
 print('Program terminated succesfully!')

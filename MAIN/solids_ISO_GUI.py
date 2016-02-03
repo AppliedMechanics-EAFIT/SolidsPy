@@ -63,13 +63,14 @@ print('Duration for system solution: {}'.format(end_time - start_time))
 #   POST-PROCCESSING
 #
 start_time = datetime.now()
-pos.plot_disp2(IBC, UG, nodes, elements)
+UC = pos.complete_disp(IBC, nodes, UG)
+pos.plot_disp(UC, nodes, elements)
 
 # Scatter displacements over the elements
 UU = pos.scatter(DME, UG, ne, neq, elements)
 # Generates points inside the elements and computes strain solution
 E_nodes = pos.strain_nodes(IELCON, UU, ne, COORD, elements)
-pos.plot_strain2(E_nodes, nodes, elements)
+pos.plot_strain(E_nodes, nodes, elements)
 end_time = datetime.now()
 print('Duration for post processing: {}'.format(end_time - start_time))
 print('Program terminated succesfully!')

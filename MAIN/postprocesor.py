@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Postprocessot subroutines
+Postprocessor subroutines
 -------------------------
 
 @author: eafit
 """
 from __future__ import division
 import numpy as np
-from sympy import *
+import sympy as sym
 import femutil as fe
 import preprocesor as pre
 import matplotlib.pyplot as plt
@@ -20,101 +20,27 @@ rcParams['font.size'] = 14
 rcParams['image.cmap'] = "YlGnBu_r"
 
 
-def plotdis(IBC, UG, nodes, nn, xmin, xmax, ymin, ymax, savefigs=False):
-    """Plot the nodal displacement solution using `griddata()`
-
+def mesh2tri(nodes, elements):
+    """Generate a  matplotlib.tri.Triangulation object from the mesh
+    
     Parameters
     ----------
-    IBC : ndarray (int)
-      IBC (Indicator of Boundary Conditions) indicates if the nodes
-      has any type of boundary conditions applied to it.
-    UG : ndarray (float)
-      Array with the computed displacements.
-    nodes : ndarray (float)
-      Array with number and nodes coordinates:
-        `number coordX coordY BCX BCY`
-    nn : int
-      Number of nodes.
-    xmin : float
-      Minimum x value for the grid.
-    xmax : float
-      Maximum x value for the grid.
-    ymin : float
-      Minimum y value for the grid.
-    ymax : float
-      Maximum y value for the grid.
-
-    """
-    points = nodes[:, 1:3]
-    grid_x, grid_y = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
-
-    UC = np.zeros([nn, 2], dtype=np.float)
-    for i in range(nn):
-        for j in range(2):
-            kk = IBC[i, j]
-            if kk == -1:
-                UC[i, j] = 0.0
-            else:
-                UC[i, j] = UG[kk]
-
-    grid_z0 = griddata(points, UC[:, 0], (grid_x, grid_y), method='linear')
-    grid_z1 = griddata(points, UC[:, 1], (grid_x, grid_y), method='linear')
-
-    plt.figure("Solution: Horizontal displacement")
-    plt.imshow(grid_z0.T, aspect='equal', extent=(xmin, xmax, ymin, ymax),
-               origin='lower')
-    plt.title(r'$u_x$')
-    plt.colorbar(orientation='vertical')
-    plt.grid()
-    if savefigs:
-        plt.savefig('numhorizo.pdf')
-
-    plt.figure("Solution: Vertical displacement")
-    plt.imshow(grid_z1.T, aspect='equal', extent=(xmin, xmax, ymin, ymax),
-               origin='lower')
-    plt.title(r'$u_y$')
-    plt.colorbar(orientation='vertical')
-    plt.grid()
-    if savefigs:
-        plt.savefig('numvertic.pdf')
-
-
-def plot_disp2(IBC, UG, nodes, elements, plt_type="contourf", levels=12,
-               savefigs=False):
-    """Plot the nodal displacement using a triangulation
-
-    Parameters
-    ----------
-    IBC : ndarray (int)
-      IBC (Indicator of Boundary Conditions) indicates if the nodes
-      has any type of boundary conditions applied to it.
-    UG : ndarray (float)
-      Array with the computed displacements.
     nodes : ndarray (float)
       Array with number and nodes coordinates:
         `number coordX coordY BCX BCY`
     elements : ndarray (int)
       Array with the node number for the nodes that correspond to each
       element.
-
-    """
-    if plt_type=="pcolor":
-        disp_plot = plt.tripcolor
-    elif plt_type=="contourf":
-        disp_plot = plt.tricontourf
     
-    nn = nodes.shape[0]
+    Returns
+    -------
+    tri : Triangulation
+        An unstructured triangular grid consisting of npoints points
+        and ntri triangles.
+    
+    """
     x = nodes[:, 1]
     y = nodes[:, 2]
-    UC = np.zeros([nn, 2], dtype=np.float)
-    for i in range(nn):
-        for j in range(2):
-            kk = IBC[i, j]
-            if kk == -1:
-                UC[i, j] = 0.0
-            else:
-                UC[i, j] = UG[kk]
-     
     triangs = []
     for el in elements:
         if el[1]==1:
@@ -129,27 +55,55 @@ def plot_disp2(IBC, UG, nodes, elements, plt_type="contourf", levels=12,
             triangs.append(el[3:])
     
     tri = Triangulation(x, y, np.array(triangs))
+    return tri    
+
+
+def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
+             plt_type="contourf", filename="solution_plot.pdf"):
     
-    plt.figure("Solution: Horizontal displacement")
-    disp_plot(tri, UC[:, 0], levels, shading="gourad")
-    plt.title(r'$u_x$')
+    if plt_type=="pcolor":
+        disp_plot = plt.tripcolor
+    elif plt_type=="contourf":
+        disp_plot = plt.tricontourf
+
+    plt.figure(figtitle)
+    disp_plot(tri, field, levels, shading="gourad")
+    plt.title(title)
     plt.colorbar(orientation='vertical')
     plt.axis("image")
     plt.grid()
     if savefigs:
-        plt.savefig('numhorizo.pdf')
-
-    plt.figure("Solution: Vertical displacement")
-    disp_plot(tri, UC[:, 1], levels, shading="gourad")
-    plt.title(r'$u_y$')
-    plt.colorbar(orientation='vertical')
-    plt.axis("image")
-    plt.grid()
-    if savefigs:
-        plt.savefig('numvertic.pdf')
+        plt.savefig(filename)
 
 
-def plot_strain2(E_nodes, nodes, elements, plt_type="contourf", levels=12,
+def plot_disp(UC, nodes, elements, plt_type="contourf", levels=12,
+               savefigs=False):
+    """Plot the nodal displacement using a triangulation
+
+    Parameters
+    ----------
+    UC : ndarray (float)
+      Array with the displacements.
+    nodes : ndarray (float)
+      Array with number and nodes coordinates:
+        `number coordX coordY BCX BCY`
+    elements : ndarray (int)
+      Array with the node number for the nodes that correspond to each
+      element.
+
+    """
+    tri = mesh2tri(nodes, elements)
+    tri_plot(tri, UC[:, 0], title=r'$u_x$',
+             figtitle="Solution: Horizontal displacement",
+             levels=levels, plt_type=plt_type, savefigs=savefigs,
+             filename="ux_sol.pdf")
+    tri_plot(tri, UC[:, 1], title=r'$u_y$',
+             figtitle="Solution: Vertical displacement",
+             levels=levels, plt_type=plt_type, savefigs=savefigs,
+             filename="uy_sol.pdf")
+
+
+def plot_strain(E_nodes, nodes, elements, plt_type="contourf", levels=12,
                savefigs=False):
     """Plot the nodal strains using a triangulation
     
@@ -167,55 +121,19 @@ def plot_strain2(E_nodes, nodes, elements, plt_type="contourf", levels=12,
       element.
 
     """
-    if plt_type=="pcolor":
-        disp_plot = plt.tripcolor
-    elif plt_type=="contourf":
-        disp_plot = plt.tricontourf
-
-    x = nodes[:, 1]
-    y = nodes[:, 2] 
-    triangs = []
-    triangs = []
-    for el in elements:
-        if el[1]==1:
-            triangs.append(el[[3, 4, 5]])
-            triangs.append(el[[5, 6, 3]])
-        if el[1]==2:
-            triangs.append(el[[3, 6, 8]])
-            triangs.append(el[[6, 7, 8]])
-            triangs.append(el[[6, 4, 7]])
-            triangs.append(el[[7, 5, 8]])
-        if el[1]==3:
-            triangs.append(el[3:])
-    
-    tri = Triangulation(x, y, np.array(triangs))
-    
-    plt.figure("Solution: epsilon-xx strain")
-    disp_plot(tri, E_nodes[:, 0], levels, shading="gourad")
-    plt.title(r'$\epsilon_{xx}$')
-    plt.colorbar(orientation='vertical')
-    plt.axis("image")
-    plt.grid()
-    if savefigs:
-        plt.savefig('numepsixx.pdf')
-
-    plt.figure("Solution: epsilon-yy strain")
-    disp_plot(tri, E_nodes[:, 1], levels, shading="gourad")
-    plt.title(r'$\epsilon_{yy}$')
-    plt.colorbar(orientation='vertical')
-    plt.axis("image")
-    plt.grid()
-    if savefigs:
-        plt.savefig('numepsiyy.pdf')
-
-    plt.figure("Solution: gamma-xy strain")
-    disp_plot(tri, E_nodes[:, 2], levels, shading="gourad")
-    plt.title(r'$\gamma_{xy}$')
-    plt.colorbar(orientation='vertical')
-    plt.axis("image")
-    plt.grid()
-    if savefigs:
-        plt.savefig('numgammaxy.pdf')
+    tri = mesh2tri(nodes, elements)
+    tri_plot(tri, E_nodes[:, 0], title=r'$\epsilon_{xx}$',
+             figtitle="Solution: epsilon-xx strain",
+             levels=levels, plt_type=plt_type, savefigs=savefigs,
+             filename="epsxx_sol.pdf")
+    tri_plot(tri, E_nodes[:, 1], title=r'$\epsilon_{yy}$',
+             figtitle="Solution: epsilon-yy strain",
+             levels=levels, plt_type=plt_type, savefigs=savefigs,
+             filename="epsyy_sol.pdf")
+    tri_plot(tri, E_nodes[:, 2], title=r'$\gamma_{xy}$',
+             figtitle="Solution: gamma-xy strain",
+             levels=levels, plt_type=plt_type, savefigs=savefigs,
+             filename="gammaxy_sol.pdf")
 
 
 def grafmat(k):
@@ -235,7 +153,9 @@ def grafmat(k):
 
 
 def scatter(DME, UG, ne, neq, elements):
-    """Scatter the nodal displacements vector `UG` over each element
+    """
+    Scatter the nodal displacements vector `UG` over the Gauss
+    points of each element.
 
     Parameters
     ----------
@@ -254,8 +174,7 @@ def scatter(DME, UG, ne, neq, elements):
     Returns
     -------
     UU : ndarray (float)
-      Array with the displacements. This one contains both, the
-      computed and imposed values.
+      Array with the displacements for each Gauss point in the mesh.
 
     """
     iet = elements[0, 1]
@@ -268,64 +187,6 @@ def scatter(DME, UG, ne, neq, elements):
                 UU[i, ii] = UG[kk]
 
     return UU
-
-
-def plotstrain(EG, XS, xmin, xmax, ymin, ymax, savefigs=False):
-    """Plot the strain solution over the full domain
-
-    Using griddata plots the strain solution over the full
-    domain defined by the integration points. The integration
-    points physical coordinates are stored in XS[] while the
-    strain solution is stored in EG[].
-
-    Parameters
-    ----------
-    EG : ndarray (float)
-      Array that contains the strain solution for each integration
-      point in physical coordinates.
-    XS : ndarray (float)
-      Array with the coordinates of the integration points.
-    xmin : float
-      Minimum x value for the grid.
-    xmax : float
-      Maximum x value for the grid.
-    ymin : float
-      Minimum y value for the grid.
-    ymax : float
-      Maximum y value for the grid.
-
-    """
-    grid_x, grid_y = np.mgrid[xmin:xmax:20j, ymin:ymax:20j]
-    grid_z0 = griddata(XS, EG[:, 0], (grid_x, grid_y), method='linear')
-    grid_z1 = griddata(XS, EG[:, 1], (grid_x, grid_y), method='linear')
-    grid_z2 = griddata(XS, EG[:, 2], (grid_x, grid_y), method='linear')
-
-    plt.figure("Solution: epsilon-xx strain")
-    plt.imshow(grid_z0.T, aspect='equal', extent=(xmin, xmax, ymin, ymax),
-               origin='lower')
-    plt.title(r'$\epsilon_{xx}$')
-    plt.colorbar(orientation='vertical')
-    plt.grid()
-    if savefigs:
-        plt.savefig('numepsixx.pdf')
-
-    plt.figure("Solution: epsilon-yy strain")
-    plt.imshow(grid_z1.T, aspect='equal', extent=(xmin, xmax, ymin, ymax),
-               origin='lower')
-    plt.title(r'$\epsilon_{yy}$')
-    plt.colorbar(orientation='vertical')
-    plt.grid()
-    if savefigs:
-        plt.savefig('numepsiyy.pdf')
-
-    plt.figure("Solution: gamma-xy strain")
-    plt.imshow(grid_z2.T, aspect='equal', extent=(xmin, xmax, ymin, ymax),
-               origin='lower')
-    plt.title(r'$\gamma_{xy}$')
-    plt.colorbar(orientation='vertical')
-    plt.grid()
-    if savefigs:
-        plt.savefig('numgamaxy.pdf')
 
 
 def xstrain(IELCON, nodes, ne, hh):
@@ -424,6 +285,37 @@ def strainGLO(IELCON, UU, ne, COORD, elements):
     return EG, XS
 
 
+def complete_disp(IBC, nodes, UG):
+    """
+    Fill the displacement vectors with imposed and computed values.
+    
+    IBC : ndarray (int)
+      IBC (Indicator of Boundary Conditions) indicates if the nodes
+      has any type of boundary conditions applied to it.
+    UG : ndarray (float)
+      Array with the computed displacements.
+    nodes : ndarray (float)
+      Array with number and nodes coordinates:
+      
+    Returns
+    -------
+    UC : ndarray (float)
+      Array with the displacements.
+
+    """
+    nn = nodes.shape[0]
+    UC = np.zeros([nn, 2], dtype=np.float)
+    for i in range(nn):
+        for j in range(2):
+            kk = IBC[i, j]
+            if kk == -1:
+                UC[i, j] = 0.0
+            else:
+                UC[i, j] = UG[kk]
+
+    return UC
+
+
 def strain_nodes(IELCON, UU, ne, COORD, elements):
     """Compute averaged strains at nodes
     
@@ -490,8 +382,6 @@ def strain_nodes(IELCON, UU, ne, COORD, elements):
             extrap1 = lambda x, y: epsG[0, 1]
             extrap2 = lambda x, y: epsG[0, 2]
 
-        
-        
         for node in IELCON[i, :]:
             x, y = COORD[node, :]
             E_nodes[node, 0] = E_nodes[node, 0] + extrap0(x, y)
@@ -534,51 +424,6 @@ def axisscale(COORD, nn):
     xmax, ymax = np.max(COORD, axis=0)
 
     return xmin, xmax, ymin, ymax
-
-
-def plotstraincontours(EG, XS, ne, elements):
-    """Plot contours for the strain solution
-
-    Using Python function contourf() it plots the strain solution.
-
-    Parameters
-    ----------
-    EG : ndarray (float)
-      Array that contains the strain solution for each integration
-      point in physical coordinates.
-    XS : ndarray (float)
-      Array with the coordinates of the integration points.
-    ne : int
-      Number of elements.
-    elements : ndarray (int)
-      Array with the node number for the nodes that correspond to each
-      element.
-
-    """
-    iet = elements[0, 1]
-    ndof, nnodes, ngpts = pre.eletype(iet)
-    epsx = EG[:, 0]
-    epsy = EG[:, 1]
-    gamx = EG[:, 2]
-    epsx.shape = (ne*ngpts, ne*ngpts)
-    epsy.shape = (ne*ngpts, ne*ngpts)
-    gamx.shape = (ne*ngpts, ne*ngpts)
-
-    X, Y = np.meshgrid(XS[:, 0], XS[:, 1])
-    plt.contourf(X, Y, epsx.T, alpha=0.75)
-    plt.title(r'$\epsilon_{xx}$')
-    plt.colorbar(orientation='horizontal')
-    plt.grid()
-
-    plt.contourf(X, Y, epsy.T, alpha=0.75)
-    plt.title(r'$\epsilon_{yy}$')
-    plt.colorbar(orientation='horizontal')
-    plt.grid()
-
-    plt.contourf(X, Y, gamx.T, alpha=0.75)
-    plt.title(r'$\gamma_{xy}$')
-    plt.colorbar(orientation='horizontal')
-    plt.grid()
 
 
 def locstrain4nQ(ul, coord, enu, Emod):
