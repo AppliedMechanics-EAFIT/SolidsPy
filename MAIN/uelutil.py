@@ -12,7 +12,7 @@ from __future__ import division
 import numpy as np
 import femutil as fem
 import gaussutil as gau
-from sympy import Matrix
+from sympy import Matrix, S
 
 def uel4nquad(coord, enu, Emod):
     """Quadrilateral element with 4 nodes
@@ -167,3 +167,7 @@ def uel3ntrian(coord, enu, Emod):
         ddet, B = fem.stdm3NT(ri, si, coord)
         kl = kl + 0.5*B.T*C*B*alf*ddet
     return kl
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

@@ -9,7 +9,6 @@ from __future__ import division
 import numpy as np
 import sympy as sym
 import femutil as fe
-import preprocesor as pre
 import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
 from scipy.interpolate import griddata, interp2d
@@ -408,6 +407,99 @@ def strain_nodes(IELCON, UU, ne, COORD, elements, mats):
     return E_nodes, S_nodes
 
 
+def eigvals(A, tol=1e-6):
+    """Eigenvalues and eigenvectors for a 2x2 symmetric matrix/tensor
+    
+    Parameters
+    ----------
+    A : ndarray
+        Symmetric matrix.
+    tol : float (optional)
+        Tolerance for considering a matrix diagonal.
+
+    Returns
+    -------
+    eig1 : float
+        First eigenvalue.
+    eig2 : float
+        Second eigenvalue.
+    vec1 : ndarray
+        First eigenvector.
+    vec2 : ndarray
+        Second eigenvector
+    
+    Examples
+    --------
+    
+    >>> A = np.array([[5, 6],
+    ...              [6, 9]])
+    >>> eig1, eig2, vec1, vec2 =  eigvals(A)
+    >>> np.allclose(eig1, 7 - 2*np.sqrt(10))
+    True
+    >>> np.allclose(eig2, 7 + 2*np.sqrt(10))
+    True
+    >>> np.allclose(vec1, np.array([-0.8112421851755609,0.584710284663765]))
+    True
+    >>> np.allclose(vec2, np.array([-0.584710284663765, -0.8112421851755609]))
+    True
+    
+    """
+    if A[0, 1]**2/A.max() < tol:
+        eig1 = A[0, 0]
+        eig2 = A[1, 1]
+        vec1 = np.array([1, 0])
+        vec2 = np.array([0, 1])
+    else:
+        tr = A[0, 0] + A[1, 1]
+        det = A[0, 0]*A[1, 1] - A[0, 1]**2
+        eig1 = 0.5*(tr - np.sqrt(tr**2 - 4*det))
+        eig2 = 0.5*(tr + np.sqrt(tr**2 - 4*det))
+        vec1 = np.array([A[0, 0] - eig2, A[0, 1]])
+        vec1 = vec1/np.sqrt(vec1[0]**2 + vec1[1]**2)
+        vec2 = np.array([-vec1[1], vec1[0]])
+    return eig1, eig2, vec1, vec2
+
+
+def principal_dirs(field):
+    """Compute the principal directions of a tensor field
+
+    Parameters
+    ----------
+    field : ndarray
+        Tensor field. The tensor is written as "vector" using
+        Voigt notation.
+
+    Returns
+    -------
+    eigs1 : ndarray
+        Array with the first eigenvalues.
+    eigs2 : ndarray
+        Array with the second eigenvalues.
+    vecs1 : ndarray
+        Array with the first eigenvectors.
+    vecs2 : ndarray
+        Array with the Second eigenvector.
+
+    """
+    num = field.shape[0]
+    eigs1 = np.empty((num))
+    eigs2 = np.empty((num))
+    vecs1 = np.empty((num, 2))
+    vecs2 = np.empty((num, 2))
+    A = np.zeros((2, 2))
+    for cont, tensor in enumerate(field):
+        A[0, 0] = tensor[0]
+        A[1, 1] = tensor[1]
+        A[0, 1] = tensor[2]
+        eig1, eig2, vec1, vec2 = eigvals(A, tol=1e-6)
+        eigs1[cont] = eig1
+        eigs2[cont] = eig2
+        vecs1[cont, :] = vec1
+        vecs2[cont, :] = vec2
+
+    return eigs1, eigs2, vecs1, vecs2
+        
+
 def axisscale(COORD, nn):
     """Determine plotting range
 
@@ -588,3 +680,8 @@ def gmeshpost(IBC, nn, UG, folder=""):
                 UR[i, j] = UG[k]
     nomfile1 = folder + 'out.txt'
     np.savetxt(nomfile1, UR, fmt='%.18e', delimiter=' ')
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
