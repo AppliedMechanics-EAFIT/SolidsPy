@@ -12,8 +12,7 @@ from __future__ import division
 import numpy as np
 import femutil as fem
 import gaussutil as gau
-from sympy import *
-
+from sympy import Matrix
 
 def uel4nquad(coord, enu, Emod):
     """Quadrilateral element with 4 nodes

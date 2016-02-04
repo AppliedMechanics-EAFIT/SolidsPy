@@ -55,7 +55,8 @@ RHSG = ass.loadasem(loads, IBC, neq, nl)
 #
 # Solves the system
 UG = np.linalg.solve(KG, RHSG)
-print(np.allclose(np.dot(KG, UG), RHSG))
+if not(np.allclose(np.dot(KG, UG), RHSG)):
+    print("The system is not in equilibrium!")
 end_time = datetime.now()
 print('Duration for system solution: {}'.format(end_time - start_time))
 
@@ -69,7 +70,7 @@ pos.plot_disp(UC, nodes, elements)
 # Scatter displacements over the elements
 UU = pos.scatter(DME, UG, ne, neq, elements)
 # Generates points inside the elements and computes strain solution
-E_nodes = pos.strain_nodes(IELCON, UU, ne, COORD, elements)
+E_nodes, S_nodes = pos.strain_nodes(IELCON, UU, ne, COORD, elements, mats)
 pos.plot_strain(E_nodes, nodes, elements)
 end_time = datetime.now()
 print('Duration for post processing: {}'.format(end_time - start_time))

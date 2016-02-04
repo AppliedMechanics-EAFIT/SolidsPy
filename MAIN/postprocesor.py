@@ -316,8 +316,8 @@ def complete_disp(IBC, nodes, UG):
     return UC
 
 
-def strain_nodes(IELCON, UU, ne, COORD, elements):
-    """Compute averaged strains at nodes
+def strain_nodes(IELCON, UU, ne, COORD, elements, mats):
+    """Compute averaged strains and stresses at nodes
     
     First, the variable is extrapolated from the Gauss
     point to nodes for each element. Then, these values are averaged
@@ -358,9 +358,14 @@ def strain_nodes(IELCON, UU, ne, COORD, elements):
 
     elcoor = np.zeros([nnodes, 2])
     E_nodes = np.zeros([COORD.shape[0], 3])
+    S_nodes = np.zeros([COORD.shape[0], 3])
     el_nodes = np.zeros([COORD.shape[0]], dtype=int)
     ul = np.zeros([ndof])
     for i in range(ne):
+        young, poisson = mats[elements[i, 2], :]
+        shear = young/(2*(1 + poisson))
+        fact1 = young/(1 - poisson**2)
+        fact2 = poisson*young/(1 - poisson**2)
         for j in range(nnodes):
             elcoor[j, 0] = COORD[IELCON[i, j], 0]
             elcoor[j, 1] = COORD[IELCON[i, j], 1]
@@ -387,12 +392,20 @@ def strain_nodes(IELCON, UU, ne, COORD, elements):
             E_nodes[node, 0] = E_nodes[node, 0] + extrap0(x, y)
             E_nodes[node, 1] = E_nodes[node, 1]  + extrap1(x, y)
             E_nodes[node, 2] = E_nodes[node, 2] + extrap2(x, y)
+            S_nodes[node, 0] = S_nodes[node, 0] + fact1*extrap0(x, y) \
+                        + fact2*extrap1(x, y)
+            S_nodes[node, 1] = S_nodes[node, 1] + fact2*extrap0(x, y) \
+                        + fact1*extrap1(x, y)
+            S_nodes[node, 2] = S_nodes[node, 2] + shear*extrap2(x, y)
             el_nodes[node] = el_nodes[node] + 1
 
     E_nodes[:, 0] = E_nodes[:, 0]/el_nodes
     E_nodes[:, 1] = E_nodes[:, 1]/el_nodes
     E_nodes[:, 2] = E_nodes[:, 2]/el_nodes
-    return E_nodes
+    S_nodes[:, 0] = S_nodes[:, 0]/el_nodes
+    S_nodes[:, 1] = S_nodes[:, 1]/el_nodes
+    S_nodes[:, 2] = S_nodes[:, 2]/el_nodes
+    return E_nodes, S_nodes
 
 
 def axisscale(COORD, nn):
