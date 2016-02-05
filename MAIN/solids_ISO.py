@@ -41,7 +41,7 @@ echo = raw_input('Do you want to echo files? (y/N): ')
 
 ## Arch bridge
 #name = "Limyra bridge arch"
-#folder = "../MESHES/Limyra bridge arch/"
+#folder = "../MESHES/BRIDGE_HALF/"
 #echo = ""
 
 

@@ -66,7 +66,7 @@ def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
         disp_plot = plt.tricontourf
 
     plt.figure(figtitle)
-    disp_plot(tri, field, levels, shading="gourad")
+    disp_plot(tri, field, levels, shading="gouraud")
     plt.title(title)
     plt.colorbar(orientation='vertical')
     plt.axis("image")
@@ -434,17 +434,22 @@ def eigvals(A, tol=1e-6):
     >>> A = np.array([[5, 6],
     ...              [6, 9]])
     >>> eig1, eig2, vec1, vec2 =  eigvals(A)
-    >>> np.allclose(eig1, 7 - 2*np.sqrt(10))
+    >>> np.allclose(eig1, 7 + 2*np.sqrt(10))
     True
-    >>> np.allclose(eig2, 7 + 2*np.sqrt(10))
+    >>> np.allclose(eig2, 7 - 2*np.sqrt(10))
     True
-    >>> np.allclose(vec1, np.array([-0.8112421851755609,0.584710284663765]))
+    >>> np.allclose(vec1, np.array([-0.584710284663765, -0.8112421851755609]))
     True
-    >>> np.allclose(vec2, np.array([-0.584710284663765, -0.8112421851755609]))
+    >>> np.allclose(vec2, np.array([-0.8112421851755609,0.584710284663765]))
     True
     
     """
-    if A[0, 1]**2/A.max() < tol:
+    if np.abs(A).max() < tol:
+        eig1 = 0.0
+        eig2 = 0.0
+        vec1 = np.array([np.NaN, np.NaN])
+        vec2 = np.array([np.NaN, np.NaN])
+    elif abs(A[0, 1])/np.abs(A).max() < tol:
         eig1 = A[0, 0]
         eig2 = A[1, 1]
         vec1 = np.array([1, 0])
@@ -457,6 +462,10 @@ def eigvals(A, tol=1e-6):
         vec1 = np.array([A[0, 0] - eig2, A[0, 1]])
         vec1 = vec1/np.sqrt(vec1[0]**2 + vec1[1]**2)
         vec2 = np.array([-vec1[1], vec1[0]])
+    if abs(eig2) > abs(eig1):
+        eig2, eig1 = eig1, eig2
+        vec2, vec1 = vec1, vec2
+
     return eig1, eig2, vec1, vec2
 
 
