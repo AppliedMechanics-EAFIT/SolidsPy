@@ -135,6 +135,39 @@ def plot_strain(E_nodes, nodes, elements, plt_type="contourf", levels=12,
              filename="gammaxy_sol.pdf")
 
 
+def plot_stress(S_nodes, nodes, elements, plt_type="contourf", levels=12,
+               savefigs=False):
+    """Plot the nodal stresses using a triangulation
+    
+    The stresses need to be computed at nodes first.
+
+    Parameters
+    ----------
+    S_nodes : ndarray (float)
+      Array with the nodal stresses.
+    nodes : ndarray (float)
+      Array with number and nodes coordinates:
+        `number coordX coordY BCX BCY`
+    elements : ndarray (int)
+      Array with the node number for the nodes that correspond to each
+      element.
+
+    """
+    tri = mesh2tri(nodes, elements)
+    tri_plot(tri, S_nodes[:, 0], title=r'$\sigma_{xx}$',
+             figtitle="Solution: sigma-xx stress",
+             levels=levels, plt_type=plt_type, savefigs=savefigs,
+             filename="sigmaxx_sol.pdf")
+    tri_plot(tri, S_nodes[:, 1], title=r'$\sigma_{yy}$',
+             figtitle="Solution: sigma-yy stres",
+             levels=levels, plt_type=plt_type, savefigs=savefigs,
+             filename="sigmayy_sol.pdf")
+    tri_plot(tri, S_nodes[:, 2], title=r'$\sigma_{xy}$',
+             figtitle="Solution: sigma-xy stress",
+             levels=levels, plt_type=plt_type, savefigs=savefigs,
+             filename="sigmaxy_sol.pdf")
+
+
 def grafmat(k):
     """Plot stiffness matrix sparsity
 

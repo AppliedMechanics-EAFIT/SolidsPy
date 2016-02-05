@@ -74,6 +74,12 @@ UU = pos.scatter(DME, UG, ne, neq, elements)
 # Generates points inside the elements and computes strain solution
 E_nodes, S_nodes = pos.strain_nodes(IELCON, UU, ne, COORD, elements, mats)
 pos.plot_strain(E_nodes, nodes, elements)
+pos.plot_stress(S_nodes, nodes, elements, plt_type="pcolor")
+eigs1, eigs2, vecs1, vecs2 = pos.principal_dirs(S_nodes)
+tri = pos.mesh2tri(nodes, elements)
+pos.tri_plot(tri, eigs1, title=r"Maximum stress: $\sigma_1$")
+plt.quiver(nodes[:, 1], nodes[:, 2], vecs1[:,0], vecs1[:,1], pivot="middle",
+           headwidth=1.5, headlength=2.5)
 end_time = datetime.now()
 print('Duration for post processing: {}'.format(end_time - start_time))
 print('Program terminated succesfully!')
