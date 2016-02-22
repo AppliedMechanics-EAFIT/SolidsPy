@@ -45,7 +45,7 @@ if echo == "Yes":
 ne, nn, nm, nl, COORD = pre.proini(nodes, mats, elements, loads)
 # Counts equations and creates BCs array IBC
 neq, IBC = ass.eqcounter(nn, nodes)
-# Computes assembly operatorring
+# Computes assembly operator
 DME, IELCON = ass.DME(IBC, ne, elements)
 # Assembles Global Stiffness Matrix KG
 KG = ass.matassem(IBC, mats, elements, nn, ne, neq, COORD, DME, IELCON)
