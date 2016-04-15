@@ -51,7 +51,6 @@ def uel4nquad(coord, enu, Emod):
     """
     kl = np.zeros([8, 8])
     C = fem.umat(enu, Emod)
-    print C
     XW, XP = gau.gpoints2x2()
     ngpts = 4
     for i in range(0, ngpts):
