@@ -71,6 +71,7 @@ pos.plot_disp(UC, nodes, elements)
 
 # Scatter displacements over the elements
 UU = pos.scatter(DME, UG, ne, neq, elements)
+pos.gmeshpost(IBC, nn, UG, folder=folder)
 # Generates points inside the elements and computes strain solution
 E_nodes, S_nodes = pos.strain_nodes(IELCON, UU, ne, COORD, elements, mats)
 pos.plot_strain(E_nodes, nodes, elements)
