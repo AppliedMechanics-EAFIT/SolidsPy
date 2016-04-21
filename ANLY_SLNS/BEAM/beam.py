@@ -12,6 +12,12 @@ import matplotlib.pyplot as plt
 from sympy import *
 from sympy import init_printing
 init_printing()
+from matplotlib import rcParams
+
+rcParams['font.family'] = 'serif'
+rcParams['font.size'] = 14
+#rcParams['image.cmap'] = "YlGnBu_r"
+rcParams['image.cmap'] = "jet"
 #
 # Elasticity solution for a cantilever loaded at the tip (See Timoshenko and Young).
 # The script uses the inout files nodes.txt and mater.txt.

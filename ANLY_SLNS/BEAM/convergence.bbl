@@ -1,0 +1,22 @@
+\begin{thebibliography}{4}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[Burden et~al.(2002)Burden, Faires, \& Palmas]{burden2002analisis}
+Burden, R.~L., Faires, J.~D., \& Palmas, O., 2002.
+\newblock {\it An{\'a}lisis num{\'e}rico\/}, no. QA297. B87 1985., Thomson
+  Learning M{\'e}xico.
+
+\bibitem[Downey(2012)]{downey2012think}
+Downey, A., 2012.
+\newblock {\it Think Python\/}, " O'Reilly Media, Inc.".
+
+\bibitem[Press(2007)]{press2007numerical}
+Press, W.~H., 2007.
+\newblock {\it Numerical recipes 3rd edition: The art of scientific
+  computing\/}, Cambridge university press.
+
+\bibitem[Timoshenko \& Goodier(1970)]{book:timoshenko}
+Timoshenko, S. \& Goodier, J., 1970.
+\newblock {\it {T}heory of {E}lasticity\/}, McGraw-Hill, 3rd edn.
+
+\end{thebibliography}
