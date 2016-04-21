@@ -11,13 +11,13 @@ LIBS=-lpthread
 FLAGS=
 FLAGS+=$(INCS) $(LIBS)
 
-SOURCES=contour.for
+SOURCES=mesher.for mtxutil.for meshutil.for
 
 OBJECTS=$(SOURCES:.for=.o)
 
-all: $(SOURCES) contour
+all: $(SOURCES) mesher
 
-contour: $(OBJECTS)
+mesher: $(OBJECTS)
 	$(FC) $(FLAGS) -o $@ $(OBJECTS)
 
 
@@ -25,7 +25,7 @@ contour: $(OBJECTS)
 	$(FC) $(INCS) -c $< -o $@
 
 clean:
-	rm -f contour *.mod *.o
+	rm -f mesher *.mod *.o
 
 echo:
 	echo $(OBJS)

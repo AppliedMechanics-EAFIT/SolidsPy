@@ -16,7 +16,8 @@ from matplotlib import rcParams
 
 rcParams['font.family'] = 'serif'
 rcParams['font.size'] = 14
-rcParams['image.cmap'] = "YlGnBu_r"
+#rcParams['image.cmap'] = "YlGnBu_r"
+rcParams['image.cmap'] = "jet"
 
 
 def mesh2tri(nodes, elements):
@@ -722,8 +723,30 @@ def gmeshpost(IBC, nn, UG, folder=""):
                 UR[i, j] = UG[k]
     nomfile1 = folder + 'out.txt'
     np.savetxt(nomfile1, UR, fmt='%.18e', delimiter=' ')
+#
+def energy(UG, KG):
+    """
+    Computes the potential energy for the current sln.
+
+    Parameters
+    ----------
+    UG : ndarray (float)
+      Array with the computed displacements.
+    KG : ndarray (float)
+      Global stiffness matrix.
+    Returns
+    -------
+    EFE : scalar (float)
+      Total energy in the system. (-0.5U^T*K*U)
+
+    """
+    f=np.dot(UG.T,KG)
+    EFE=-0.5*np.dot(f,UG)
+
+    return EFE
 
 
+#
 if __name__ == "__main__":
     import doctest
     doctest.testmod()

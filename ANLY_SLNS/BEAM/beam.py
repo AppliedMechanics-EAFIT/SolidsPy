@@ -43,14 +43,14 @@ C4= (P*l*l)/(2*E*I)
 C5= -(P*c*c)/(2*I*G)
 C6= C4+C5
 #
-C7 = (nu*P)/(6*E*I)
+C7 = (nu*P)/(2*E*I)
 C8 = P/(6*E*I)
 C9 =-(P*l*l)/(2*E*I)
 C10= (P*l*l*l)/(3*E*I)
 #
 B1=-P/(E*I)
-B2= (nu*P)/(2*E*I)
-B3=-(P*c*c)/(2*I*G)
+B2= (nu*P)/(E*I)
+B3= P/(2*I*G)
 #
 u=np.zeros([nn],dtype=np.float)
 v=np.zeros([nn],dtype=np.float)
@@ -64,8 +64,8 @@ for i in range(0,nn):
     u[i]=C1*y*x**2+C2*y**3+C3*y**3+C6*y
     v[i]=C7*x*y**2+C8*x**3+C9*x+C10
     exx[i]=B1*x*y
-    eyy[i]=B2*x
-    gammaxy[i]=B3
+    eyy[i]=B2*x*y
+    gammaxy[i]=B3*(y**2-c**2)
 #
 grid_z0 = griddata(xx, u,       (grid_x, grid_y), method='linear')
 grid_z1 = griddata(xx, v,       (grid_x, grid_y), method='linear')
@@ -103,7 +103,7 @@ plt.show()
 #
 plt.imshow(grid_z4.T,aspect='equal', extent=(0,24,-4,4), origin='lower')
 plt.title('Gamma xy')
-plt.colorbar(orientation='vertical')
+plt.colorbar(orientation='horizontal')
 plt.grid()
 plt.savefig('anagamaxy.pdf')
 plt.show()
