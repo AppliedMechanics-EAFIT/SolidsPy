@@ -13,32 +13,12 @@ from __future__ import division
 import numpy as np
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
-<<<<<<< HEAD
-from sympy import *
-from sympy import init_printing
-init_printing()
-=======
->>>>>>> 75aa1daec17d6a185a063a28cd03e0706b1ba33f
 from matplotlib import rcParams
 
 rcParams['font.family'] = 'serif'
-<<<<<<< HEAD
-rcParams['font.size'] = 14
-<<<<<<< HEAD
-#rcParams['image.cmap'] = "YlGnBu_r"
-rcParams['image.cmap'] = "jet"
-#
-# Elasticity solution for a cantilever loaded at the tip (See Timoshenko and Young).
-# The script uses the inout files nodes.txt and mater.txt.
-# The paramters for the mater.txt input file are Poisson's ratio, tip load, Young's modulus
-# moment of inertia of the cross section, length and heigth of the beam.
-=======
-=======
 rcParams['font.size'] = 12
->>>>>>> 87dcacff7624933db8ea0217b03966b128e9680b
 rcParams['image.cmap'] = "YlGnBu_r"
 
->>>>>>> 75aa1daec17d6a185a063a28cd03e0706b1ba33f
 plt.close("all")
 nodes = np.loadtxt('nodes.txt')
 mater = np.loadtxt('mater.txt')
