@@ -725,7 +725,7 @@ def gmeshpost(IBC, nn, UG, folder=""):
 
 
 def energy(UG, KG):
-    """
+    r"""
     Computes the potential energy for the current sln.
 
     Parameters
@@ -738,7 +738,7 @@ def energy(UG, KG):
     Returns
     -------
     EFE : scalar (float)
-      Total energy in the system. (-0.5U^T*K*U)
+      Total energy in the system. :math:`-\frac{1}{2} U^T K U`
 
     """
     f = np.dot(UG.T, KG)
