@@ -9,9 +9,10 @@ Fortran subroutines mesher.for and contour.for are also available to
 write the required input files out of a Gmesh (.msh) generated file
 and to convert the results file into Gmesh post-processor files.
 
-Created by Juan Gomez and Nicolas Guarin-Zapata as part of the course:
+Created by Juan Gomez and Nicolas Guarin-Zapata as part of the courses:
 
 IC0283 COMPUTATIONAL MODELLING
+IC0602 INTRODUCTION TO THE FINITE ELEMENT METHOD
 Universidad EAFIT
 Departamento de Ingenieria Civil
 
