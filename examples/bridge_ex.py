@@ -1,6 +1,4 @@
 """
-
-
 Created by Juan Gomez and Nicolas Guarin-Zapata as part of the course:
 
 IC0283 COMPUTATIONAL MODELLING
