@@ -76,7 +76,7 @@ def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
 
 
 def plot_disp(UC, nodes, elements, plt_type="contourf", levels=12,
-               savefigs=False):
+               savefigs=False, title="Solution:"):
     """Plot the nodal displacement using a triangulation
 
     Parameters
@@ -93,11 +93,11 @@ def plot_disp(UC, nodes, elements, plt_type="contourf", levels=12,
     """
     tri = mesh2tri(nodes, elements)
     tri_plot(tri, UC[:, 0], title=r'$u_x$',
-             figtitle="Solution: Horizontal displacement",
+             figtitle=title + "Horizontal displacement",
              levels=levels, plt_type=plt_type, savefigs=savefigs,
              filename="ux_sol.pdf")
     tri_plot(tri, UC[:, 1], title=r'$u_y$',
-             figtitle="Solution: Vertical displacement",
+             figtitle=title + "Vertical displacement",
              levels=levels, plt_type=plt_type, savefigs=savefigs,
              filename="uy_sol.pdf")
 

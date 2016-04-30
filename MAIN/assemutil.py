@@ -12,7 +12,6 @@ import numpy as np
 from sympy import *
 import uelutil as ue
 import femutil as fem
-import preprocesor as pre
 
 
 def eqcounter(nn, nodes):
