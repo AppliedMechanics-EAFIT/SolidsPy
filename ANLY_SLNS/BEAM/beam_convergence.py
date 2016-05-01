@@ -33,10 +33,12 @@ nu = 0.3
 L = 24
 h = 8
 I = 42.67
-niter = 3
+niter = 6
 err = np.zeros((niter))
 mats = np.array([[E, nu], [E, nu]])
 for cont in range(1, niter + 1):
+    print("Starting iteration %i" % cont +
+	  ", h=%g, %i elements" % (1/2**(cont-1), 3*4**(cont-1)))
     nx = 3*2**cont + 1
     ny = 2**cont + 1
     x, y, els = rect_grid(L, h, nx, ny)
@@ -72,7 +74,7 @@ pos.plot_disp(UC, nodes, els, title="FEM:")
 pos.plot_disp(U_anal, nodes, els, title="Exact:")
 x = np.linspace(1, niter + 1, niter)
 plt.figure()
-plt.loglog(1/2**x, err)
+plt.loglog(1/2**x, err, '-bo')
 plt.xlabel(r"$h$")
 plt.ylabel(r"$\frac{\Vert u - u_h \Vert}{\Vert u \Vert}$")
 plt.show()
