@@ -24,13 +24,17 @@ import postprocesor as pos
 import assemutil as ass
 from datetime import datetime
 import matplotlib.pyplot as plt
-import easygui
 
-
-folder = easygui.diropenbox(title="Folder for the job") + "/"
-name = easygui.enterbox("Enter the job name")
-echo = easygui.buttonbox("Do you want to echo files?",
-                         choices=["Yes", "No"])     
+try:
+    import easygui
+    folder = easygui.diropenbox(title="Folder for the job") + "/"
+    name = easygui.enterbox("Enter the job name")
+    echo = easygui.buttonbox("Do you want to echo files?",
+                             choices=["Yes", "No"])  
+except:
+    folder = raw_input('Enter folder (empty for the current one): ')
+    name = raw_input('Enter the job name: ')
+    echo = raw_input('Do you want to echo files? (y/N):')
 
 start_time = datetime.now()
 
@@ -40,7 +44,7 @@ start_time = datetime.now()
 #
 # Reads the model
 nodes, mats, elements, loads = pre.readin(folder=folder)
-if echo == "Yes":
+if echo.capitalize() in ["YES", "Y"]:
     pre.echomod(nodes, mats, elements, loads, folder=folder)
 # Retrieves problem parameters
 ne, nn, nm, nl, COORD = pre.proini(nodes, mats, elements, loads)
