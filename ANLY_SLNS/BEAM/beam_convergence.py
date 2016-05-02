@@ -6,14 +6,19 @@ from __future__ import division
 from os import sys
 sys.path.append("../../MAIN/")
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
 import postprocesor as pos
 import assemutil as ass
-import matplotlib.pyplot as plt
-from beam import beam_sln
 
 
 def rect_grid(L, h, nx, ny):
-    """
+    """Generate a structured mesh for a rectangle
+    
+    The rectangle has dimensions L by h, and nx nodes in x
+    and ny nodes in y.
     """
     y, x = np.mgrid[-h/2:h/2:ny*1j, 0:L:nx*1j]
     els = np.zeros(((nx - 1)*(ny - 1), 7), dtype=int)
@@ -33,14 +38,16 @@ nu = 0.3
 L = 24
 h = 8
 I = 42.67
-niter = 6
+analytic = True
+# Run with niter <= 5 for a timely response
+niter = 5
 err = np.zeros((niter))
 mats = np.array([[E, nu], [E, nu]])
 for cont in range(1, niter + 1):
-    print("Starting iteration %i" % cont +
-	  ", h=%g, %i elements" % (1/2**(cont-1), 3*4**(cont-1)))
-    nx = 3*2**cont + 1
-    ny = 2**cont + 1
+    print("Starting iteration %i, " % cont +
+	  "h=%g, %i elements" % (1/2**(cont - 1), 3*4**(cont - 1)))
+    nx = 3*2**(cont - 1) + 1
+    ny = 2**(cont - 1) + 1
     x, y, els = rect_grid(L, h, nx, ny)
     nodes = np.zeros((nx*ny, 5))
     nodes[:, 0] = range(nx*ny)
@@ -64,17 +71,23 @@ for cont in range(1, niter + 1):
     # Solution
     UG = np.linalg.solve(KG, RHSG)
     UC = pos.complete_disp(IBC, nodes, UG)
-    u, v, _, _, _  = beam_sln(x, y, nu, P, E, I, L, h)
-    U_anal = np.column_stack([u, v])
-    aux = np.linalg.norm(U_anal - UC)
-    err[cont - 1] = aux/np.linalg.norm(U_anal)
+    
+    # Interpolation and error evaluation
+    if cont > 1:
+        U_interp = np.column_stack([u_interp, v_interp])
+        aux = np.linalg.norm(U_interp - UC)
+        err[cont - 1] = aux/np.linalg.norm(UC)
+        
+    x_new, y_new, _ = rect_grid(L, h, 3*2**cont + 1, 2**cont + 1)
+    u_interp = griddata((x, y), UC[:, 0], (x_new, y_new))
+    v_interp = griddata((x, y), UC[:, 1], (x_new, y_new))
 
 #%% Analysis of error
-pos.plot_disp(UC, nodes, els, title="FEM:")
-pos.plot_disp(U_anal, nodes, els, title="Exact:")
+#pos.plot_disp(UC, nodes, els, title="FEM:")
 x = np.linspace(1, niter + 1, niter)
-plt.figure()
+plt.figure(figsize=(8, 5))
 plt.loglog(1/2**x, err, '-bo')
-plt.xlabel(r"$h$")
-plt.ylabel(r"$\frac{\Vert u - u_h \Vert}{\Vert u \Vert}$")
-plt.show()
+plt.xlabel(r"$h$", fontsize=12)
+plt.ylabel(r"$\frac{\Vert u - u_h \Vert}{\Vert u \Vert}$", fontsize=12)
+plt.savefig("Beam_convergence.pdf", bbox_inches="tight")
+#plt.show()

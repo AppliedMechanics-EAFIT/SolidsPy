@@ -65,7 +65,7 @@ def beam_sln(x, y, nu, P, E, I, L, h):
     c = h/2
     C1 = -P/(2*E*I)
     C2 = -(nu*P)/(6*E*I)
-    C3 = P/(6*I*G)
+    C3 = P/(2*I*G)
     C4 = (P*L**2)/(2*E*I)
     C5 = -(P*c**2)/(2*I*G)
     C6 = C4 + C5
@@ -76,7 +76,7 @@ def beam_sln(x, y, nu, P, E, I, L, h):
     B1 = -P/(E*I)
     B2 = (nu*P)/(E*I)
     B3 = P/(2*I*G)
-    u = C1*y*x**2 + C2*y**3 + C3*y**3 + C6*y
+    u = C1*y*x**2 + C2*y**3 + C3*y**3 + (C5 + C6)*y
     v = C7*x*y**2 + C8*x**3 + C9*x + C10
     exx = B1*x*y
     eyy = B2*x*y

@@ -7,7 +7,6 @@ Postprocessor subroutines
 """
 from __future__ import division
 import numpy as np
-import sympy as sym
 import femutil as fe
 import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
