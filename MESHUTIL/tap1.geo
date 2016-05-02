@@ -1,7 +1,7 @@
 // Input .geo for beam
 // author: Juan Gomez
 
-c = 0.125; 									// for size elements
+c = 1.0; 									// for size elements
 
 // Define vertex points 						
 Point(1) = {0, -1, 0, c};				// {x,y,z, size}

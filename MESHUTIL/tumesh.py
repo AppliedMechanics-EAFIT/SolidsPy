@@ -9,5 +9,5 @@ Ruttine for mesh by gmesh
 from __future__ import division
 import os
 
-os.system ('/Applications/Gmsh.app/Contents/MacOS/gmsh tap4.geo -2 -order 1')
+os.system ('/Applications/Gmsh.app/Contents/MacOS/gmsh tap2.geo -2 -order 2')
 print('End Proccess')
