@@ -19,7 +19,6 @@ The _repo_ contains 3 folders:
 
 ## Authors
 - [Juan David Gómez Cataño](http://www.eafit.edu.co/docentes-investigadores/Paginas/juan-gomez.aspx), Professor at Universidad EAFIT.
-- [Juan Carlos Vergara](https://github.com/jvergar2), PhD Student at Universidad EAFIT.
 - [Nicolás Guarín-Zapata](https://github.com/nicoguaro), PhD Student at Purdue University.
 
 ## Instructions
@@ -41,4 +40,6 @@ To run the files in `MESHUTILS` you will need to have `gfortran` and run the fol
 
 
 ## License
-This project is licensed under the [MIT license](http://en.wikipedia.org/wiki/MIT_License).
+This project is licensed under the [MIT license](http://en.wikipedia.org/wiki/MIT_License). The documents are licensed under [Creative Commons Attribution License](http://creativecommons.org/licenses/by/4.0/).
+
+Since this project is used to teach Finite Element Methods and Computational Mechanics, we have included some examples and documents and code snippets developed by students. Their license is specified in each particular directory.
