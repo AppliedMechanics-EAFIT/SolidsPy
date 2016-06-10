@@ -22,9 +22,9 @@ plt.close("all")
 
 ly=10.#...................base of the computational domain (dist from -yi to yf)
 lx=10.#...................Height of the computational domain (dist from 0  to xf)
-vf=[1.,1] #...............Surface loads vector
+vf=[0.,1.] #...............Surface loads vector
 vbeta=[90.,90.] #.........Vector  that stores the angle in which the forces are applied
-vm=[1.,1.] #............. Surface moment vector
+vm=[0.,0.] #............. Surface moment vector
 vcy=[0,1]
 ##############################################################################
 nx=100 #................................Number of data points along the x-axis
@@ -71,23 +71,21 @@ for i in range (len(ejey)):
         mtmax[i,j]=abs(la[0]-la[1])/2.
         
         
-levels=np.linspace(-5, 5, 20)
+levels=np.linspace(-0.5, 0.5, 10.0)
 ############################################################################3
 plt.contourf(y,-x,mtmax ,levels, alpha=.75, cmap='jet')
 plt.colorbar()
 plt.grid()
 #
-
-
-## plots the building
-px=np.zeros(2)
-py=np.zeros(2)
-for i in range (len(vf)):
-    px[0]=vcy[i]
-    px[1]=vcy[i]    
-    py[0]=0
-    py[1]=0.3
-    plt.plot(px,py)
+### plots the building
+#px=np.zeros(2)
+#py=np.zeros(2)
+#for i in range (len(vf)):
+#    px[0]=vcy[i]
+#    px[1]=vcy[i]    
+#    py[0]=0
+#    py[1]=0.3
+#    plt.plot(px,py)
 #
 #
 ###levels=np.linspace(-5, 0, 5)
