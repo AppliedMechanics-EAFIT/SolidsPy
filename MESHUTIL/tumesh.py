@@ -9,5 +9,5 @@ Ruttine for mesh by gmesh
 from __future__ import division
 import os
 
-os.system ('/Applications/Gmsh.app/Contents/MacOS/gmsh tunel.geo -2 -order 1')
+os.system ('/Applications/Gmsh.app/Contents/MacOS/gmsh ring.geo -2 -order 1')
 print('End Proccess')

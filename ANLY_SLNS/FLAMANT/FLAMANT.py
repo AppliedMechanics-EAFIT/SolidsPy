@@ -20,12 +20,13 @@ plt.close("all")
 #
 # Input data
 
-ly=10.#...................base of the computational domain (dist from -yi to yf)
+ly=20.#...................Base of the computational domain (dist from -yi to yf)
 lx=10.#...................Height of the computational domain (dist from 0  to xf)
-vf=[0.,1.] #...............Surface loads vector
-vbeta=[90.,90.] #.........Vector  that stores the angle in which the forces are applied
+vf=[1.0,1.0] #............Surface loads vector 
+vbeta=[90.,90.] #.........Vector con la inclinacion de las cargas respectoa la horizontal  
 vm=[0.,0.] #............. Surface moment vector
-vcy=[0,1]
+vcy=[-5.,5.] #..............Vector con la coordenada "Y"  en que se aplica cada carga 
+
 ##############################################################################
 nx=100 #................................Number of data points along the x-axis
 ny=nx #.................................Number of data points along the y-axis
@@ -63,7 +64,7 @@ for i in range (len(ejey)):
         sp[0,0]=msx[i,j] 
         sp[1,1]=msy[i,j]
         sp[0,1]=mtxy[i,j]
-        sp[1,1]=mtxy[i,j]
+        sp[1,0]=mtxy[i,j]
         # find the maximum values
         la,ve = eigh(sp)
         msmin[i,j]=la[0]
@@ -72,51 +73,53 @@ for i in range (len(ejey)):
         
         
 levels=np.linspace(-0.5, 0.5, 10.0)
-############################################################################3
-plt.contourf(y,-x,mtmax ,levels, alpha=.75, cmap='jet')
+############################################################################
+### ojo X va hacia abajo y Y hacia la derecha
+#######
+# Se calculó msx=(Matriz con los esfuerzoz axiales Sigma X de cada punto)
+# Se calculó msy=(Matriz con los esfuerzoz axiales Sigma Y de cada punto)
+# Se calculó mtxy=(Matriz con los esfuerzoz tangenciales TaoXY de cada punto)
+# Se calculó mtxy=(Matriz con los esfuerzoz tangenciales TaoXY de cada punto)
+# Se calculó msmin=(Matriz con los esfuerzoz axiales mínimos en cada punto)
+# Se calculó msmax=(Matriz con los esfuerzoz axiales máximos en cada punto)
+# Se calculó mtmax=(Matriz con los esfuerzoz tangenciales máximos en cada punto)
+
+
+plt.figure(1)
+plt.contourf(y,-x,msx ,levels, alpha=.75, cmap='jet')
+plt.title('Esfuerzos axiales en X')
 plt.colorbar()
 plt.grid()
-#
-### plots the building
-#px=np.zeros(2)
-#py=np.zeros(2)
-#for i in range (len(vf)):
-#    px[0]=vcy[i]
-#    px[1]=vcy[i]    
-#    py[0]=0
-#    py[1]=0.3
-#    plt.plot(px,py)
-#
-#
-###levels=np.linspace(-5, 0, 5)
-##CS4 = plt.contour(y, -x, msx, levels, colors=('k',),linewidths=(3,))
-##plt.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
-###
-##plt.title('Con todo')
-#
-##
-##figura_3d = plt.figure()
-##ax = figura_3d.gca(projection = '3d')
-##ax.plot_surface(x, y, mtmax, rstride=1, cstride=1, cmap='coolwarm',linewidth=0, antialiased=False)
-###ax.set_zlim(-1, 1)
-##
-#
 
+plt.figure(2)
+plt.contourf(y,-x,msy ,levels, alpha=.75, cmap='jet')
+plt.title('Esfuerzos axiales en Y')
+plt.colorbar()
+plt.grid()
 
+plt.figure(3)
+plt.contourf(y,-x,mtxy ,levels, alpha=.75, cmap='jet')
+plt.title('Esfuerzos cortantes caras X y Y ')
+plt.colorbar()
+plt.grid()
 
+plt.figure(4)
+plt.contourf(y,-x,msmin ,levels, alpha=.75, cmap='jet')
+plt.title('Esfuerzos axiales Minimos')
+plt.colorbar()
+plt.grid()
 
+plt.figure(5)
+plt.contourf(y,-x,msmax ,levels, alpha=.75, cmap='jet')
+plt.title('Esfuerzos axiales Maximos')
+plt.colorbar()
+plt.grid()
 
-
-
-
-
-
-
-
-
-
-
-
+plt.figure(6)
+plt.contourf(y,-x,mtmax ,levels, alpha=.75, cmap='jet')
+plt.title('Esfuerzos cortantes Maximos')
+plt.colorbar()
+plt.grid()
 
 
 

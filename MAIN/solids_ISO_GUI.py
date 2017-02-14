@@ -39,9 +39,9 @@ except:
 start_time = datetime.now()
 
 
-#%%
-#   MODEL ASSEMBLY
-#
+"""
+   MODEL ASSEMBLY
+"""
 # Reads the model
 nodes, mats, elements, loads = pre.readin(folder=folder)
 if echo.capitalize() in ["YES", "Y"]:
@@ -56,10 +56,9 @@ DME, IELCON = ass.DME(IBC, ne, elements)
 KG = ass.matassem(IBC, mats, elements, nn, ne, neq, COORD, DME, IELCON)
 # Assembles Global Rigth Hand Side Vector RHSG
 RHSG = ass.loadasem(loads, IBC, neq, nl)
-
-#%%
-#   SYSTEM SOLUTION
-#
+"""
+   SYSTEM SOLUTION
+"""
 # Solves the system
 UG = np.linalg.solve(KG, RHSG)
 if not(np.allclose(np.dot(KG, UG), RHSG)):
@@ -67,9 +66,9 @@ if not(np.allclose(np.dot(KG, UG), RHSG)):
 end_time = datetime.now()
 print('Duration for system solution: {}'.format(end_time - start_time))
 
-#%%
-#   POST-PROCCESSING
-#
+"""
+  POST-PROCCESSING
+"""
 start_time = datetime.now()
 UC = pos.complete_disp(IBC, nodes, UG)
 pos.plot_disp(UC, nodes, elements)

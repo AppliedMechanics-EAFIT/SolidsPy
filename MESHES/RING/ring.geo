@@ -26,7 +26,7 @@ Plane Surface(1) = {1};
 //Recombine Surface {1};					// {Id_Surface}
 
 // "Structure" mesh 
-Transfinite Surface {1};				// {Id_Surface}
+//Transfinite Surface {1};				// {Id_Surface}
 
 Physical Surface(100) = {1};
 
