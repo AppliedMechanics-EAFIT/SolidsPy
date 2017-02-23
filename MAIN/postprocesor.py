@@ -347,7 +347,7 @@ def complete_disp(IBC, nodes, UG):
     return UC
 
 
-def strain_nodes(IELCON, UU, ne, COORD, elements, mats):
+def strain_nodes(nodes , UU , ne , nn , elements , mats):
     """Compute averaged strains and stresses at nodes
     
     First, the variable is extrapolated from the Gauss
@@ -384,22 +384,28 @@ def strain_nodes(IELCON, UU, ne, COORD, elements, mats):
         recovery technique, Int. J. Numer. Methods Eng., 33,
         1331-1364 (1992).
     """
+    IELCON = np.zeros([ne, 9], dtype=np.integer)
     iet = elements[0, 1]
     ndof, nnodes, ngpts = fe.eletype(iet)
 
-    elcoor = np.zeros([nnodes, 2])
-    E_nodes = np.zeros([COORD.shape[0], 3])
-    S_nodes = np.zeros([COORD.shape[0], 3])
-    el_nodes = np.zeros([COORD.shape[0]], dtype=int)
+    elcoor   = np.zeros([nnodes, 2])
+    E_nodes  = np.zeros([nn , 3])
+    S_nodes  = np.zeros([nn , 3])
+    el_nodes = np.zeros([nn], dtype=int)
     ul = np.zeros([ndof])
+#
+    for i in range(ne):
+        for j in range(nnodes):
+            IELCON[i, j] = elements[i, j+3]    
+#    
     for i in range(ne):
         young, poisson = mats[elements[i, 2], :]
         shear = young/(2*(1 + poisson))
         fact1 = young/(1 - poisson**2)
         fact2 = poisson*young/(1 - poisson**2)
         for j in range(nnodes):
-            elcoor[j, 0] = COORD[IELCON[i, j], 0]
-            elcoor[j, 1] = COORD[IELCON[i, j], 1]
+            elcoor[j, 0] = nodes[IELCON[i,j], 1]
+            elcoor[j, 1] = nodes[IELCON[i,j], 2]
         for j in range(ndof):
             ul[j] = UU[i, j]
         if iet == 1:
@@ -419,9 +425,10 @@ def strain_nodes(IELCON, UU, ne, COORD, elements, mats):
             extrap2 = lambda x, y: epsG[0, 2]
 
         for node in IELCON[i, :]:
-            x, y = COORD[node, :]
+            x = nodes[node , 1]
+            y = nodes[node , 2]
             E_nodes[node, 0] = E_nodes[node, 0] + extrap0(x, y)
-            E_nodes[node, 1] = E_nodes[node, 1]  + extrap1(x, y)
+            E_nodes[node, 1] = E_nodes[node, 1] + extrap1(x, y)
             E_nodes[node, 2] = E_nodes[node, 2] + extrap2(x, y)
             S_nodes[node, 0] = S_nodes[node, 0] + fact1*extrap0(x, y) \
                         + fact2*extrap1(x, y)

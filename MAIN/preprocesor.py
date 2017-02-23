@@ -17,18 +17,14 @@ def readin(folder=""):
 
     return nodes, mats, elements, loads
 
-
 def proini(nodes, mats, elements, loads):
     """Extract problem parameters and nodal coordinates"""
     ne = len(elements[:, 0])
     nn = len(nodes[:, 0])
     nm = len(mats)
     nl = len(loads[:, 0])
-    COORD = np.zeros([nn, 2], dtype=np.float)
-    COORD[:, 0] = nodes[:, 1]
-    COORD[:, 1] = nodes[:, 2]
 
-    return ne, nn, nm, nl, COORD
+    return ne, nn, nm, nl
 
 
 def echomod(nodes, mats, elements, loads, folder=""):

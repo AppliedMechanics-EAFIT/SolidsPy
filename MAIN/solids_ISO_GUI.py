@@ -16,7 +16,7 @@ IC0602 INTRODUCTION TO THE FINITE ELEMENT METHOD
 Universidad EAFIT
 Departamento de Ingenieria Civil
 
-Last updated January 2016
+Last updated February 2017
 """
 import numpy as np
 import preprocesor as pre
@@ -33,33 +33,29 @@ try:
                              choices=["Yes", "No"])  
 except:
     folder = raw_input('Enter folder (empty for the current one): ')
-    name = raw_input('Enter the job name: ')
-    echo = raw_input('Do you want to echo files? (y/N):')
+    name   = raw_input('Enter the job name: ')
+    echo   = raw_input('Do you want to echo files? (y/N):')
 
 start_time = datetime.now()
-
-
 """
-   MODEL ASSEMBLY
+   PRE-PROCESSING
 """
-# Reads the model
 nodes, mats, elements, loads = pre.readin(folder=folder)
 if echo.capitalize() in ["YES", "Y"]:
     pre.echomod(nodes, mats, elements, loads, folder=folder)
-# Retrieves problem parameters
-ne, nn, nm, nl, COORD = pre.proini(nodes, mats, elements, loads)
-# Counts equations and creates BCs array IBC
-neq, IBC = ass.eqcounter(nn, nodes)
-# Computes assembly operator
-DME, IELCON = ass.DME(IBC, ne, elements)
-# Assembles Global Stiffness Matrix KG
-KG = ass.matassem(IBC, mats, elements, nn, ne, neq, COORD, DME, IELCON)
-# Assembles Global Rigth Hand Side Vector RHSG
+ne, nn, nm, nl = pre.proini(nodes, mats, elements, loads)
+DME , IBC , neq = ass.DME(nn , ne , nodes , elements)
+KG = np.zeros([neq, neq])
+"""
+   SYSTEM ASSEMBLY
+"""
+for i in range(ne):
+    kloc , ndof  = ass.retriever(elements , mats  , nodes , i)
+    KG = ass.assembler(KG , neq , kloc , ndof , DME , i)
 RHSG = ass.loadasem(loads, IBC, neq, nl)
 """
    SYSTEM SOLUTION
 """
-# Solves the system
 UG = np.linalg.solve(KG, RHSG)
 if not(np.allclose(np.dot(KG, UG), RHSG)):
     print("The system is not in equilibrium!")
@@ -72,12 +68,11 @@ print('Duration for system solution: {}'.format(end_time - start_time))
 start_time = datetime.now()
 UC = pos.complete_disp(IBC, nodes, UG)
 pos.plot_disp(UC, nodes, elements)
-
 # Scatter displacements over the elements
 UU = pos.scatter(DME, UG, ne, neq, elements)
 pos.gmeshpost(IBC, nn, UG, folder=folder)
 # Generates points inside the elements and computes strain solution
-E_nodes, S_nodes = pos.strain_nodes(IELCON, UU, ne, COORD, elements, mats)
+E_nodes, S_nodes = pos.strain_nodes(nodes , UU , ne , nn , elements , mats)
 pos.plot_strain(E_nodes, nodes, elements)
 pos.plot_stress(S_nodes, nodes, elements, plt_type="pcolor")
 eigs1, eigs2, vecs1, vecs2 = pos.principal_dirs(S_nodes)
