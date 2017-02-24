@@ -168,6 +168,36 @@ def uel3ntrian(coord, enu, Emod):
         kl = kl + 0.5*B.T*C*B*alf*ddet
     return kl
 
+
+def uelspring(coord, enu, Emod):
+    """1D-2-noded Spring element
+
+    Parameters
+    ----------
+    coord : ndarray
+      Coordinates for the nodes of the element (3, 2).
+    enu : float
+      Fictitious parameter.
+    Emod : float
+      Stiffness coefficient (>0).
+
+    Returns
+    -------
+    kl : ndarray
+      Local stiffness matrix for the element (2, 2).
+
+
+    """
+    kl = np.zeros([4, 4])
+    kl[0,0]= Emod
+    kl[0,2]=-Emod
+    kl[2,0]=-Emod
+    kl[2,2]= Emod
+    return kl
+
+
+
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()

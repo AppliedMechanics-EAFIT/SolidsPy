@@ -126,13 +126,14 @@ def retriever(elements , mats , nodes , i):
         IELCON[j] = elements[i, j+3]
         elcoor[j, 0] = nodes[IELCON[j], 1]
         elcoor[j, 1] = nodes[IELCON[j], 2]
-    kloc = ue.uel3ntrian(elcoor, enu, emod)
     if iet == 1:
         kloc = ue.uel4nquad(elcoor, enu, emod)
     elif iet == 2:
         kloc = ue.uel6ntrian(elcoor, enu, emod)
     elif iet == 3:
         kloc = ue.uel3ntrian(elcoor, enu, emod)
+    elif iet == 5:
+        kloc = ue.uelspring(elcoor, enu, emod)
     
     return kloc , ndof
 
@@ -204,7 +205,9 @@ def loadasem(loads, IBC, neq, nl):
         il = int(loads[i, 0])
         ilx = IBC[il, 0]
         ily = IBC[il, 1]
-        RHSG[ilx] = loads[i, 1]
-        RHSG[ily] = loads[i, 2]
+        if ilx != -1:
+            RHSG[ilx] = loads[i, 1]
+        if ily != -1:
+            RHSG[ily] = loads[i, 2]
 
     return RHSG
