@@ -7,9 +7,8 @@ Functions to assemble the system of equations for the Finite Element
 Analysis.
 
 """
-from __future__ import division
+from __future__ import division, print_function
 import numpy as np
-from sympy import *
 import uelutil as ue
 import femutil as fem
 

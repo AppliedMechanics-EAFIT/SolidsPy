@@ -8,11 +8,12 @@ finite element.
 New elements can be added by including additional subroutines.
 
 """
-from __future__ import division
+from __future__ import division, print_function
 import numpy as np
 import femutil as fem
 import gaussutil as gau
-from sympy import Matrix, S
+import sympy
+
 
 def uel4nquad(coord, enu, Emod):
     """Quadrilateral element with 4 nodes

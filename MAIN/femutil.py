@@ -20,11 +20,10 @@ References
    Pearson Education, 2006.
 
 """
-from __future__ import division
+from __future__ import division, print_function
 import gaussutil as gau
 import numpy as np
 import sympy as sym
-from sympy import S
 
 
 def eletype(iet):
@@ -107,7 +106,7 @@ def sha4(x, y):
 
     """
     N = sym.zeros(2, 8)
-    H = S(1)/4*sym.Matrix(
+    H = sym.S(1)/4*sym.Matrix(
         [(1 - x)*(1 - y),
          (1 + x)*(1 - y),
          (1 + x)*(1 + y),
@@ -148,7 +147,7 @@ def sha6(x, y):
 
     and
 
-    >>> N = sha6(S(1)/2, S(1)/2)
+    >>> N = sha6(sym.S(1)/2, sym.S(1)/2)
     >>> print(N[0, :])
     Matrix([[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]])
     >>> print(N[1, :])
@@ -199,7 +198,7 @@ def sha3(x, y):
 
     and
 
-    >>> N = sha3(S(1)/2, S(1)/2)
+    >>> N = sha3(sym.S(1)/2, sym.S(1)/2)
     >>> print(N[0, :])
     Matrix([[0, 0, 1/2, 0, 1/2, 0]])
     >>> print(N[1, :])
@@ -244,7 +243,7 @@ def stdm4NQ(r, s, coord):
     B = sym.zeros(3, 2*nn)
     dhdx = sym.zeros(2, nn)
     DNR = sym.zeros(2, nn)
-    N = S(1)/4*sym.Matrix(
+    N = sym.S(1)/4*sym.Matrix(
         [(1 - rr)*(1 - ss),
          (1 + rr)*(1 - ss),
          (1 + rr)*(1 + ss),
@@ -414,7 +413,7 @@ def umat(nu, E):
     Examples
     --------
 
-    >>> C = umat(S(1)/3, S(8)/3)
+    >>> C = umat(sym.S(1)/3, sym.S(8)/3)
     >>> print(C)
     Matrix([[3, 1, 0], [1, 3, 0], [0, 0, 1]])
 
