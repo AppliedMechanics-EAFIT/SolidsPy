@@ -68,10 +68,14 @@ print('Duration for system solution: {}'.format(end_time - start_time))
 start_time = datetime.now()
 UC = pos.complete_disp(IBC, nodes, UG)
 pos.plot_disp(UC, nodes, elements)
-# Scatter displacements over the elements
+"""
+  Scatter displacements over the elements
+"""
 UU = pos.scatter(DME, UG, ne, neq, elements)
 pos.gmeshpost(IBC, nn, UG, folder=folder)
-# Generates points inside the elements and computes strain solution
+"""
+  Generates points inside the elements and computes strain solution
+"""
 E_nodes, S_nodes = pos.strain_nodes(nodes , UU , ne , nn , elements , mats)
 pos.plot_strain(E_nodes, nodes, elements)
 pos.plot_stress(S_nodes, nodes, elements, plt_type="pcolor")
