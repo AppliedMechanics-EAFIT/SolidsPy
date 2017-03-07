@@ -20,10 +20,10 @@ References
    Pearson Education, 2006.
 
 """
-from __future__ import division
+from __future__ import division, print_function
 import gaussutil as gau
 import numpy as np
-from sympy import *
+import sympy as sym
 
 
 def eletype(iet):
@@ -105,8 +105,8 @@ def sha4(x, y):
     Matrix([[0, 0, 0, 0, 0, 1, 0, 0]])
 
     """
-    N = zeros(2, 8)
-    H = S(1)/4*Matrix(
+    N = sym.zeros(2, 8)
+    H = sym.S(1)/4*sym.Matrix(
         [(1 - x)*(1 - y),
          (1 + x)*(1 - y),
          (1 + x)*(1 + y),
@@ -147,15 +147,15 @@ def sha6(x, y):
 
     and
 
-    >>> N = sha6(S(1)/2, S(1)/2)
+    >>> N = sha6(sym.S(1)/2, sym.S(1)/2)
     >>> print(N[0, :])
     Matrix([[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]])
     >>> print(N[1, :])
     Matrix([[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]])
 
     """
-    N = zeros(2, 12)
-    H = Matrix(
+    N = sym.zeros(2, 12)
+    H = sym.Matrix(
         [(1 - x - y) - 2*x*(1 - x - y) - 2*y*(1 - x - y),
          x - 2*x*(1 - x - y) - 2*x*y,
          y - 2*x*y - 2*y*(1-x-y),
@@ -198,15 +198,15 @@ def sha3(x, y):
 
     and
 
-    >>> N = sha3(S(1)/2, S(1)/2)
+    >>> N = sha3(sym.S(1)/2, sym.S(1)/2)
     >>> print(N[0, :])
     Matrix([[0, 0, 1/2, 0, 1/2, 0]])
     >>> print(N[1, :])
     Matrix([[0, 0, 0, 1/2, 0, 1/2]])
 
     """
-    N = zeros(2, 6)
-    H = Matrix(
+    N = sym.zeros(2, 6)
+    H = sym.Matrix(
         [(1 - x - y),
          x,
          y])
@@ -238,19 +238,19 @@ def stdm4NQ(r, s, coord):
       Strain-displacement interpolator evaluated at `(r, s)`.
 
     """
-    rr, ss = symbols('rr ss')
+    rr, ss = sym.symbols('rr ss')
     nn = 4
-    B = zeros(3, 2*nn)
-    dhdx = zeros(2, nn)
-    DNR = zeros(2, nn)
-    N = S(1)/4*Matrix(
+    B = sym.zeros(3, 2*nn)
+    dhdx = sym.zeros(2, nn)
+    DNR = sym.zeros(2, nn)
+    N = sym.S(1)/4*sym.Matrix(
         [(1 - rr)*(1 - ss),
          (1 + rr)*(1 - ss),
          (1 + rr)*(1 + ss),
          (1 - rr)*(1 + ss)])
     for i in range(nn):
-        dhdx[0, i] = diff(N[i], rr)
-        dhdx[1, i] = diff(N[i], ss)
+        dhdx[0, i] = sym.diff(N[i], rr)
+        dhdx[1, i] = sym.diff(N[i], ss)
     DNR = dhdx.subs([(rr, r), (ss, s)])
 
     xj = jacoper(DNR, coord, nn)
@@ -285,13 +285,13 @@ def stdm6NT(r, s, coord):
       Strain-displacement interpolator evaluated at `(r, s)`.
 
     """
-    rr, ss = symbols('rr ss')
+    rr, ss = sym.symbols('rr ss')
     nn = 6
-    N = zeros(nn)
-    B = zeros(3, 2*nn)
-    dhdx = zeros(2, nn)
-    DNR = zeros(2, nn)
-    N = Matrix(
+    N = sym.zeros(nn)
+    B = sym.zeros(3, 2*nn)
+    dhdx = sym.zeros(2, nn)
+    DNR = sym.zeros(2, nn)
+    N = sym.Matrix(
         [(1 - rr-ss) - 2*rr*(1 - rr - ss) - 2*ss*(1 - rr - ss),
          rr - 2*rr*(1 - rr - ss) - 2*rr*ss,
          ss - 2*rr*ss - 2*ss*(1 - rr - ss),
@@ -299,8 +299,8 @@ def stdm6NT(r, s, coord):
          4*rr*ss,
          4*ss*(1 - rr - ss)])
     for i in range(nn):
-        dhdx[0, i] = diff(N[i], rr)
-        dhdx[1, i] = diff(N[i], ss)
+        dhdx[0, i] = sym.diff(N[i], rr)
+        dhdx[1, i] = sym.diff(N[i], ss)
     DNR = dhdx.subs([(rr, r), (ss, s)])
 
     xj = jacoper(DNR, coord, nn)
@@ -335,19 +335,19 @@ def stdm3NT(r, s, coord):
       Strain-displacement interpolator evaluated at `(r, s)`.
 
     """
-    rr, ss = symbols('rr ss')
+    rr, ss = sym.symbols('rr ss')
     nn = 3
-    N = zeros(nn)
-    B = zeros(3, 2*nn)
-    dhdx = zeros(2, nn)
-    DNR = zeros(2, nn)
-    N = Matrix(
+    N = sym.zeros(nn)
+    B = sym.zeros(3, 2*nn)
+    dhdx = sym.zeros(2, nn)
+    DNR = sym.zeros(2, nn)
+    N = sym.Matrix(
         [(1 - rr - ss),
          rr,
          ss])
     for i in range(nn):
-        dhdx[0, i] = diff(N[i], rr)
-        dhdx[1, i] = diff(N[i], ss)
+        dhdx[0, i] = sym.diff(N[i], rr)
+        dhdx[1, i] = sym.diff(N[i], ss)
     DNR = dhdx.subs([(rr, r), (ss, s)])
 
     xj = jacoper(DNR, coord, nn)
@@ -413,12 +413,12 @@ def umat(nu, E):
     Examples
     --------
 
-    >>> C = umat(S(1)/3, S(8)/3)
+    >>> C = umat(sym.S(1)/3, sym.S(8)/3)
     >>> print(C)
     Matrix([[3, 1, 0], [1, 3, 0], [0, 0, 1]])
 
     """
-    C = zeros(3, 3)
+    C = sym.zeros(3, 3)
     enu = E/(1 - nu**2)
     mnu = (1 - nu)/2
     C[0, 0] = enu
@@ -454,7 +454,7 @@ def str_el4(coord, ul):
     epsG = np.zeros([3, 4])
     epsGT = np.zeros([4, 3])
     xl = np.zeros([4, 2])
-    x, y = symbols('x y')
+    x, y = sym.symbols('x y')
 
     XW, XP = gau.gpoints2x2()
     for i in range(4):
@@ -495,7 +495,7 @@ def str_el6(coord, ul):
     epsG = np.zeros([3, 7])
     epsGT = np.zeros([7, 3])
     xl = np.zeros([7, 2])
-    x, y = symbols('x y')
+    x, y = sym.symbols('x y')
 
     XW, XP = gau.gpoints7()
     for i in range(7):
@@ -536,7 +536,7 @@ def str_el3(coord, ul):
     epsG = np.zeros([3, 3])
     epsGT = np.zeros([3, 3])
     xl = np.zeros([3, 2])
-    x, y = symbols('x y')
+    x, y = sym.symbols('x y')
     XW, XP = gau.gpoints3()
     for i in range(3):
         ri = XP[i, 0]

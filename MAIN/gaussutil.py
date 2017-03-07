@@ -13,7 +13,7 @@ References
 .. [2] Bathe, Klaus-Jürgen. Finite element procedures. Prentice Hall,
    Pearson Education, 2006.
 """
-from __future__ import division
+from __future__ import division, print_function
 import numpy as np
 
 

@@ -8,11 +8,12 @@ finite element.
 New elements can be added by including additional subroutines.
 
 """
-from __future__ import division
+from __future__ import division, print_function
 import numpy as np
 import femutil as fem
 import gaussutil as gau
-from sympy import Matrix, S
+import sympy as sym
+
 
 def uel4nquad(coord, enu, Emod):
     """Quadrilateral element with 4 nodes
@@ -34,9 +35,9 @@ def uel4nquad(coord, enu, Emod):
     Examples
     --------
     
-    >>> coord = Matrix([[-1, -1], [1, -1], [1, 1], [-1, 1]])
+    >>> coord = sym.Matrix([[-1, -1], [1, -1], [1, 1], [-1, 1]])
     >>> stiff = uel4nquad(coord, S(1)/3, S(8)/3)
-    >>> stiff_ex = 1/6 * Matrix([
+    >>> stiff_ex = 1/6 * sym.Matrix([
     ...             [ 8,  3, -5,  0, -4, -3,  1,  0],
     ...             [ 3,  8,  0,  1, -3, -4,  0, -5],
     ...             [-5,  0,  8, -3,  1,  0, -4,  3],
@@ -82,7 +83,7 @@ def uel6ntrian(coord, enu, Emod):
     Examples
     --------
     
-    >>> coord = Matrix([
+    >>> coord = sym.Matrix([
     ...         [0, 0],
     ...         [1, 0],
     ...         [0, 1],
@@ -90,7 +91,7 @@ def uel6ntrian(coord, enu, Emod):
     ...         [0.5, 0.5],
     ...         [0, 0.5]])
     >>> stiff = uel6ntrian(coord, S(1)/3, S(8)/3)
-    >>> stiff_ex = 1/6 * Matrix([
+    >>> stiff_ex = 1/6 * sym.Matrix([
     ...            [12, 6, 3, 1, 1, 1, -12, -4, 0, 0, -4, -4],
     ...            [6, 12, 1, 1, 1, 3, -4, -4, 0, 0, -4, -12],
     ...            [3, 1, 9, 0, 0, -1, -12, -4, 0, 4, 0, 0],
@@ -140,12 +141,12 @@ def uel3ntrian(coord, enu, Emod):
     Examples
     --------
     
-    >>> coord = Matrix([
+    >>> coord = sym.Matrix([
     ...         [0, 0],
     ...         [1, 0],
     ...         [0, 1]])
     >>> stiff = uel3ntrian(coord, S(1)/3, S(8)/3)
-    >>> stiff_ex = 1/2 * Matrix([
+    >>> stiff_ex = 1/2 * sym.Matrix([
     ...            [4, 2, -3, -1, -1, -1],
     ...            [2, 4, -1, -1, -1, -3],
     ...            [-3, -1, 3, 0, 0, 1],

@@ -18,12 +18,23 @@ Departamento de Ingenieria Civil
 
 Last updated February 2017
 """
+from __future__ import division, print_function
+import sys
 import numpy as np
 import preprocesor as pre
 import postprocesor as pos
 import assemutil as ass
 from datetime import datetime
 import matplotlib.pyplot as plt
+
+version = sys.version_info.major
+
+if version == 3:
+    raw_input = input
+elif version == 2:
+    pass
+else:
+    raise ValueError("You should use Python 2.x at least!")
 
 try:
     import easygui
