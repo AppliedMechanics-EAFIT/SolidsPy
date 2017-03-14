@@ -118,7 +118,7 @@ def retriever(elements , mats , nodes , i):
     iet = elements[i , 1]
     ndof, nnodes, ngpts = fem.eletype(iet)
     elcoor = np.zeros([nnodes, 2])
-    im = elements[i, 2]
+    im = np.int(elements[i, 2])
     emod = mats[im, 0]
     enu = mats[im, 1]
     for j in range(nnodes):

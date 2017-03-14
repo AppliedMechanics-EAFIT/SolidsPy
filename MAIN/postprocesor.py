@@ -399,7 +399,7 @@ def strain_nodes(nodes , UU , ne , nn , elements , mats):
             IELCON[i, j] = elements[i, j+3]    
 #    
     for i in range(ne):
-        young, poisson = mats[elements[i, 2], :]
+        young, poisson = mats[np.int(elements[i, 2]), :]
         shear = young/(2*(1 + poisson))
         fact1 = young/(1 - poisson**2)
         fact2 = poisson*young/(1 - poisson**2)
