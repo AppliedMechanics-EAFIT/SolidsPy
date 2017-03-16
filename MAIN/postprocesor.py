@@ -16,6 +16,7 @@ from matplotlib import rcParams
 rcParams['font.family'] = 'serif'
 rcParams['font.size'] = 14
 rcParams['image.cmap'] = "YlGnBu_r"
+rcParams['axes.axisbelow'] = True
 
 
 def mesh2tri(nodes, elements):
