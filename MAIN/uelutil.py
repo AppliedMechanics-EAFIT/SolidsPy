@@ -202,11 +202,16 @@ def uelspring(coord, enu, Emod):
     True
 
     """
-    kl = Emod * np.array([
-        [1, 0, -1, 0],
-        [0, 1, 0, -1],
-        [-1, 0, 1, 0],
-        [0, -1, 0, 1]])
+    vec = coord[1, :] - coord[0, :]
+    nx = vec[0]/np.linalg.norm(vec)
+    ny = vec[1]/np.linalg.norm(vec)
+    Ex = Emod * nx
+    Ey = Emod * ny
+    kl = np.array([
+        [Ex, 0, -Ex, 0],
+        [0, Ey, 0, -Ey],
+        [-Ex, 0, Ex, 0],
+        [0, -Ey, 0, Ey]])
     return kl
 
 

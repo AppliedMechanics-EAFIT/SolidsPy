@@ -112,10 +112,8 @@ def sha4(x, y):
          (1 + x)*(1 - y),
          (1 + x)*(1 + y),
          (1 - x)*(1 + y)])
-
-    for i in range(4):
-        N[0, 2*i] = H[i]
-        N[1, 2*i + 1] = H[i]
+    N[0, ::2] = H
+    N[1, 1::2] = H
 
     return N
 
@@ -138,7 +136,7 @@ def sha6(x, y):
     Examples
     --------
     We can check evaluating at two different points, namely (0, 0) and
-    (0, 0.5). Thus
+    (0.5, 0.5). Thus
 
     >>> N = sha6(0, 0)
     >>> N_ex = np.array([
@@ -165,10 +163,8 @@ def sha6(x, y):
          4*x*(1 - x - y),
          4*x*y,
          4*y*(1 - x - y)])
-
-    for i in range(6):
-        N[0, 2*i] = H[i]
-        N[1, 2*i + 1] = H[i]
+    N[0, ::2] = H
+    N[1, 1::2] = H
 
     return N
 
@@ -215,10 +211,8 @@ def sha3(x, y):
         (1 - x - y),
          x,
          y])
-
-    for i in range(3):
-        N[0, 2*i] = H[i]
-        N[1, 2*i + 1] = H[i]
+    N[0, ::2] = H
+    N[1, 1::2] = H
 
     return N
 
@@ -252,11 +246,10 @@ def stdm4NQ(r, s, coord):
     ddet = np.linalg.det(xj)
     xi = np.linalg.inv(xj)
     aux1 = np.dot(xi, dhdx)
-    for i in range(nn):
-        B[0, 2*i] = aux1[0, i]
-        B[1, 2*i+1] = aux1[1, i]
-        B[2, 2*i] = aux1[1, i]
-        B[2, 2*i+1] = aux1[0, i]
+    B[0, ::2] = aux1[0, :]
+    B[1, 1::2] = aux1[1, :]
+    B[2, ::2] = aux1[1, :]
+    B[2, 1::2] = aux1[0, :]
     return ddet, B
 
 
@@ -290,11 +283,10 @@ def stdm6NT(r, s, coord):
     ddet = np.linalg.det(xj)
     xi = np.linalg.inv(xj)
     aux1 = np.dot(xi, dhdx)
-    for i in range(nn):
-        B[0, 2*i] = aux1[0, i]
-        B[1, 2*i+1] = aux1[1, i]
-        B[2, 2*i] = aux1[1, i]
-        B[2, 2*i+1] = aux1[0, i]
+    B[0, ::2] = aux1[0, :]
+    B[1, 1::2] = aux1[1, :]
+    B[2, ::2] = aux1[1, :]
+    B[2, 1::2] = aux1[0, :]
     return ddet, B
 
 
@@ -328,11 +320,10 @@ def stdm3NT(r, s, coord):
     xi = np.linalg.inv(xj)
     ddet = np.linalg.det(xj)
     aux1 = np.dot(xi, dhdx)
-    for i in range(nn):
-        B[0, 2*i] = aux1[0, i]
-        B[1, 2*i+1] = aux1[1, i]
-        B[2, 2*i] = aux1[1, i]
-        B[2, 2*i+1] = aux1[0, i]
+    B[0, ::2] = aux1[0, :]
+    B[1, 1::2] = aux1[1, :]
+    B[2, ::2] = aux1[1, :]
+    B[2, 1::2] = aux1[0, :]
     return ddet, B
 
 
