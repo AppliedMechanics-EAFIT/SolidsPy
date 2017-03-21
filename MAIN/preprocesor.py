@@ -9,20 +9,20 @@ import numpy as np
 
 
 def readin(folder=""):
-    """Read the input file"""
-    nodes = np.loadtxt(folder + 'nodes.txt')
-    mats = np.loadtxt(folder + 'mater.txt')
-    elements = np.loadtxt(folder + 'eles.txt')
-    loads = np.loadtxt(folder + 'loads.txt')
+    """Read the input files"""
+    nodes = np.loadtxt(folder + 'nodes.txt', ndmin=2)
+    mats = np.loadtxt(folder + 'mater.txt', ndmin=2)
+    elements = np.loadtxt(folder + 'eles.txt', ndmin=2)
+    loads = np.loadtxt(folder + 'loads.txt', ndmin=2)
 
     return nodes, mats, elements, loads
 
 def proini(nodes, mats, elements, loads):
     """Extract problem parameters and nodal coordinates"""
-    ne = len(elements[:, 0])
-    nn = len(nodes[:, 0])
-    nm = len(mats)
-    nl = len(loads[:, 0])
+    ne = elements.shape[0]
+    nn = nodes.shape[0]
+    nm = mats.shape[0]
+    nl = loads.shape[0]
 
     return ne, nn, nm, nl
 

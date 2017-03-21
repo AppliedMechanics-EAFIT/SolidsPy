@@ -38,9 +38,9 @@ Circle(6) = {5, 1, 7};
 Circle(7) = {7, 1, 6};
 
 // Surfaces
-Line Loop(8) = {1, -5, 7, 4};
+Line Loop(8) = {-1, 5, -7, -4};
 Plane Surface(9) = {8};
-Line Loop(10) = {6, 5, 2, 3};
+Line Loop(10) = {-6, -5, -2, -3};
 Plane Surface(11) = {10};
 Transfinite Line {7, 1} = npts_arc1 Using Progression 1;
 Transfinite Line {6, 2} = npts_arc2 Using Progression 1;
