@@ -1,4 +1,4 @@
-I/* Bridge near Limyra
+/* Bridge near Limyra
 
 References
 ----------
@@ -42,7 +42,7 @@ Line Loop(8) = {1, -5, 7, 4};
 Plane Surface(9) = {8};
 Line Loop(10) = {6, 5, 2, 3};
 Plane Surface(11) = {10};
-Symmetry {1, 0, 0, 0} {
+Symmetry {-1, 0, 0, 0} {
   Duplicata { Surface{9, 11}; }
 }
 

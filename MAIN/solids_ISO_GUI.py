@@ -16,7 +16,7 @@ IC0602 INTRODUCTION TO THE FINITE ELEMENT METHOD
 Universidad EAFIT
 Departamento de Ingenieria Civil
 
-Last updated February 2017
+Last updated March 2017
 """
 from __future__ import division, print_function
 import sys
@@ -27,8 +27,8 @@ import assemutil as ass
 from datetime import datetime
 import matplotlib.pyplot as plt
 
+# Check Python version
 version = sys.version_info.major
-
 if version == 3:
     raw_input = input
 elif version == 2:
@@ -36,6 +36,7 @@ elif version == 2:
 else:
     raise ValueError("You should use Python 2.x at least!")
 
+# Try to run with easygui
 try:
     import easygui
     folder = easygui.diropenbox(title="Folder for the job") + "/"
@@ -88,15 +89,8 @@ pos.gmeshpost(IBC, nn, UG, folder=folder)
 """
 E_nodes, S_nodes = pos.strain_nodes(nodes , UU , ne , nn , elements , mats)
 pos.plot_strain(E_nodes, nodes, elements)
-pos.plot_stress(S_nodes, nodes, elements, plt_type="pcolor")
-eigs1, eigs2, vecs1, vecs2 = pos.principal_dirs(S_nodes)
-tri = pos.mesh2tri(nodes, elements)
-pos.tri_plot(tri, eigs1, title=r"Maximum stress: $\sigma_1$")
-plt.quiver(nodes[:, 1], nodes[:, 2], vecs1[:,0], vecs1[:,1], pivot="middle",
-           headwidth=0, headlength=0)
-plt.quiver(nodes[:, 1], nodes[:, 2], vecs2[:,0], vecs2[:,1], pivot="middle",
-           headwidth=0, headlength=0)
+pos.plot_stress(S_nodes, nodes, elements)
 end_time = datetime.now()
 print('Duration for post processing: {}'.format(end_time - start_time))
-print('Program terminated succesfully!')
+print('Analysis terminated successfully!')
 plt.show()

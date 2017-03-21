@@ -12,7 +12,6 @@ from __future__ import division, print_function
 import numpy as np
 import femutil as fem
 import gaussutil as gau
-import sympy as sym
 
 
 def uel4nquad(coord, enu, Emod):
@@ -34,10 +33,10 @@ def uel4nquad(coord, enu, Emod):
 
     Examples
     --------
-    
-    >>> coord = sym.Matrix([[-1, -1], [1, -1], [1, 1], [-1, 1]])
-    >>> stiff = uel4nquad(coord, S(1)/3, S(8)/3)
-    >>> stiff_ex = 1/6 * sym.Matrix([
+
+    >>> coord = np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]])
+    >>> stiff = uel4nquad(coord, 1/3, 8/3)
+    >>> stiff_ex = 1/6 * np.array([
     ...             [ 8,  3, -5,  0, -4, -3,  1,  0],
     ...             [ 3,  8,  0,  1, -3, -4,  0, -5],
     ...             [-5,  0,  8, -3,  1,  0, -4,  3],
@@ -46,7 +45,7 @@ def uel4nquad(coord, enu, Emod):
     ...             [-3, -4,  0, -5,  3,  8,  0,  1],
     ...             [ 1,  0, -4,  3, -5,  0,  8, -3],
     ...             [ 0, -5,  3, -4,  0,  1, -3,  8]])
-    >>> (stiff - stiff_ex).norm()/stiff_ex.norm() < 1e-6
+    >>> np.allclose(stiff, stiff_ex)
     True
 
     """
@@ -59,7 +58,7 @@ def uel4nquad(coord, enu, Emod):
         si = XP[i, 1]
         alf = XW[i]
         ddet, B = fem.stdm4NQ(ri, si, coord)
-        kl = kl + B.T*C*B*alf*ddet
+        kl = kl + np.dot(np.dot(B.T,C), B)*alf*ddet
     return kl
 
 
@@ -82,16 +81,16 @@ def uel6ntrian(coord, enu, Emod):
  
     Examples
     --------
-    
-    >>> coord = sym.Matrix([
+
+    >>> coord = np.array([
     ...         [0, 0],
     ...         [1, 0],
     ...         [0, 1],
     ...         [0.5, 0],
     ...         [0.5, 0.5],
     ...         [0, 0.5]])
-    >>> stiff = uel6ntrian(coord, S(1)/3, S(8)/3)
-    >>> stiff_ex = 1/6 * sym.Matrix([
+    >>> stiff = uel6ntrian(coord,1/3, 8/3)
+    >>> stiff_ex = 1/6 * np.array([
     ...            [12, 6, 3, 1, 1, 1, -12, -4, 0, 0, -4, -4],
     ...            [6, 12, 1, 1, 1, 3, -4, -4, 0, 0, -4, -12],
     ...            [3, 1, 9, 0, 0, -1, -12, -4, 0, 4, 0, 0],
@@ -104,7 +103,7 @@ def uel6ntrian(coord, enu, Emod):
     ...            [0, 0, 4, 0, 4, 0, -8, -24, 8, 32, -8, -8],
     ...            [-4, -4, 0, 0, -4, -4, 0, 8, -24, -8, 32, 8],
     ...            [-4, -12, 0, 0, -4, -12, 8, 0, -8, -8, 8, 32]])
-    >>> (stiff - stiff_ex).norm()/stiff_ex.norm() < 1e-6
+    >>> np.allclose(stiff, stiff_ex)
     True
     
     """
@@ -117,7 +116,7 @@ def uel6ntrian(coord, enu, Emod):
         si = XP[i, 1]
         alf = XW[i]
         ddet, B = fem.stdm6NT(ri, si, coord)
-        kl = kl + 0.5*B.T*C*B*alf*ddet
+        kl = kl + 0.5*np.dot(np.dot(B.T,C), B)*alf*ddet
     return kl
 
 
@@ -140,20 +139,20 @@ def uel3ntrian(coord, enu, Emod):
 
     Examples
     --------
-    
-    >>> coord = sym.Matrix([
+
+    >>> coord = np.array([
     ...         [0, 0],
     ...         [1, 0],
     ...         [0, 1]])
-    >>> stiff = uel3ntrian(coord, S(1)/3, S(8)/3)
-    >>> stiff_ex = 1/2 * sym.Matrix([
+    >>> stiff = uel3ntrian(coord, 1/3, 8/3)
+    >>> stiff_ex = 1/2 * np.array([
     ...            [4, 2, -3, -1, -1, -1],
     ...            [2, 4, -1, -1, -1, -3],
     ...            [-3, -1, 3, 0, 0, 1],
     ...            [-1, -1, 0, 1, 1, 0],
     ...            [-1, -1, 0, 1, 1, 0],
     ...            [-1, -3, 1, 0, 0, 3]])
-    >>> (stiff - stiff_ex).norm()/stiff_ex.norm() < 1e-6
+    >>> np.allclose(stiff, stiff_ex)
     True
 
     """
@@ -166,7 +165,7 @@ def uel3ntrian(coord, enu, Emod):
         si = XP[i, 1]
         alf = XW[i]
         ddet, B = fem.stdm3NT(ri, si, coord)
-        kl = kl + 0.5*B.T*C*B*alf*ddet
+        kl = kl + 0.5*np.dot(np.dot(B.T,C), B)*alf*ddet
     return kl
 
 
@@ -176,7 +175,7 @@ def uelspring(coord, enu, Emod):
     Parameters
     ----------
     coord : ndarray
-      Coordinates for the nodes of the element (3, 2).
+      Coordinates for the nodes of the element (2, 2).
     enu : float
       Fictitious parameter.
     Emod : float
@@ -185,15 +184,29 @@ def uelspring(coord, enu, Emod):
     Returns
     -------
     kl : ndarray
-      Local stiffness matrix for the element (2, 2).
+      Local stiffness matrix for the element (4, 4).
 
+    Examples
+    --------
+
+    >>> coord = np.array([
+    ...         [0, 0],
+    ...         [1, 0]])
+    >>> stiff = uelspring(coord, 1/3, 8/3)
+    >>> stiff_ex = 8/3 * np.array([
+    ...    [1, 0, -1, 0],
+    ...    [0, 1, 0, -1],
+    ...    [-1, 0, 1, 0],
+    ...    [0, -1, 0, 1]])
+    >>> np.allclose(stiff, stiff_ex)
+    True
 
     """
-    kl = np.zeros([4, 4])
-    kl[0,0]= Emod
-    kl[0,2]=-Emod
-    kl[2,0]=-Emod
-    kl[2,2]= Emod
+    kl = Emod * np.array([
+        [1, 0, -1, 0],
+        [0, 1, 0, -1],
+        [-1, 0, 1, 0],
+        [0, -1, 0, 1]])
     return kl
 
 

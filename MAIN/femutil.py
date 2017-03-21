@@ -23,7 +23,6 @@ References
 from __future__ import division, print_function
 import gaussutil as gau
 import numpy as np
-import sympy as sym
 
 
 def eletype(iet):
@@ -82,8 +81,8 @@ def sha4(x, y):
 
     Returns
     -------
-    N : Matrix
-      Matrix of interpolation functions.
+    N : Numpy array
+      Array of interpolation functions.
 
     Examples
     --------
@@ -91,22 +90,24 @@ def sha4(x, y):
     (1, 1). Thus
 
     >>> N = sha4(0, 0)
-    >>> print(N[0, :])
-    Matrix([[1/4, 0, 1/4, 0, 1/4, 0, 1/4, 0]])
-    >>> print(N[1, :])
-    Matrix([[0, 1/4, 0, 1/4, 0, 1/4, 0, 1/4]])
+    >>> N_ex = np.array([
+    ...    [1/4, 0, 1/4, 0, 1/4, 0, 1/4, 0],
+    ...    [0, 1/4, 0, 1/4, 0, 1/4, 0, 1/4]])
+    >>> np.allclose(N, N_ex)
+    True
 
     and
 
     >>> N = sha4(1, 1)
-    >>> print(N[0, :])
-    Matrix([[0, 0, 0, 0, 1, 0, 0, 0]])
-    >>> print(N[1, :])
-    Matrix([[0, 0, 0, 0, 0, 1, 0, 0]])
+    >>> N_ex = np.array([
+    ...    [0, 0, 0, 0, 1, 0, 0, 0],
+    ...    [0, 0, 0, 0, 0, 1, 0, 0]])
+    >>> np.allclose(N, N_ex)
+    True
 
     """
-    N = sym.zeros(2, 8)
-    H = sym.S(1)/4*sym.Matrix(
+    N = np.zeros((2, 8))
+    H = 0.25*np.array(
         [(1 - x)*(1 - y),
          (1 + x)*(1 - y),
          (1 + x)*(1 + y),
@@ -131,8 +132,8 @@ def sha6(x, y):
 
     Returns
     -------
-    N : Matrix
-      Matrix of interpolation functions.
+    N : Numpy array
+      Array of interpolation functions.
 
     Examples
     --------
@@ -140,22 +141,24 @@ def sha6(x, y):
     (0, 0.5). Thus
 
     >>> N = sha6(0, 0)
-    >>> print(N[0, :])
-    Matrix([[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-    >>> print(N[1, :])
-    Matrix([[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+    >>> N_ex = np.array([
+    ...    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ...    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+    >>> np.allclose(N, N_ex)
+    True
 
     and
 
-    >>> N = sha6(sym.S(1)/2, sym.S(1)/2)
-    >>> print(N[0, :])
-    Matrix([[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]])
-    >>> print(N[1, :])
-    Matrix([[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]])
+    >>> N = sha6(1/2, 1/2)
+    >>> N_ex = np.array([
+    ...     [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    ...     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]])
+    >>> np.allclose(N, N_ex)
+    True
 
     """
-    N = sym.zeros(2, 12)
-    H = sym.Matrix(
+    N = np.zeros((2, 12))
+    H = np.array(
         [(1 - x - y) - 2*x*(1 - x - y) - 2*y*(1 - x - y),
          x - 2*x*(1 - x - y) - 2*x*y,
          y - 2*x*y - 2*y*(1-x-y),
@@ -182,8 +185,8 @@ def sha3(x, y):
 
     Returns
     -------
-    N : Matrix
-      Matrix of interpolation functions.
+    N : Numpy array
+      Array of interpolation functions.
 
     Examples
     --------
@@ -191,23 +194,25 @@ def sha3(x, y):
     (0, 0.5). Thus
 
     >>> N = sha3(0, 0)
-    >>> print(N[0, :])
-    Matrix([[1, 0, 0, 0, 0, 0]])
-    >>> print(N[1, :])
-    Matrix([[0, 1, 0, 0, 0, 0]])
+    >>> N_ex = np.array([
+    ...    [1, 0, 0, 0, 0, 0],
+    ...    [0, 1, 0, 0, 0, 0]])
+    >>> np.allclose(N, N_ex)
+    True
 
     and
 
-    >>> N = sha3(sym.S(1)/2, sym.S(1)/2)
-    >>> print(N[0, :])
-    Matrix([[0, 0, 1/2, 0, 1/2, 0]])
-    >>> print(N[1, :])
-    Matrix([[0, 0, 0, 1/2, 0, 1/2]])
+    >>> N = sha3(1/2, 1/2)
+    >>> N_ex = np.array([
+    ...    [0, 0, 1/2, 0, 1/2, 0],
+    ...    [0, 0, 0, 1/2, 0, 1/2]])
+    >>> np.allclose(N, N_ex)
+    True
 
     """
-    N = sym.zeros(2, 6)
-    H = sym.Matrix(
-        [(1 - x - y),
+    N = np.zeros((2, 6))
+    H = np.array([
+        (1 - x - y),
          x,
          y])
 
@@ -238,25 +243,15 @@ def stdm4NQ(r, s, coord):
       Strain-displacement interpolator evaluated at `(r, s)`.
 
     """
-    rr, ss = sym.symbols('rr ss')
     nn = 4
-    B = sym.zeros(3, 2*nn)
-    dhdx = sym.zeros(2, nn)
-    DNR = sym.zeros(2, nn)
-    N = sym.S(1)/4*sym.Matrix(
-        [(1 - rr)*(1 - ss),
-         (1 + rr)*(1 - ss),
-         (1 + rr)*(1 + ss),
-         (1 - rr)*(1 + ss)])
-    for i in range(nn):
-        dhdx[0, i] = sym.diff(N[i], rr)
-        dhdx[1, i] = sym.diff(N[i], ss)
-    DNR = dhdx.subs([(rr, r), (ss, s)])
-
-    xj = jacoper(DNR, coord, nn)
+    B = np.zeros((3, 2*nn))
+    dhdx = 0.25*np.array([
+            [s - 1, -s + 1, s + 1, -s - 1],
+            [r - 1, -r - 1, r + 1, -r + 1]])
+    xj = jacoper(dhdx, coord, nn)
     ddet = np.linalg.det(xj)
     xi = np.linalg.inv(xj)
-    aux1 = xi*DNR
+    aux1 = np.dot(xi, dhdx)
     for i in range(nn):
         B[0, 2*i] = aux1[0, i]
         B[1, 2*i+1] = aux1[1, i]
@@ -285,28 +280,16 @@ def stdm6NT(r, s, coord):
       Strain-displacement interpolator evaluated at `(r, s)`.
 
     """
-    rr, ss = sym.symbols('rr ss')
     nn = 6
-    N = sym.zeros(nn)
-    B = sym.zeros(3, 2*nn)
-    dhdx = sym.zeros(2, nn)
-    DNR = sym.zeros(2, nn)
-    N = sym.Matrix(
-        [(1 - rr-ss) - 2*rr*(1 - rr - ss) - 2*ss*(1 - rr - ss),
-         rr - 2*rr*(1 - rr - ss) - 2*rr*ss,
-         ss - 2*rr*ss - 2*ss*(1 - rr - ss),
-         4*rr*(1 - rr - ss),
-         4*rr*ss,
-         4*ss*(1 - rr - ss)])
-    for i in range(nn):
-        dhdx[0, i] = sym.diff(N[i], rr)
-        dhdx[1, i] = sym.diff(N[i], ss)
-    DNR = dhdx.subs([(rr, r), (ss, s)])
+    B = np.zeros((3, 2*nn))
+    dhdx = np.array([
+        [4*r + 4*s - 3, 4*r - 1, 0, -8*r - 4*s + 4, 4*s,  -4*s],
+        [4*r + 4*s - 3, 0, 4*s - 1,  -4*r, 4*r, -4*r - 8*s + 4]])
 
-    xj = jacoper(DNR, coord, nn)
+    xj = jacoper(dhdx, coord, nn)
     ddet = np.linalg.det(xj)
     xi = np.linalg.inv(xj)
-    aux1 = xi*DNR
+    aux1 = np.dot(xi, dhdx)
     for i in range(nn):
         B[0, 2*i] = aux1[0, i]
         B[1, 2*i+1] = aux1[1, i]
@@ -335,25 +318,16 @@ def stdm3NT(r, s, coord):
       Strain-displacement interpolator evaluated at `(r, s)`.
 
     """
-    rr, ss = sym.symbols('rr ss')
     nn = 3
-    N = sym.zeros(nn)
-    B = sym.zeros(3, 2*nn)
-    dhdx = sym.zeros(2, nn)
-    DNR = sym.zeros(2, nn)
-    N = sym.Matrix(
-        [(1 - rr - ss),
-         rr,
-         ss])
-    for i in range(nn):
-        dhdx[0, i] = sym.diff(N[i], rr)
-        dhdx[1, i] = sym.diff(N[i], ss)
-    DNR = dhdx.subs([(rr, r), (ss, s)])
+    B = np.zeros((3, 2*nn))
+    dhdx = np.array([
+            [-1, 1, 0],
+            [-1, 0, 1]])
 
-    xj = jacoper(DNR, coord, nn)
+    xj = jacoper(dhdx, coord, nn)
     xi = np.linalg.inv(xj)
     ddet = np.linalg.det(xj)
-    aux1 = xi*DNR
+    aux1 = np.dot(xi, dhdx)
     for i in range(nn):
         B[0, 2*i] = aux1[0, i]
         B[1, 2*i+1] = aux1[1, i]
@@ -413,12 +387,16 @@ def umat(nu, E):
     Examples
     --------
 
-    >>> C = umat(sym.S(1)/3, sym.S(8)/3)
-    >>> print(C)
-    Matrix([[3, 1, 0], [1, 3, 0], [0, 0, 1]])
+    >>> C = umat(1/3, 8/3)
+    >>> C_ex = np.array([
+    ...    [3, 1, 0],
+    ...    [1, 3, 0],
+    ...    [0, 0, 1]])
+    >>> np.allclose(C, C_ex)
+    True
 
     """
-    C = sym.zeros(3, 3)
+    C = np.zeros((3, 3))
     enu = E/(1 - nu**2)
     mnu = (1 - nu)/2
     C[0, 0] = enu
@@ -452,23 +430,18 @@ def str_el4(coord, ul):
     """
     epsl = np.zeros([3])
     epsG = np.zeros([3, 4])
-    epsGT = np.zeros([4, 3])
     xl = np.zeros([4, 2])
-    x, y = sym.symbols('x y')
-
     XW, XP = gau.gpoints2x2()
     for i in range(4):
         ri = XP[i, 0]
         si = XP[i, 1]
         ddet, B = stdm4NQ(ri, si, coord)
-        epsl = B*ul
+        epsl = np.dot(B, ul)
         epsG[:, i] = epsl[:]
         N = sha4(ri, si)
-        NN = N.subs([(x, ri), (y, si)])
-        xl[i, 0] = sum(NN[0, 2*i]*coord[i, 0] for i in range(4))
-        xl[i, 1] = sum(NN[0, 2*i]*coord[i, 1] for i in range(4))
-    epsGT = epsG.T
-    return epsGT, xl
+        xl[i, 0] = sum(N[0, 2*i]*coord[i, 0] for i in range(4))
+        xl[i, 1] = sum(N[0, 2*i]*coord[i, 1] for i in range(4))
+    return epsG.T, xl
 
 
 def str_el6(coord, ul):
@@ -493,23 +466,18 @@ def str_el6(coord, ul):
     """
     epsl = np.zeros([3])
     epsG = np.zeros([3, 7])
-    epsGT = np.zeros([7, 3])
     xl = np.zeros([7, 2])
-    x, y = sym.symbols('x y')
-
     XW, XP = gau.gpoints7()
     for i in range(7):
         ri = XP[i, 0]
         si = XP[i, 1]
         ddet, B = stdm6NT(ri, si, coord)
-        epsl = B*ul
+        epsl = np.dot(B, ul)
         epsG[:, i] = epsl[:]
         N = sha6(ri, si)
-        NN = N.subs([(x, ri), (y, si)])
-        xl[i, 0] = sum(NN[0, 2*i]*coord[i, 0] for i in range(6))
-        xl[i, 1] = sum(NN[0, 2*i]*coord[i, 1] for i in range(6))
-    epsGT = epsG.T
-    return epsGT, xl
+        xl[i, 0] = sum(N[0, 2*i]*coord[i, 0] for i in range(6))
+        xl[i, 1] = sum(N[0, 2*i]*coord[i, 1] for i in range(6))
+    return epsG.T, xl
 
 
 def str_el3(coord, ul):
@@ -534,19 +502,19 @@ def str_el3(coord, ul):
     """
     epsl = np.zeros([3])
     epsG = np.zeros([3, 3])
-    epsGT = np.zeros([3, 3])
     xl = np.zeros([3, 2])
-    x, y = sym.symbols('x y')
     XW, XP = gau.gpoints3()
     for i in range(3):
         ri = XP[i, 0]
         si = XP[i, 1]
         ddet, B = stdm3NT(ri, si, coord)
-        epsl = B*ul
-        epsG[:, i] = epsl[:]
+        epsl = np.dot(B, ul)
+        epsG[:, i] = epsl
         N = sha3(ri, si)
-        NN = N.subs([(x, ri), (y, si)])
-        xl[i, 0] = sum(NN[0, 2*i]*coord[i, 0] for i in range(3))
-        xl[i, 1] = sum(NN[0, 2*i]*coord[i, 1] for i in range(3))
-    epsGT = epsG.T
-    return epsGT, xl
+        xl[i, 0] = sum(N[0, 2*i]*coord[i, 0] for i in range(3))
+        xl[i, 1] = sum(N[0, 2*i]*coord[i, 1] for i in range(3))
+    return epsG.T, xl
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
