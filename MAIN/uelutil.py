@@ -215,8 +215,6 @@ def uelspring(coord, enu, Emod):
     return kl
 
 
-
-
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
