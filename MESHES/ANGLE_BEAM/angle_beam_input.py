@@ -30,7 +30,7 @@ loads_array[:, -1] = -1/nloads
 # Material data
 mater_array = np.array([[1e3, 1/3], [1e3, 1/3]])
 
-np.savetxt("eles.txt", els_array, fmt="%d")
+np.savetxt("eles.txt",  els_array, fmt="%d")
 np.savetxt("nodes.txt", nodes_array, fmt=("%d", "%.4f", "%.4f", "%d", "%d"))
 np.savetxt("loads.txt", loads_array, fmt=("%d", "%.6f", "%.6f"))
 np.savetxt("mater.txt", mater_array, fmt="%.6f")
