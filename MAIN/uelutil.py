@@ -209,7 +209,7 @@ def uelspring(coord, enu, Emod):
         [nx, ny , 0 , 0],
         [0,  0, nx , ny]])
     kl = Emod * np.array([
-        [-1, 1],
+        [1, -1],
         [-1, 1]])
     kG = np.dot(np.dot(Q.T, kl), Q)
     return kG
