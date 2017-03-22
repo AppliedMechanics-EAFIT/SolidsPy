@@ -194,10 +194,10 @@ def uelspring(coord, enu, Emod):
     ...         [1, 0]])
     >>> stiff = uelspring(coord, 1/3, 8/3)
     >>> stiff_ex = 8/3 * np.array([
-    ...    [1, 0, -1, 0],
-    ...    [0, 1, 0, -1],
     ...    [-1, 0, 1, 0],
-    ...    [0, -1, 0, 1]])
+    ...    [0, 0, 0, 0],
+    ...    [1, 0, -1, 0],
+    ...    [0, 0, 0, 0]])
     >>> np.allclose(stiff, stiff_ex)
     True
 
@@ -205,13 +205,17 @@ def uelspring(coord, enu, Emod):
     vec = coord[1, :] - coord[0, :]
     nx = vec[0]/np.linalg.norm(vec)
     ny = vec[1]/np.linalg.norm(vec)
-    Ex = Emod * nx
-    Ey = Emod * ny
-    kl = np.array([
-        [Ex, 0, -Ex, 0],
-        [0, Ey, 0, -Ey],
-        [-Ex, 0, Ex, 0],
-        [0, -Ey, 0, Ey]])
+    Q = np.array([
+        [nx, 0, -ny , 0],
+        [0, nx, 0 , -ny],
+        [ny, 0, nx, 0],
+        [0, ny, 0, nx]])
+    kl = Emod * np.array([
+        [-1, 0, 1, 0],
+        [0, -1, 0, 1],
+        [1, 0, -1, 0],
+        [0, 1, 0, -1]])
+    kl = np.dot(np.dot(Q.T, kl), Q)
     return kl
 
 

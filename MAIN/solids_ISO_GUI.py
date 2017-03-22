@@ -52,6 +52,7 @@ start_time = datetime.now()
 
 #%% PRE-PROCESSING
 #
+springs= True
 nodes, mats, elements, loads = pre.readin(folder=folder)
 if echo.capitalize() in ["YES", "Y"]:
     pre.echomod(nodes, mats, elements, loads, folder=folder)
@@ -77,20 +78,23 @@ print('Duration for system solution: {}'.format(end_time - start_time))
 #
 start_time = datetime.now()
 UC = pos.complete_disp(IBC, nodes, UG)
-pos.plot_disp(UC, nodes, elements)
-"""
-  Scatter displacements over the elements
-"""
-UU = pos.scatter(DME, UG, ne, neq, elements)
-pos.gmeshpost(IBC, nn, UG, folder=folder)
-
-"""
-  Generates points inside the elements and computes strain solution
-"""
-E_nodes, S_nodes = pos.strain_nodes(nodes , UU , ne , nn , elements , mats)
-pos.plot_strain(E_nodes, nodes, elements)
-pos.plot_stress(S_nodes, nodes, elements)
-end_time = datetime.now()
-print('Duration for post processing: {}'.format(end_time - start_time))
-print('Analysis terminated successfully!')
-plt.show()
+if springs:
+    print(UC)
+else:
+    pos.plot_disp(UC, nodes, elements)
+    """
+      Scatter displacements over the elements
+    """
+    UU = pos.scatter(DME, UG, ne, neq, elements)
+    pos.gmeshpost(IBC, nn, UG, folder=folder)
+    
+    """
+      Generates points inside the elements and computes strain solution
+    """
+    E_nodes, S_nodes = pos.strain_nodes(nodes , UU , ne , nn , elements , mats)
+    pos.plot_strain(E_nodes, nodes, elements)
+    pos.plot_stress(S_nodes, nodes, elements)
+    end_time = datetime.now()
+    print('Duration for post processing: {}'.format(end_time - start_time))
+    print('Analysis terminated successfully!')
+    plt.show()

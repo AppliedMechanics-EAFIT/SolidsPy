@@ -72,8 +72,8 @@ def test_uelspring():
         [1, 0]])
     stiff = uel.uelspring(coord, 1/3, 8/3)
     stiff_ex = 8/3 * np.array([
-        [1, 0, -1, 0],
-        [0, 0, 0, 0],
         [-1, 0, 1, 0],
+        [0, 0, 0, 0],
+        [1, 0, -1, 0],
         [0, 0, 0, 0]])
     assert np.allclose(stiff, stiff_ex)
