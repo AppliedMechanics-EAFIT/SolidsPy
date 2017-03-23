@@ -215,6 +215,52 @@ def uelspring(coord, enu, Emod):
     return kG
 
 
+def ueltruss2D(coord, A, Emod):
+    """2D-2-noded truss element
+
+    Parameters
+    ----------
+    coord : ndarray
+      Coordinates for the nodes of the element (2, 2).
+    A : float
+      Cross section area.
+    Emod : float
+      Young modulus (>0).
+
+    Returns
+    -------
+    kl : ndarray
+      Local stiffness matrix for the element (4, 4).
+
+    Examples
+    --------
+
+    >>> coord = np.array([
+    ...         [0, 0],
+    ...         [1, 0]])
+    >>> stiff = ueltruss2D(coord, 1.0 , 1000.0)
+    >>> stiff_ex = 8/3 * np.array([
+    ...    [-1, 0, 1, 0],
+    ...    [0, 0, 0, 0],
+    ...    [1, 0, -1, 0],
+    ...    [0, 0, 0, 0]])
+    >>> np.allclose(stiff, stiff_ex)
+    True
+
+    """
+    vec = coord[1, :] - coord[0, :]
+    nx = vec[0]/np.linalg.norm(vec)
+    ny = vec[1]/np.linalg.norm(vec)
+    length = np.linalg.norm(vec) 
+    Q = np.array([
+        [nx, ny , 0 , 0],
+        [0,  0, nx , ny]])
+    kl =(A*Emod/length) * np.array([
+        [1, -1],
+        [-1, 1]])
+    kG = np.dot(np.dot(Q.T, kl), Q)
+    return kG
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()

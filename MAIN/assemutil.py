@@ -133,6 +133,8 @@ def retriever(elements , mats , nodes , i):
         kloc = ue.uel3ntrian(elcoor, enu, emod)
     elif iet == 5:
         kloc = ue.uelspring(elcoor, enu, emod)
+    elif iet == 6:
+        kloc =ue.ueltruss2D(elcoor, enu, emod)
     
     return kloc , ndof
 
