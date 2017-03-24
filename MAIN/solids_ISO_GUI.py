@@ -41,20 +41,24 @@ try:
     import easygui
     folder = easygui.diropenbox(title="Folder for the job") + "/"
     name = easygui.enterbox("Enter the job name")
+    spring_pos = easygui.buttonbox("Do you have springs in your model?",
+                             choices=["Yes", "No"])
     echo = easygui.buttonbox("Do you want to echo files?",
-                             choices=["Yes", "No"])  
+                             choices=["Yes", "No"])
+
 except:
     folder = raw_input('Enter folder (empty for the current one): ')
     name   = raw_input('Enter the job name: ')
+    spring_pos = raw_input("Do you have springs in your model? (y/N):")
     echo   = raw_input('Do you want to echo files? (y/N):')
+
 
 start_time = datetime.now()
 
 #%% PRE-PROCESSING
 #
-springs= True
 nodes, mats, elements, loads = pre.readin(folder=folder)
-if echo.capitalize() in ["YES", "Y"]:
+if echo.upper() in ["YES", "Y"]:
     pre.echomod(nodes, mats, elements, loads, folder=folder)
 ne, nn, nm, nl = pre.proini(nodes, mats, elements, loads)
 DME , IBC , neq = ass.DME(nn , ne , nodes , elements)
@@ -78,7 +82,7 @@ print('Duration for system solution: {}'.format(end_time - start_time))
 #
 start_time = datetime.now()
 UC = pos.complete_disp(IBC, nodes, UG)
-if springs:
+if spring_pos.upper() in ["YES", "Y"]:
     print(UC)
 else:
     pos.plot_disp(UC, nodes, elements)
@@ -87,7 +91,7 @@ else:
     """
     UU = pos.scatter(DME, UG, ne, neq, elements)
     pos.gmeshpost(IBC, nn, UG, folder=folder)
-    
+
     """
       Generates points inside the elements and computes strain solution
     """
