@@ -69,6 +69,10 @@ def eletype(iet):
         ndof = 4
         nnodes = 2
         ngpts = 3
+    if iet == 7:
+        ndof = 6
+        nnodes = 2
+        ngpts = 3
 
     return ndof, nnodes, ngpts
 
