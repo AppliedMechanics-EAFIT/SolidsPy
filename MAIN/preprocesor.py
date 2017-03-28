@@ -18,7 +18,18 @@ def readin(folder=""):
     return nodes, mats, elements, loads
 
 def proini(nodes, mats, elements, loads):
-    """Extract problem parameters and nodal coordinates"""
+    """Extract problem parameters
+    from nodes, elements, mats and loads
+    arrays.
+
+    Returns
+    -------
+    ne : Number of elements.
+    nn : Number of nodes.
+    nm : Number of material profiles.
+    nl : Number of point loads
+
+    """
     ne = elements.shape[0]
     nn = nodes.shape[0]
     nm = mats.shape[0]

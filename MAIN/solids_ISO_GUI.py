@@ -21,13 +21,15 @@ Last updated March 2017
 from __future__ import division, print_function
 import sys
 import numpy as np
+from datetime import datetime
+import matplotlib.pyplot as plt
+#
 import preprocesor as pre
 import postprocesor as pos
 import assemutil as ass
-from datetime import datetime
-import matplotlib.pyplot as plt
-
+#
 # Check Python version
+#
 version = sys.version_info.major
 if version == 3:
     raw_input = input
