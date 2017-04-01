@@ -38,7 +38,7 @@ C
       DO I=1,NUMNP
          iflag=1
          READ (IIN,    *) N,(COORD(JJ,I),JJ=1,2),CGAR1
-         call CHECKBC(x1,x2,y1,y2,iflag,COORD(1,I),COORD(2,I))
+         CALL CHECKBC(x1,x2,y1,y2,iflag,COORD(1,I),COORD(2,I))
 C
          IF(iflag.EQ.0) THEN
             WRITE(INOD,1010) N-1,(COORD(JJ,I),JJ=1,2),-1,-1

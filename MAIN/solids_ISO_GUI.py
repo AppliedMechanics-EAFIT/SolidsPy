@@ -69,10 +69,10 @@ KG = np.zeros([neq, neq])
 #%% SYSTEM ASSEMBLY
 #
 for i in range(ne):
-    kloc , ndof  = ass.retriever(elements , mats  , nodes , i)
-    KG = ass.assembler(KG , neq , kloc , ndof , DME , i)
+    kloc , ndof , iet  = ass.retriever(elements , mats  , nodes , i)
+    KG = ass.assembler(KG , neq , kloc , ndof , DME , iet , i)
 RHSG = ass.loadasem(loads, IBC, neq, nl)
-
+#
 #%% SYSTEM SOLUTION
 UG = np.linalg.solve(KG, RHSG)
 if not(np.allclose(np.dot(KG, UG), RHSG)):
