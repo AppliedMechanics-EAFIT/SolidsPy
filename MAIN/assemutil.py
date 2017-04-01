@@ -33,10 +33,12 @@ def eqcounter(nn, nodes):
 
     """
     IBC = np.zeros([nn, 2], dtype=np.integer)
+    for i in range(nn):
+        for k in range(2):
+            IBC[i , k] = int(nodes[i , k+3])
     neq = 0
     for i in range(nn):
         for j in range(2):
-            IBC[i, j] = int(nodes[i, j+3])
             if IBC[i, j] == 0:
                 IBC[i, j] = neq
                 neq = neq + 1
@@ -71,15 +73,8 @@ def DME(nn , ne , nodes , elements):
     """
     IELCON = np.zeros([ne, 9], dtype=np.integer)
     DME = np.zeros([ne, 18], dtype=np.integer)
-    IBC = np.zeros([nn, 2], dtype=np.integer)
 #
-    neq = 0
-    for i in range(nn):
-        for j in range(2):
-            IBC[i, j] = int(nodes[i, j+3])
-            if IBC[i, j] == 0:
-                IBC[i, j] = neq
-                neq = neq + 1
+    neq, IBC = eqcounter(nn, nodes)
 #
     for i in range(ne):
         iet = elements[i, 1]
@@ -119,29 +114,29 @@ def retriever(elements , mats , nodes , i):
     ndof, nnodes, ngpts = fem.eletype(iet)
     elcoor = np.zeros([nnodes, 2])
     im = np.int(elements[i, 2])
-    emod = mats[im, 0]
-    enu = mats[im, 1]
+    par0 = mats[im, 0]
+    par1 = mats[im, 1]
     for j in range(nnodes):
         IELCON[j] = elements[i, j+3]
         elcoor[j, 0] = nodes[IELCON[j], 1]
         elcoor[j, 1] = nodes[IELCON[j], 2]
     if iet == 1:
-        kloc = ue.uel4nquad(elcoor, enu, emod)
+        kloc = ue.uel4nquad(elcoor, par1 , par0)
     elif iet == 2:
-        kloc = ue.uel6ntrian(elcoor, enu, emod)
+        kloc = ue.uel6ntrian(elcoor, par1 , par0)
     elif iet == 3:
-        kloc = ue.uel3ntrian(elcoor, enu, emod)
+        kloc = ue.uel3ntrian(elcoor, par1 , par0)
     elif iet == 5:
-        kloc = ue.uelspring(elcoor, enu, emod)
+        kloc = ue.uelspring(elcoor, par1 , par0)
     elif iet == 6:
-        kloc =ue.ueltruss2D(elcoor, enu, emod)
+        kloc =ue.ueltruss2D(elcoor, par1 , par0)
     elif iet == 7:
-        kloc =ue.uelbeam2DU(elcoor, enu, emod)
+        kloc =ue.uelbeam2DU(elcoor, par1 , par0)
     
-    return kloc , ndof
+    return kloc , ndof , iet
 
 
-def assembler(KG , neq , kloc , ndof , DME , i):
+def assembler(KG , neq , kloc , ndof , DME , iet , i):
     """Assembles the global stiffness matrix KG[]
 
     Parameters
@@ -168,8 +163,15 @@ def assembler(KG , neq , kloc , ndof , DME , i):
     """
     KGLOB = np.zeros([neq, neq])
     dme    = np.zeros([ndof], dtype=np.integer)
-    for ii in range(ndof):
-        dme[ii] = DME[i, ii]
+    if iet == 6:
+        dme[0] = DME[i, 0]
+        dme[1] = DME[i, 1]
+        dme[2] = DME[i, 3]
+        dme[3] = DME[i, 4]
+    else:
+        for ii in range(ndof):
+            dme[ii] = DME[i, ii]
+#    
     for ii in range(ndof):
         kk = dme[ii]
         if kk != -1:
