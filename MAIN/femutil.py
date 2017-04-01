@@ -354,16 +354,7 @@ def jacoper(dhdx, coord, nn):
       Jacobian of the transformation evaluated at `(r, s)`.
 
     """
-    dum = 0.0
-    xja = np.zeros([2, 2])
-    for k in range(2):
-        for j in range(2):
-            for i in range(nn):
-                dum = dum + dhdx[k, i]*coord[i, j]
-            xja[k, j] = dum
-            dum = 0.0
-
-    return xja
+    return dhdx.dot(coord)
 
 
 def umat(nu, E):
