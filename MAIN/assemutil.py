@@ -161,7 +161,6 @@ def assembler(KG , neq , kloc , ndof , DME , iet , i):
       Array with the global stiffness matrix.
 
     """
-    KGLOB = np.zeros([neq, neq])
     dme    = np.zeros([ndof], dtype=np.integer)
     if iet == 6:
         dme[0] = DME[i, 0]
@@ -179,9 +178,8 @@ def assembler(KG , neq , kloc , ndof , DME , iet , i):
                 ll = dme[jj]
                 if ll != -1:
                     KG[kk, ll] = KG[kk, ll] + kloc[ii, jj]
-    KGLOB = KG
     
-    return KGLOB
+    return KG
 
 
 def loadasem(loads, IBC, neq, nl):

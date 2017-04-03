@@ -68,6 +68,7 @@ KG = np.zeros([neq, neq])
 
 #%% SYSTEM ASSEMBLY
 #
+KG = np.zeros([neq, neq])
 for i in range(ne):
     kloc , ndof , iet  = ass.retriever(elements , mats  , nodes , i)
     KG = ass.assembler(KG , neq , kloc , ndof , DME , iet , i)
