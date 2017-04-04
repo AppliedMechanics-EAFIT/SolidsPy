@@ -182,6 +182,53 @@ def assembler(KG , neq , kloc , ndof , DME , iet , i):
     return KG
 
 
+def coo_assem(rows, cols, vals , neq , kloc , ndof , DME , iet , i):
+    """Assembles the global stiffness matrix KG[]
+
+    Parameters
+    ----------
+    KG : ndarray (float)
+      Array with the current values of the stiffness matrix.
+    neq : int
+      Total number of equations in the system.
+    kloc : ndarray (float)
+      Array with elemental stiffness matrix to be assembled.
+      with imposed displacements.
+    ndof : int
+      Number of degrees of freedom of the element to be assembled.
+    DME  : ndarray (int)
+      Assembly operator.
+    i    : int.
+      Identifier of the element to be assembled.
+
+    Returns
+    -------
+    KGLOB : ndarray (float)
+      Array with the global stiffness matrix.
+
+    """
+    dme = np.zeros([ndof], dtype=np.integer)
+    if iet == 6:
+        dme[0] = DME[i, 0]
+        dme[1] = DME[i, 1]
+        dme[2] = DME[i, 3]
+        dme[3] = DME[i, 4]
+    else:
+        dme = DME[i, :ndof]
+
+    for row in range(ndof):
+        glob_row = dme[row]
+        if glob_row != -1:
+            for col in range(ndof):
+                glob_col = dme[col]
+                if glob_col != -1:
+                    rows.append(glob_row)
+                    cols.append(glob_col)
+                    vals.append(kloc[row, col])
+
+    return None
+
+
 def loadasem(loads, IBC, neq, nl):
     """Assembles the global Right Hand Side Vector RHSG
 
