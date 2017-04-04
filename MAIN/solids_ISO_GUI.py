@@ -43,8 +43,6 @@ try:
     import easygui
     folder = easygui.diropenbox(title="Folder for the job") + "/"
     name = easygui.enterbox("Enter the job name")
-    spring_pos = easygui.buttonbox("Do you have springs in your model?",
-                             choices=["Yes", "No"])
     echo = easygui.buttonbox("Do you want to echo files?",
                              choices=["Yes", "No"])
 
@@ -60,6 +58,10 @@ start_time = datetime.now()
 #%% PRE-PROCESSING
 #
 nodes, mats, elements, loads = pre.readin(folder=folder)
+# Check for structural elements in the mesh
+struct_pos = 5 in elements[:, 1] or \
+             6 in elements[:, 1] or \
+             7 in elements[:, 1]
 if echo.upper() in ["YES", "Y"]:
     pre.echomod(nodes, mats, elements, loads, folder=folder)
 ne, nn, nm, nl = pre.proini(nodes, mats, elements, loads)
@@ -85,7 +87,7 @@ print('Duration for system solution: {}'.format(end_time - start_time))
 #
 start_time = datetime.now()
 UC = pos.complete_disp(IBC, nodes, UG)
-if spring_pos.upper() in ["YES", "Y"]:
+if struct_pos:
     print(UC)
 else:
     pos.plot_disp(UC, nodes, elements)

@@ -12,7 +12,7 @@ def readin(folder=""):
     """Read the input files"""
     nodes = np.loadtxt(folder + 'nodes.txt', ndmin=2)
     mats = np.loadtxt(folder + 'mater.txt', ndmin=2)
-    elements = np.loadtxt(folder + 'eles.txt', ndmin=2)
+    elements = np.loadtxt(folder + 'eles.txt', ndmin=2, dtype=np.int)
     loads = np.loadtxt(folder + 'loads.txt', ndmin=2)
 
     return nodes, mats, elements, loads
@@ -42,5 +42,5 @@ def echomod(nodes, mats, elements, loads, folder=""):
     """Create echoes of the model input files"""
     np.savetxt(folder + "KNODES.txt", nodes, fmt='%5.2f', delimiter=' ')
     np.savetxt(folder + "KMATES.txt", mats, fmt='%5.2f', delimiter=' ')
-    np.savetxt(folder + "KELEMS.txt", elements, fmt='%5.2f', delimiter=' ')
+    np.savetxt(folder + "KELEMS.txt", elements, fmt='%d', delimiter=' ')
     np.savetxt(folder + "KLOADS.txt", loads, fmt='%5.2f', delimiter=' ')

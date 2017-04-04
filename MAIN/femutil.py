@@ -38,6 +38,9 @@ def eletype(iet):
         1. 4 node bilinear quadrilateral.
         2. 6 node quadratic triangle.
         3. 3 node linear triangle.
+        5. 2 node spring.
+        6. 2 node truss element.
+        7. 2 node beam (3 DOF per node).
 
     Returns
     -------
