@@ -71,13 +71,14 @@ DME , IBC , neq = ass.DME(nn , ne , nodes , elements)
 
 #%% SYSTEM ASSEMBLY
 #
-row = []
-col = []
+rows = []
+cols = []
 vals = []
 for i in range(ne):
     kloc , ndof , iet  = ass.retriever(elements , mats  , nodes , i)
-    ass.coo_assem(row, col, vals , neq , kloc , ndof , DME , iet , i)
-KG = coo_matrix((vals, (row, col)), shape=(neq, neq)).tocsr()
+    ass.coo_assem(rows, cols, vals , neq , kloc , ndof , DME , iet , i)
+KG = coo_matrix((vals, (rows, cols)), shape=(neq, neq)).tocsr()
+del cols, rows, vals
 RHSG = ass.loadasem(loads, IBC, neq, nl)
 #
 #%% SYSTEM SOLUTION
@@ -85,6 +86,7 @@ UG = spsolve(KG, RHSG)
 if not(np.allclose(KG.dot(UG), RHSG)):
     print("The system is not in equilibrium!")
 end_time = datetime.now()
+del KG
 print('Duration for system solution: {}'.format(end_time - start_time))
 
 #%% POST-PROCESSING
@@ -104,10 +106,10 @@ else:
     """
       Generates points inside the elements and computes strain solution
     """
-#    E_nodes, S_nodes = pos.strain_nodes(nodes , UU , ne , nn , elements , mats)
-#    pos.plot_strain(E_nodes, nodes, elements)
-#    pos.plot_stress(S_nodes, nodes, elements)
-#    end_time = datetime.now()
+    E_nodes, S_nodes = pos.strain_nodes(nodes , UU , ne , nn , elements , mats)
+    pos.plot_strain(E_nodes, nodes, elements)
+    pos.plot_stress(S_nodes, nodes, elements)
+    end_time = datetime.now()
     print('Duration for post processing: {}'.format(end_time - start_time))
     print('Analysis terminated successfully!')
     plt.show()
