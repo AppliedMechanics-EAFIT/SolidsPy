@@ -9,6 +9,7 @@ Analysis.
 """
 from __future__ import division, print_function
 import numpy as np
+from scipy.sparse import coo_matrix
 import uelutil as ue
 import femutil as fem
 
@@ -68,14 +69,14 @@ def DME(nn , ne , nodes , elements):
     IBC : ndarray (int)
       Boundary conditions array.
     neq : int
-      Number of activ equations in the system.
+      Number of active equations in the system.
 
     """
     IELCON = np.zeros([ne, 9], dtype=np.integer)
     DME = np.zeros([ne, 18], dtype=np.integer)
-#
+
     neq, IBC = eqcounter(nn, nodes)
-#
+
     for i in range(ne):
         iet = elements[i, 1]
         ndof, nnodes, ngpts = fem.eletype(iet)
@@ -136,97 +137,151 @@ def retriever(elements , mats , nodes , i):
     return kloc , ndof , iet
 
 
-def assembler(KG , neq , kloc , ndof , DME , iet , i):
-    """Assembles the global stiffness matrix KG[]
+def assembler(elements, mats, nodes, neq, DME, sparse=True):
+    """Assembles the global stiffness matrix
 
     Parameters
     ----------
-    KG : ndarray (float)
-      Array with the current values of the stiffness matrix.
-    neq : int
-      Total number of equations in the system.
-    kloc : ndarray (float)
-      Array with elemental stiffness matrix to be assembled.
-      with imposed displacements.
-    ndof : int
-      Number of degrees of freedom of the element to be assembled.
+    elements : ndarray (int)
+      Array with the number for the nodes in each element.
+    mats    : ndarray (float)
+      Array with the material profiles.
+    nodes    : ndarray (float)
+      Array with the nodal numbers and coordinates.
     DME  : ndarray (int)
       Assembly operator.
-    i    : int.
-      Identifier of the element to be assembled.
+    neq : int
+      Number of active equations in the system.
+    sparse : boolean (optional)
+      Boolean variable to pick sparse assembler. It is True
+      by default.
 
     Returns
     -------
-    KGLOB : ndarray (float)
-      Array with the global stiffness matrix.
+    KG : ndarray (float)
+      Array with the global stiffness matrix. It might be
+      dense or sparse, depending on the value of _sparse_
 
     """
-    dme    = np.zeros([ndof], dtype=np.integer)
-    if iet == 6:
-        dme[0] = DME[i, 0]
-        dme[1] = DME[i, 1]
-        dme[2] = DME[i, 3]
-        dme[3] = DME[i, 4]
+    if sparse:
+        KG = sparse_assem(elements, mats, nodes, neq, DME)
     else:
-        for ii in range(ndof):
-            dme[ii] = DME[i, ii]
-#    
-    for ii in range(ndof):
-        kk = dme[ii]
-        if kk != -1:
-            for jj in range(ndof):
-                ll = dme[jj]
-                if ll != -1:
-                    KG[kk, ll] = KG[kk, ll] + kloc[ii, jj]
-    
+        KG = dense_assem(elements, mats, nodes, neq, DME)
+
     return KG
 
 
-def coo_assem(rows, cols, vals , neq , kloc , ndof , DME , iet , i):
-    """Assembles the global stiffness matrix KG[]
+def dense_assem(elements, mats, nodes, neq, DME):
+    """
+    Assembles the global stiffness matrix _KG_
+    using a dense storing scheme
 
     Parameters
     ----------
-    KG : ndarray (float)
-      Array with the current values of the stiffness matrix.
-    neq : int
-      Total number of equations in the system.
-    kloc : ndarray (float)
-      Array with elemental stiffness matrix to be assembled.
-      with imposed displacements.
-    ndof : int
-      Number of degrees of freedom of the element to be assembled.
+    elements : ndarray (int)
+      Array with the number for the nodes in each element.
+    mats    : ndarray (float)
+      Array with the material profiles.
+    nodes    : ndarray (float)
+      Array with the nodal numbers and coordinates.
     DME  : ndarray (int)
       Assembly operator.
-    i    : int.
-      Identifier of the element to be assembled.
+    neq : int
+      Number of active equations in the system.
 
     Returns
     -------
-    KGLOB : ndarray (float)
-      Array with the global stiffness matrix.
+    KG : ndarray (float)
+      Array with the global stiffness matrix in a dense numpy
+      array.
 
     """
-    dme = np.zeros([ndof], dtype=np.integer)
-    if iet == 6:
-        dme[0] = DME[i, 0]
-        dme[1] = DME[i, 1]
-        dme[2] = DME[i, 3]
-        dme[3] = DME[i, 4]
-    else:
-        dme = DME[i, :ndof]
+    KG = np.zeros((neq, neq))
+    nels = elements.shape[0]
+    for el in range(nels):
+        kloc , ndof , iet  = retriever(elements , mats  , nodes , el)
+        if iet == 6:
+            dme    = np.zeros([ndof], dtype=np.integer)
+            dme[0] = DME[el, 0]
+            dme[1] = DME[el, 1]
+            dme[2] = DME[el, 3]
+            dme[3] = DME[el, 4]
+        else:
+            dme = DME[el, :ndof]
 
-    for row in range(ndof):
-        glob_row = dme[row]
-        if glob_row != -1:
-            for col in range(ndof):
-                glob_col = dme[col]
-                if glob_col != -1:
-                    rows.append(glob_row)
-                    cols.append(glob_col)
-                    vals.append(kloc[row, col])
+        for row in range(ndof):
+            glob_row = dme[row]
+            if glob_row != -1:
+                for col in range(ndof):
+                    glob_col = dme[col]
+                    if glob_col != -1:
+                        KG[glob_row, glob_col] = KG[glob_row, glob_col] +\
+                                                 kloc[row, col]
 
-    return None
+    return KG
+
+
+def sparse_assem(elements, mats, nodes, neq, DME):
+    """
+    Assembles the global stiffness matrix _KG_
+    using a sparse storing scheme
+
+    The scheme used to assemble is COOrdinate list (COO), and
+    it converted to Compressed Sparse Row (CSR) afterward
+    for the solution phase [1]_.
+
+    Parameters
+    ----------
+    elements : ndarray (int)
+      Array with the number for the nodes in each element.
+    mats    : ndarray (float)
+      Array with the material profiles.
+    nodes    : ndarray (float)
+      Array with the nodal numbers and coordinates.
+    DME  : ndarray (int)
+      Assembly operator.
+    neq : int
+      Number of active equations in the system.
+
+    Returns
+    -------
+    KG : ndarray (float)
+      Array with the global stiffness matrix in a sparse
+      Compressed Sparse Row (CSR) format.
+
+    References
+    ----------
+    .. [1] Sparse matrix. (2017, March 8). In Wikipedia,
+        The Free Encyclopedia.
+        https://en.wikipedia.org/wiki/Sparse_matrix
+
+    """
+    rows = []
+    cols = []
+    vals = []
+    nels = elements.shape[0]
+    for el in range(nels):
+        kloc , ndof , iet  = retriever(elements , mats  , nodes , el)
+        if iet == 6:
+            dme    = np.zeros([ndof], dtype=np.integer)
+            dme[0] = DME[el, 0]
+            dme[1] = DME[el, 1]
+            dme[2] = DME[el, 3]
+            dme[3] = DME[el, 4]
+        else:
+            dme = DME[el, :ndof]
+    
+        for row in range(ndof):
+            glob_row = dme[row]
+            if glob_row != -1:
+                for col in range(ndof):
+                    glob_col = dme[col]
+                    if glob_col != -1:
+                        rows.append(glob_row)
+                        cols.append(glob_col)
+                        vals.append(kloc[row, col])
+
+    return coo_matrix((vals, (rows, cols)), shape=(neq, neq)).tocsr()
 
 
 def loadasem(loads, IBC, neq, nl):

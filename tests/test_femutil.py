@@ -40,7 +40,7 @@ def test_stdm4NQ():
         [0, 0, 0, -1, 0, 1, 0, 0],
         [0, 0, -1, 0, 1, 1, 0, -1]])
     assert np.isclose(det, 1)
-    assert np.allclose(B, B_ex)   
+    assert np.allclose(B, B_ex)
 
 
 def test_stdm6NT():

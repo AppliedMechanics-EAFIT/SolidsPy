@@ -10,13 +10,31 @@ import numpy as np
 import femutil as fe
 import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
-from scipy.interpolate import griddata, interp2d
+from scipy.interpolate import griddata
 from matplotlib import rcParams
 
 rcParams['font.family'] = 'serif'
 rcParams['font.size'] = 14
 rcParams['image.cmap'] = "YlGnBu_r"
 rcParams['axes.axisbelow'] = True
+
+
+def fields_plot(elements, nodes, UC, E_nodes=None, S_nodes=None, folder=""):
+    """
+    """
+    # Check for structural elements in the mesh
+    struct_pos = 5 in elements[:, 1] or \
+             6 in elements[:, 1] or \
+             7 in elements[:, 1]
+    if struct_pos:
+        # Still not implemented visualization for structural elements
+        print(UC)
+    else:
+        plot_disp(UC, nodes, elements)
+        if E_nodes is not None:
+            plot_strain(E_nodes, nodes, elements)
+        if S_nodes is not None:
+            plot_stress(S_nodes, nodes, elements)
 
 
 def mesh2tri(nodes, elements):
@@ -184,43 +202,6 @@ def grafmat(k):
     plt.xlabel(r"$j$ index", size=10)
 
 
-def scatter(DME, UG, ne, neq, elements):
-    """
-    Scatter the nodal displacements vector `UG` over the Gauss
-    points of each element.
-
-    Parameters
-    ----------
-    DME : ndarray (int)
-      Array that shows the connectivity of degrees of freedom.
-    UG : ndarray (float)
-      Array with the computed displacements.
-    ne : int
-      Number of elements.
-    neq : int
-      Number of equations (degrees of freedom).
-    elements : ndarray (int)
-      Array with the node number for the nodes that correspond to each
-      element.
-
-    Returns
-    -------
-    UU : ndarray (float)
-      Array with the displacements for each Gauss point in the mesh.
-
-    """
-    iet = elements[0, 1]
-    ndof, nnodes, ngpts = fe.eletype(iet)
-    UU = np.zeros([ne, ndof], dtype=np.float)
-    for i in range(ne):
-        for ii in range(ndof):
-            kk = DME[i, ii]
-            if kk != -1:
-                UU[i, ii] = UG[kk]
-
-    return UU
-
-
 def xstrain(IELCON, nodes, ne, hh):
     """Compute physical coordinates of the domain integration points
 
@@ -348,7 +329,7 @@ def complete_disp(IBC, nodes, UG):
     return UC
 
 
-def strain_nodes(nodes , UU , ne , nn , elements , mats):
+def strain_nodes(nodes , elements, mats, UC, DME):
     """Compute averaged strains and stresses at nodes
     
     First, the variable is extrapolated from the Gauss
@@ -360,7 +341,7 @@ def strain_nodes(nodes , UU , ne , nn , elements , mats):
     ----------
     IELCON : ndarray (int)
       Array with the nodes numbers for each element.
-    UU : ndarray (float)
+    UC : ndarray (float)
       Array with the displacements. This one contains both, the
       computed and imposed values.
     ne : int
@@ -385,6 +366,8 @@ def strain_nodes(nodes , UU , ne , nn , elements , mats):
         recovery technique, Int. J. Numer. Methods Eng., 33,
         1331-1364 (1992).
     """
+    ne = elements.shape[0]
+    nn = nodes.shape[0]
     IELCON = np.zeros([ne, 9], dtype=np.integer)
     iet = elements[0, 1]
     ndof, nnodes, ngpts = fe.eletype(iet)
@@ -394,11 +377,9 @@ def strain_nodes(nodes , UU , ne , nn , elements , mats):
     S_nodes  = np.zeros([nn , 3])
     el_nodes = np.zeros([nn], dtype=int)
     ul = np.zeros([ndof])
-#
-    for i in range(ne):
-        for j in range(nnodes):
-            IELCON[i, j] = elements[i, j+3]    
-#    
+
+    IELCON = elements[:, 3:]
+
     for i in range(ne):
         young, poisson = mats[np.int(elements[i, 2]), :]
         shear = young/(2*(1 + poisson))
@@ -407,35 +388,24 @@ def strain_nodes(nodes , UU , ne , nn , elements , mats):
         for j in range(nnodes):
             elcoor[j, 0] = nodes[IELCON[i,j], 1]
             elcoor[j, 1] = nodes[IELCON[i,j], 2]
-        for j in range(ndof):
-            ul[j] = UU[i, j]
+            ul[2*j] = UC[IELCON[i,j], 0]
+            ul[2*j + 1] = UC[IELCON[i,j], 1]
         if iet == 1:
             epsG, xl = fe.str_el4(elcoor, ul)
-            extrap0 = interp2d(xl[:, 0], xl[:,1], epsG[:, 0])
-            extrap1 = interp2d(xl[:, 0], xl[:,1], epsG[:, 1])
-            extrap2 = interp2d(xl[:, 0], xl[:,1], epsG[:, 2])
         elif iet == 2:
             epsG, xl = fe.str_el6(elcoor, ul)
-            extrap0 = interp2d(xl[:, 0], xl[:,1], epsG[:, 0])
-            extrap1 = interp2d(xl[:, 0], xl[:,1], epsG[:, 1])
-            extrap2 = interp2d(xl[:, 0], xl[:,1], epsG[:, 2])
         elif iet == 3:
             epsG, xl = fe.str_el3(elcoor, ul)
-            extrap0 = lambda x, y: epsG[0, 0]
-            extrap1 = lambda x, y: epsG[0, 1]
-            extrap2 = lambda x, y: epsG[0, 2]
 
-        for node in IELCON[i, :]:
-            x = nodes[node , 1]
-            y = nodes[node , 2]
-            E_nodes[node, 0] = E_nodes[node, 0] + extrap0(x, y)
-            E_nodes[node, 1] = E_nodes[node, 1] + extrap1(x, y)
-            E_nodes[node, 2] = E_nodes[node, 2] + extrap2(x, y)
-            S_nodes[node, 0] = S_nodes[node, 0] + fact1*extrap0(x, y) \
-                        + fact2*extrap1(x, y)
-            S_nodes[node, 1] = S_nodes[node, 1] + fact2*extrap0(x, y) \
-                        + fact1*extrap1(x, y)
-            S_nodes[node, 2] = S_nodes[node, 2] + shear*extrap2(x, y)
+        for cont, node in enumerate(IELCON[i, :]):
+            E_nodes[node, 0] = E_nodes[node, 0] + epsG[cont, 0]
+            E_nodes[node, 1] = E_nodes[node, 1] + epsG[cont, 1]
+            E_nodes[node, 2] = E_nodes[node, 2] + epsG[cont, 2]
+            S_nodes[node, 0] = S_nodes[node, 0] + fact1*epsG[cont, 0] \
+                        + fact2*epsG[cont, 1]
+            S_nodes[node, 1] = S_nodes[node, 1] + fact2*epsG[cont, 0] \
+                        + fact1*epsG[cont, 1]
+            S_nodes[node, 2] = S_nodes[node, 2] + shear*epsG[cont, 2]
             el_nodes[node] = el_nodes[node] + 1
 
     E_nodes[:, 0] = E_nodes[:, 0]/el_nodes

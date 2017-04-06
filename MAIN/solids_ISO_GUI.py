@@ -16,94 +16,46 @@ IC0602 INTRODUCTION TO THE FINITE ELEMENT METHOD
 Universidad EAFIT
 Departamento de Ingenieria Civil
 
-Last updated March 2017
 """
 from __future__ import division, print_function
-import sys
 import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
-#
+from scipy.sparse.linalg import spsolve
 import preprocesor as pre
 import postprocesor as pos
 import assemutil as ass
-#
-# Check Python version
-#
-version = sys.version_info.major
-if version == 3:
-    raw_input = input
-elif version == 2:
-    pass
-else:
-    raise ValueError("You should use Python 2.x at least!")
 
-# Try to run with easygui
-try:
-    import easygui
-    folder = easygui.diropenbox(title="Folder for the job") + "/"
-    name = easygui.enterbox("Enter the job name")
-    echo = easygui.buttonbox("Do you want to echo files?",
-                             choices=["Yes", "No"])
-
-except:
-    folder = raw_input('Enter folder (empty for the current one): ')
-    name   = raw_input('Enter the job name: ')
-    spring_pos = raw_input("Do you have springs in your model? (y/N):")
-    echo   = raw_input('Do you want to echo files? (y/N):')
-
-
+folder, name, echo = pre.initial_params()
 start_time = datetime.now()
 
 #%% PRE-PROCESSING
-#
 nodes, mats, elements, loads = pre.readin(folder=folder)
-# Check for structural elements in the mesh
-struct_pos = 5 in elements[:, 1] or \
-             6 in elements[:, 1] or \
-             7 in elements[:, 1]
-if echo.upper() in ["YES", "Y"]:
+if echo:
     pre.echomod(nodes, mats, elements, loads, folder=folder)
 ne, nn, nm, nl = pre.proini(nodes, mats, elements, loads)
 DME , IBC , neq = ass.DME(nn , ne , nodes , elements)
-KG = np.zeros([neq, neq])
+print("Number of nodes: {}".format(nn))
+print("Number of elements: {}".format(ne))
+print("Number of equations: {}".format(neq))
 
 #%% SYSTEM ASSEMBLY
-#
-KG = np.zeros([neq, neq])
-for i in range(ne):
-    kloc , ndof , iet  = ass.retriever(elements , mats  , nodes , i)
-    KG = ass.assembler(KG , neq , kloc , ndof , DME , iet , i)
+KG = ass.assembler(elements, mats, nodes, neq, DME)
 RHSG = ass.loadasem(loads, IBC, neq, nl)
-#
+
 #%% SYSTEM SOLUTION
-UG = np.linalg.solve(KG, RHSG)
-if not(np.allclose(np.dot(KG, UG), RHSG)):
+UG = spsolve(KG, RHSG)
+if not(np.allclose(KG.dot(UG), RHSG)):
     print("The system is not in equilibrium!")
 end_time = datetime.now()
+del KG
 print('Duration for system solution: {}'.format(end_time - start_time))
 
 #%% POST-PROCESSING
-#
 start_time = datetime.now()
 UC = pos.complete_disp(IBC, nodes, UG)
-if struct_pos:
-    print(UC)
-else:
-    pos.plot_disp(UC, nodes, elements)
-    """
-      Scatter displacements over the elements
-    """
-    UU = pos.scatter(DME, UG, ne, neq, elements)
-    pos.gmeshpost(IBC, nn, UG, folder=folder)
-
-    """
-      Generates points inside the elements and computes strain solution
-    """
-    E_nodes, S_nodes = pos.strain_nodes(nodes , UU , ne , nn , elements , mats)
-    pos.plot_strain(E_nodes, nodes, elements)
-    pos.plot_stress(S_nodes, nodes, elements)
-    end_time = datetime.now()
-    print('Duration for post processing: {}'.format(end_time - start_time))
-    print('Analysis terminated successfully!')
-    plt.show()
+E_nodes, S_nodes = pos.strain_nodes(nodes , elements, mats, UC, DME)
+pos.fields_plot(elements, nodes, UC, E_nodes=E_nodes, S_nodes=S_nodes)
+print('Duration for post processing: {}'.format(end_time - start_time))
+print('Analysis terminated successfully!')
+plt.show()
