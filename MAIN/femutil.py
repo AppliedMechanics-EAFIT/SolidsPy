@@ -80,6 +80,7 @@ def eletype(iet):
     return ndof, nnodes, ngpts
 
 
+#%% Shape functions and derivatives
 def sha4(x, y):
     """Shape functions for a 4-noded quad element
 
@@ -228,6 +229,7 @@ def sha3(x, y):
     return N
 
 
+
 def stdm4NQ(r, s, coord):
     """Strain-displacement interpolator B for a 4-noded quad element
 
@@ -253,15 +255,13 @@ def stdm4NQ(r, s, coord):
     dhdx = 0.25*np.array([
             [s - 1, -s + 1, s + 1, -s - 1],
             [r - 1, -r - 1, r + 1, -r + 1]])
-    xj = jacoper(dhdx, coord, nn)
-    ddet = np.linalg.det(xj)
-    xi = np.linalg.inv(xj)
-    aux1 = np.dot(xi, dhdx)
-    B[0, ::2] = aux1[0, :]
-    B[1, 1::2] = aux1[1, :]
-    B[2, ::2] = aux1[1, :]
-    B[2, 1::2] = aux1[0, :]
-    return ddet, B
+    det, jaco_inv = jacoper(dhdx, coord)
+    dhdx = np.dot(jaco_inv, dhdx)
+    B[0, ::2] = dhdx[0, :]
+    B[1, 1::2] = dhdx[1, :]
+    B[2, ::2] = dhdx[1, :]
+    B[2, 1::2] = dhdx[0, :]
+    return det, B
 
 
 def stdm6NT(r, s, coord):
@@ -289,16 +289,13 @@ def stdm6NT(r, s, coord):
     dhdx = np.array([
         [4*r + 4*s - 3, 4*r - 1, 0, -8*r - 4*s + 4, 4*s,  -4*s],
         [4*r + 4*s - 3, 0, 4*s - 1,  -4*r, 4*r, -4*r - 8*s + 4]])
-
-    xj = jacoper(dhdx, coord, nn)
-    ddet = np.linalg.det(xj)
-    xi = np.linalg.inv(xj)
-    aux1 = np.dot(xi, dhdx)
-    B[0, ::2] = aux1[0, :]
-    B[1, 1::2] = aux1[1, :]
-    B[2, ::2] = aux1[1, :]
-    B[2, 1::2] = aux1[0, :]
-    return ddet, B
+    det, jaco_inv = jacoper(dhdx, coord)
+    dhdx = np.dot(jaco_inv, dhdx)
+    B[0, ::2] = dhdx[0, :]
+    B[1, 1::2] = dhdx[1, :]
+    B[2, ::2] = dhdx[1, :]
+    B[2, 1::2] = dhdx[0, :]
+    return det, B
 
 
 def stdm3NT(r, s, coord):
@@ -315,7 +312,7 @@ def stdm3NT(r, s, coord):
 
     Returns
     -------
-    ddet : float
+    det : float
       Determinant evaluated at `(r, s)`.
     B : ndarray
       Strain-displacement interpolator evaluated at `(r, s)`.
@@ -326,19 +323,16 @@ def stdm3NT(r, s, coord):
     dhdx = np.array([
             [-1, 1, 0],
             [-1, 0, 1]])
-
-    xj = jacoper(dhdx, coord, nn)
-    xi = np.linalg.inv(xj)
-    ddet = np.linalg.det(xj)
-    aux1 = np.dot(xi, dhdx)
-    B[0, ::2] = aux1[0, :]
-    B[1, 1::2] = aux1[1, :]
-    B[2, ::2] = aux1[1, :]
-    B[2, 1::2] = aux1[0, :]
-    return ddet, B
+    det, jaco_inv = jacoper(dhdx, coord)
+    dhdx = np.dot(jaco_inv, dhdx)
+    B[0, ::2] = dhdx[0, :]
+    B[1, 1::2] = dhdx[1, :]
+    B[2, ::2] = dhdx[1, :]
+    B[2, 1::2] = dhdx[0, :]
+    return det, B
 
 
-def jacoper(dhdx, coord, nn):
+def jacoper(dhdx, coord):
     """
 
     Parameters
@@ -348,8 +342,6 @@ def jacoper(dhdx, coord, nn):
       natural coordinates.
     coord : ndarray
       Coordinates of the nodes of the element (nn, 2).
-    nn : int
-      Number of nodes in the element
 
     Returns
     -------
@@ -357,9 +349,12 @@ def jacoper(dhdx, coord, nn):
       Jacobian of the transformation evaluated at `(r, s)`.
 
     """
-    return dhdx.dot(coord)
+    jaco = dhdx.dot(coord)
+    det = np.linalg.det(jaco)
+    jaco_inv = np.linalg.inv(jaco)
+    return det, jaco_inv
 
-
+#%% Material routines
 def umat(nu, E):
     """2D Elasticity consitutive matrix in plane stress
 
@@ -400,7 +395,7 @@ def umat(nu, E):
 
     return C
 
-
+#%% Elemental strains
 def str_el4(coord, ul):
     """Compute the strains at each element integration point
 
@@ -507,6 +502,7 @@ def str_el3(coord, ul):
         xl[i, 0] = sum(N[0, 2*i]*coord[i, 0] for i in range(3))
         xl[i, 1] = sum(N[0, 2*i]*coord[i, 1] for i in range(3))
     return epsG.T, xl
+
 
 if __name__ == "__main__":
     import doctest

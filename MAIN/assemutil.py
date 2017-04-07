@@ -115,8 +115,7 @@ def retriever(elements , mats , nodes , i):
     ndof, nnodes, ngpts = fem.eletype(iet)
     elcoor = np.zeros([nnodes, 2])
     im = np.int(elements[i, 2])
-    par0 = mats[im, 0]
-    par1 = mats[im, 1]
+    par0 , par1 = mats[im, :]
     for j in range(nnodes):
         IELCON[j] = elements[i, j+3]
         elcoor[j, 0] = nodes[IELCON[j], 1]
@@ -132,7 +131,7 @@ def retriever(elements , mats , nodes , i):
     elif iet == 6:
         kloc =ue.ueltruss2D(elcoor, par1 , par0)
     elif iet == 7:
-        kloc =ue.uelbeam2DU(elcoor, par1 , par0)
+        kloc = ue.uelbeam2DU(elcoor, par1 , par0)
     
     return kloc , ndof , iet
 

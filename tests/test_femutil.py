@@ -10,6 +10,7 @@ import numpy as np
 import femutil as fem
 
 
+#%% Tests for Shape functions and derivatives
 def test_sha4():
 
     # For point (0, 0)
@@ -76,3 +77,35 @@ def test_stdm3NT():
         [-1, -1, 0, 1, 1, 0]])
     assert np.isclose(det, 1)
     assert np.allclose(B, B_ex)
+
+
+def test_jacoper():
+
+    # Perfect element at (0, 0)
+    dhdx = 0.25*np.array([
+            [-1, 1, 1, -1],
+            [-1, -1, 1, 1]])
+    coord = np.array([
+        [-1, -1],
+        [1, -1],
+        [1, 1],
+        [-1, 1]])
+    det, jaco_inv = fem.jacoper(dhdx, coord)
+    jaco_inv_ex = np.eye(2)
+    assert np.isclose(det, 1)
+    assert np.allclose(jaco_inv, jaco_inv_ex)
+
+    # Shear element at (0, 0)
+    dhdx = 0.25*np.array([
+            [-1, 1, 1, -1],
+            [-1, -1, 1, 1]])
+    coord = np.array([
+        [-1.5, -1],
+        [0.5, -1],
+        [1.5, 1],
+        [-0.5, 1]])
+    det, jaco_inv = fem.jacoper(dhdx, coord)
+    jaco_inv_ex = np.eye(2)
+    jaco_inv_ex[1, 0] = -0.5
+    assert np.isclose(det, 1)
+    assert np.allclose(jaco_inv, jaco_inv_ex)

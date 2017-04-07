@@ -29,6 +29,7 @@ import assemutil as ass
 folder, name, echo = pre.initial_params()
 start_time = datetime.now()
 
+
 #%% PRE-PROCESSING
 nodes, mats, elements, loads = pre.readin(folder=folder)
 if echo:
