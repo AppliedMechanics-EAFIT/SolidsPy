@@ -11,6 +11,7 @@ import assemutil as ass
 
 
 def test_sparse_assem():
+    """Tests for sparse assembler"""
     # 2 x 2 mesh
     mats = np.array([[16, 1/3]])
     nodes = np.array([
@@ -58,6 +59,8 @@ def test_sparse_assem():
     assert np.allclose(K_ass, K_exact)
 
 def test_dense_assem():
+    """Tests for dense assembler"""
+
     # 2 x 2 mesh
     mats = np.array([[16, 1/3]])
     nodes = np.array([

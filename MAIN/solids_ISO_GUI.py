@@ -21,10 +21,10 @@ from __future__ import division, print_function
 import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
-from scipy.sparse.linalg import spsolve
 import preprocesor as pre
 import postprocesor as pos
 import assemutil as ass
+import solutil as sol
 
 folder, name, echo = pre.initial_params()
 start_time = datetime.now()
@@ -45,7 +45,7 @@ KG = ass.assembler(elements, mats, nodes, neq, DME)
 RHSG = ass.loadasem(loads, IBC, neq, nl)
 
 #%% SYSTEM SOLUTION
-UG = spsolve(KG, RHSG)
+UG = sol.static_sol(KG, RHSG)
 if not(np.allclose(KG.dot(UG), RHSG)):
     print("The system is not in equilibrium!")
 end_time = datetime.now()

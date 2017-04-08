@@ -12,6 +12,7 @@ import femutil as fem
 
 #%% Tests for Shape functions and derivatives
 def test_sha4():
+    """Tests for 4-nodes quad shape functions"""
 
     # For point (0, 0)
     N = fem.sha4(0, 0)
@@ -22,6 +23,7 @@ def test_sha4():
 
 
 def test_sha6():
+    """Tests for 6-nodes tri shape functions"""
 
     # For point (0, 0)
     N = fem.sha6(0, 0)
@@ -32,6 +34,7 @@ def test_sha6():
 
 
 def test_stdm4NQ():
+    """Tests for 4-nodes quad shape functions derivatives"""
 
     # For point (1, 1)
     coord = np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]])
@@ -45,6 +48,7 @@ def test_stdm4NQ():
 
 
 def test_stdm6NT():
+    """Tests for 6-nodes tri shape functions derivatives"""
 
     # For point (1, 0)
     coord = np.array([
@@ -64,6 +68,7 @@ def test_stdm6NT():
 
 
 def test_stdm3NT():
+    """Tests for 3-nodes tri shape functions derivatives"""
 
     # For point (0, 1)
     coord = np.array([
@@ -80,6 +85,7 @@ def test_stdm3NT():
 
 
 def test_jacoper():
+    """Tests for jacobian of the elemental transformation"""
 
     # Perfect element at (0, 0)
     dhdx = 0.25*np.array([

@@ -11,6 +11,8 @@ import postprocesor as pos
 
 
 def test_strain_nodes():
+    """Tests for strain/stress calculation at nodes"""
+
     # 2 x 2 mesh with axial load and rollers on the sides
     mats = np.array([[8/3, 1/3]])
     nodes = np.array([

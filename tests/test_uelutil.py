@@ -11,6 +11,7 @@ import uelutil as uel
 
 
 def test_uel4nquad():
+    """Tests for 4-nodes quad uel"""
     coord = np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]])
     stiff = uel.uel4nquad(coord, 1/3, 8/3)
     stiff_ex = 1/6 * np.array([
@@ -26,6 +27,7 @@ def test_uel4nquad():
 
     
 def test_uel6ntrian():
+    """Tests for 6-nodes tri uel"""
     coord = np.array([
         [0, 0],
         [1, 0],
@@ -51,6 +53,7 @@ def test_uel6ntrian():
 
 
 def test_uel3ntrian():
+    """Tests for 3-nodes tri uel"""
     coord = np.array([
         [0, 0],
         [1, 0],
@@ -67,6 +70,7 @@ def test_uel3ntrian():
 
 
 def test_uelspring():
+    """Tests for 2-nodes springs uel"""
     coord = np.array([
         [0, 0],
         [1, 0]])

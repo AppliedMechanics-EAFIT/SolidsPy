@@ -4,7 +4,7 @@ This _repo_ contains a simple finite element analysis code for 2D elasticity
 problems. The code uses as input data simple-to-create text files containing
 nodal, element, material and load data.
 
-The _repo_ contains 3 folders:
+The _repo_ contains 2 main folders:
 
 1. `MAIN/` stores the python scripts divided in
 
@@ -17,14 +17,6 @@ The _repo_ contains 3 folders:
 
 2. `MESHES/` contains input files and meshes in `.msh` format corresponding to
     different examples; and
-
-3. `MESHUTILS/` stores programs to conduct pre-processing and post-processing
-    from and to GMESH. Since the code has been created for academic purposes
-    it gives as main results the displacement vector corresponding to the
-    nodal points of the domain. These vectors are used, together with the
-    Python function griddata to interpolate and plot the displacement solution
-    all over the domain. Post-processing to compute strain and stress values
-    is left for students projects.
 
 
 ## Authors
