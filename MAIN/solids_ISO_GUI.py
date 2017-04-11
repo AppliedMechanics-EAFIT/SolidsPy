@@ -34,15 +34,14 @@ start_time = datetime.now()
 nodes, mats, elements, loads = pre.readin(folder=folder)
 if echo:
     pre.echomod(nodes, mats, elements, loads, folder=folder)
-ne, nn, nm, nl = pre.proini(nodes, mats, elements, loads)
-DME , IBC , neq = ass.DME(nn , ne , nodes , elements)
-print("Number of nodes: {}".format(nn))
-print("Number of elements: {}".format(ne))
+DME , IBC , neq = ass.DME(nodes ,elements)
+print("Number of nodes: {}".format(nodes.shape[0]))
+print("Number of elements: {}".format(elements.shape[0]))
 print("Number of equations: {}".format(neq))
 
 #%% SYSTEM ASSEMBLY
 KG = ass.assembler(elements, mats, nodes, neq, DME)
-RHSG = ass.loadasem(loads, IBC, neq, nl)
+RHSG = ass.loadasem(loads, IBC, neq)
 
 #%% SYSTEM SOLUTION
 UG = sol.static_sol(KG, RHSG)
