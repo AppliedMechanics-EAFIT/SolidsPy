@@ -14,13 +14,11 @@ import uelutil as ue
 import femutil as fem
 
 
-def eqcounter(nn, nodes):
+def eqcounter(nodes):
     """Counts active equations and creates BCs array IBC
 
     Parameters
     ----------
-    nn : int
-      Number of nodes.
     nodes : ndarray
       Array with nodes coordinates and boundary conditions.
 
@@ -33,12 +31,13 @@ def eqcounter(nn, nodes):
       Array that maps the nodes with number of equations.
 
     """
-    IBC = np.zeros([nn, 2], dtype=np.integer)
-    for i in range(nn):
+    nnodes = nodes.shape[0]
+    IBC = np.zeros([nnodes, 2], dtype=np.integer)
+    for i in range(nnodes):
         for k in range(2):
             IBC[i , k] = int(nodes[i , k+3])
     neq = 0
-    for i in range(nn):
+    for i in range(nnodes):
         for j in range(2):
             if IBC[i, j] == 0:
                 IBC[i, j] = neq
@@ -47,16 +46,12 @@ def eqcounter(nn, nodes):
     return neq, IBC
 
 
-def DME(nn , ne , nodes , elements):
+def DME(nodes, elements):
     """Counts active equations, creates BCs array IBC[]
     and the assembly operator DME[]
 
     Parameters
     ----------
-    nn : int
-      Number of nodes.
-    ne : int
-      Number of elements.
     nodes    : ndarray.
       Array with the nodal numbers and coordinates.
     elements : ndarray
@@ -72,12 +67,13 @@ def DME(nn , ne , nodes , elements):
       Number of active equations in the system.
 
     """
-    IELCON = np.zeros([ne, 9], dtype=np.integer)
-    DME = np.zeros([ne, 18], dtype=np.integer)
+    nels = elements.shape[0]
+    IELCON = np.zeros([nels, 9], dtype=np.integer)
+    DME = np.zeros([nels, 18], dtype=np.integer)
 
-    neq, IBC = eqcounter(nn, nodes)
+    neq, IBC = eqcounter(nodes)
 
-    for i in range(ne):
+    for i in range(nels):
         iet = elements[i, 1]
         ndof, nnodes, ngpts = fem.eletype(iet)
         for j in range(nnodes):
@@ -89,7 +85,7 @@ def DME(nn , ne , nodes , elements):
     return DME , IBC , neq
 
 
-def retriever(elements , mats , nodes , i):
+def retriever(elements , mats , nodes , i, uel=None):
     """Computes the elemental stiffness matrix of element i
 
     Parameters
@@ -120,23 +116,26 @@ def retriever(elements , mats , nodes , i):
         IELCON[j] = elements[i, j+3]
         elcoor[j, 0] = nodes[IELCON[j], 1]
         elcoor[j, 1] = nodes[IELCON[j], 2]
-    if iet == 1:
-        kloc = ue.uel4nquad(elcoor, par1 , par0)
-    elif iet == 2:
-        kloc = ue.uel6ntrian(elcoor, par1 , par0)
-    elif iet == 3:
-        kloc = ue.uel3ntrian(elcoor, par1 , par0)
-    elif iet == 5:
-        kloc = ue.uelspring(elcoor, par1 , par0)
-    elif iet == 6:
-        kloc =ue.ueltruss2D(elcoor, par1 , par0)
-    elif iet == 7:
-        kloc = ue.uelbeam2DU(elcoor, par1 , par0)
+    if uel is None:
+        if iet == 1:
+            kloc = ue.uel4nquad(elcoor, par1 , par0)
+        elif iet == 2:
+            kloc = ue.uel6ntrian(elcoor, par1 , par0)
+        elif iet == 3:
+            kloc = ue.uel3ntrian(elcoor, par1 , par0)
+        elif iet == 5:
+            kloc = ue.uelspring(elcoor, par1 , par0)
+        elif iet == 6:
+            kloc =ue.ueltruss2D(elcoor, par1 , par0)
+        elif iet == 7:
+            kloc = ue.uelbeam2DU(elcoor, par1 , par0)
+    else:
+        kloc, ndof, iet = uel(elcoor, par1, par0)
     
     return kloc , ndof , iet
 
 
-def assembler(elements, mats, nodes, neq, DME, sparse=True):
+def assembler(elements, mats, nodes, neq, DME, sparse=True, uel=None):
     """Assembles the global stiffness matrix
 
     Parameters
@@ -154,6 +153,8 @@ def assembler(elements, mats, nodes, neq, DME, sparse=True):
     sparse : boolean (optional)
       Boolean variable to pick sparse assembler. It is True
       by default.
+    uel : callable function (optional)
+      Python function that returns the local stiffness matrix.
 
     Returns
     -------
@@ -163,14 +164,14 @@ def assembler(elements, mats, nodes, neq, DME, sparse=True):
 
     """
     if sparse:
-        KG = sparse_assem(elements, mats, nodes, neq, DME)
+        KG = sparse_assem(elements, mats, nodes, neq, DME, uel=uel)
     else:
-        KG = dense_assem(elements, mats, nodes, neq, DME)
+        KG = dense_assem(elements, mats, nodes, neq, DME, uel=uel)
 
     return KG
 
 
-def dense_assem(elements, mats, nodes, neq, DME):
+def dense_assem(elements, mats, nodes, neq, DME, uel=None):
     """
     Assembles the global stiffness matrix _KG_
     using a dense storing scheme
@@ -187,6 +188,8 @@ def dense_assem(elements, mats, nodes, neq, DME):
       Assembly operator.
     neq : int
       Number of active equations in the system.
+    uel : callable function (optional)
+      Python function that returns the local stiffness matrix.
 
     Returns
     -------
@@ -198,7 +201,7 @@ def dense_assem(elements, mats, nodes, neq, DME):
     KG = np.zeros((neq, neq))
     nels = elements.shape[0]
     for el in range(nels):
-        kloc , ndof , iet  = retriever(elements , mats  , nodes , el)
+        kloc , ndof , iet  = retriever(elements , mats  , nodes , el, uel=uel)
         if iet == 6:
             dme    = np.zeros([ndof], dtype=np.integer)
             dme[0] = DME[el, 0]
@@ -220,7 +223,7 @@ def dense_assem(elements, mats, nodes, neq, DME):
     return KG
 
 
-def sparse_assem(elements, mats, nodes, neq, DME):
+def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
     """
     Assembles the global stiffness matrix _KG_
     using a sparse storing scheme
@@ -241,6 +244,8 @@ def sparse_assem(elements, mats, nodes, neq, DME):
       Assembly operator.
     neq : int
       Number of active equations in the system.
+    uel : callable function (optional)
+      Python function that returns the local stiffness matrix.
 
     Returns
     -------
@@ -260,7 +265,7 @@ def sparse_assem(elements, mats, nodes, neq, DME):
     vals = []
     nels = elements.shape[0]
     for el in range(nels):
-        kloc , ndof , iet  = retriever(elements , mats  , nodes , el)
+        kloc , ndof , iet  = retriever(elements , mats  , nodes , el, uel=uel)
         if iet == 6:
             dme    = np.zeros([ndof], dtype=np.integer)
             dme[0] = DME[el, 0]
@@ -283,7 +288,7 @@ def sparse_assem(elements, mats, nodes, neq, DME):
     return coo_matrix((vals, (rows, cols)), shape=(neq, neq)).tocsr()
 
 
-def loadasem(loads, IBC, neq, nl):
+def loadasem(loads, IBC, neq):
     """Assembles the global Right Hand Side Vector RHSG
 
     Parameters
@@ -295,8 +300,6 @@ def loadasem(loads, IBC, neq, nl):
     neq : int
       Number of equations in the system after removing the nodes
       with imposed displacements.
-    nl : int
-      Number of loads.
 
     Returns
     -------
@@ -304,8 +307,9 @@ def loadasem(loads, IBC, neq, nl):
       Array with the right hand side vector.
 
     """
+    nloads = loads.shape[0]
     RHSG = np.zeros([neq])
-    for i in range(nl):
+    for i in range(nloads):
         il = int(loads[i, 0])
         ilx = IBC[il, 0]
         ily = IBC[il, 1]
