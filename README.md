@@ -16,7 +16,7 @@ The _repo_ contains 2 main folders:
   - `postprocesor.py` (results handling subroutines);
 
 2. `MESHES/` contains input files and meshes in `.msh` format corresponding to
-    different examples; and
+    different examples.
 
 
 ## Authors
