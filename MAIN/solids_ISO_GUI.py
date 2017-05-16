@@ -1,13 +1,11 @@
 """
 PROGRAM SOLIDS
 --------------
-
 Computes the displacement solution for a finite element assembly
 of 2D solids under point loads using as input easy-to-create
 text files containing element, nodal, materials and loads data.
-Fortran subroutines mesher.for and contour.for are also available to
-write the required input files out of a Gmsh (.msh) generated file
-and to convert the results file into Gmsh post-processor files.
+The input files are created out of a Gmsh (.msh) generated file
+using python module meshio.py.
 
 Created by Juan Gomez and Nicolas Guarin-Zapata as part of the courses:
 

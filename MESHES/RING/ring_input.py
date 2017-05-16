@@ -31,8 +31,8 @@ radius = np.sqrt(points[:, 0]**2 + points[:, 1]**2)
 nloads = points[np.abs(radius - 1.5) <= 1e-6, 0].shape[0]
 loads_array = np.zeros((nloads, 3))
 loads_array[:, 0] = nodes_array[np.abs(radius - 1.5) <= 1e-6, 0]
-loads_array[:, 1] = points[np.abs(radius - 1.5) <= 1e-6, 0]/radius[np.abs(radius - 1.5) <= 1e-6]
-loads_array[:, 2] = points[np.abs(radius - 1.5) <= 1e-6, 1]/radius[np.abs(radius - 1.5) <= 1e-6]
+loads_array[:, 1] = 2.0*(points[np.abs(radius - 1.5) <= 1e-6, 0]/radius[np.abs(radius - 1.5) <= 1e-6])
+loads_array[:, 2] = 2.0*(points[np.abs(radius - 1.5) <= 1e-6, 1]/radius[np.abs(radius - 1.5) <= 1e-6])
 ## Material data
 mater_array = np.array([[1e3, 1/3]])
 
