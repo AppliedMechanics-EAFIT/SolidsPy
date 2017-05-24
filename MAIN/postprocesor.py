@@ -15,7 +15,7 @@ rcParams['font.family'] = 'serif'
 rcParams['font.size'] = 14
 rcParams['image.cmap'] = "YlGnBu_r"
 rcParams['axes.axisbelow'] = True
-
+rcParams['mathtext.fontset'] = "cm"
 
 def fields_plot(elements, nodes, UC, E_nodes=None, S_nodes=None, folder=""):
     """
@@ -457,8 +457,8 @@ def energy(UG, KG):
       Total energy in the system. :math:`-\frac{1}{2} U^T K U`
 
     """
-    f = np.dot(UG.T, KG)
-    EFE = -0.5*np.dot(f, UG)
+    f = KG.dot(UG)
+    EFE = -0.5*f.dot(UG)
 
     return EFE
 
