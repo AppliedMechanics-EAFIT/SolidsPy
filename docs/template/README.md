@@ -1,7 +1,7 @@
 # Run a simple model
 After downloading run an analysis in 3 easy steps ):
 
-![Template for bilayer model.][../img/template_schematic.svg]
+![Template for bilayer model.](../img/template_schematic.svg)
 
 - Create the mesh using [Gmsh](http://gmsh.info/).
 
