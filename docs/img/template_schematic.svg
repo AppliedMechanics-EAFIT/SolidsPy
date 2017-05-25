@@ -15,7 +15,10 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.1 r15371"
-   sodipodi:docname="template_schematic.svg">
+   sodipodi:docname="template_schematic.svg"
+   inkscape:export-filename="C:\Users\nguarinz\workspace\FEM_PYTHON\docs\img\template_schematic.png"
+   inkscape:export-xdpi="150"
+   inkscape:export-ydpi="150">
   <defs
      id="defs2">
     <clipPath
@@ -34,9 +37,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.62461099"
-     inkscape:cx="95.342852"
-     inkscape:cy="61.069204"
+     inkscape:zoom="1.7666667"
+     inkscape:cx="384"
+     inkscape:cy="240"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -58,7 +61,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
