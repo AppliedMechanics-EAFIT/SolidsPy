@@ -1,5 +1,8 @@
 # 2D-Finite Element Analysis with Python
 
+
+![Wrench under bending.](./docs/img/wrench.png)
+
 This _repo_ contains a simple finite element analysis code for 2D elasticity
 problems. The code uses as input data simple-to-create text files containing
 nodal, element, material and load data.
