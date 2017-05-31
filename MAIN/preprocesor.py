@@ -49,18 +49,7 @@ def initial_params():
     try:
         import easygui
         folder = easygui.diropenbox(title="Folder for the job") + "/"
-        name = easygui.enterbox("Enter the job name")
-        echo = easygui.buttonbox("Do you want to echo files?",
-                                 choices=["Yes", "No"])
-
     except:
         folder = raw_input('Enter folder (empty for the current one): ')
-        name   = raw_input('Enter the job name: ')
-        echo   = raw_input('Do you want to echo files? (y/N):')
 
-    if echo.upper() in ["YES", "Y"]:
-        echo = True
-    else:
-        echo = False
-
-    return folder, name, echo
+    return folder
