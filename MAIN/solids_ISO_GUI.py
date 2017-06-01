@@ -24,9 +24,9 @@ import postprocesor as pos
 import assemutil as ass
 import solutil as sol
 
-folder, name, echo = pre.initial_params()
+folder = pre.initial_params()
 start_time = datetime.now()
-
+echo = False
 
 #%% PRE-PROCESSING
 nodes, mats, elements, loads = pre.readin(folder=folder)

@@ -1,24 +1,28 @@
 # 2D-Finite Element Analysis with Python
 
+
+![Wrench under bending.](./docs/img/wrench.png)
+
 This _repo_ contains a simple finite element analysis code for 2D elasticity
 problems. The code uses as input data simple-to-create text files containing
 nodal, element, material and load data.
 
-The _repo_ contains 2 main folders:
+The _repo_ contains 3 main folders:
 
-1. `MAIN/` stores the python scripts divided in
+1. `main/` stores the python scripts divided in
 
   - `solids_ISO.py` (the main program),
   - `preprocesor.py` (model input subroutines),
-  - `assemutil.py` (assembly subroutines), FEMUTIL.py(general finite element
-    method subroutines),
+  - `assemutil.py` (assembly subroutines),
+  - `femutil.py` (general finite element method subroutines),
   - `uelutil.py` (local matrix subroutines for different elements), and
   - `postprocesor.py` (results handling subroutines);
 
-2. `MESHES/` contains input files and meshes in `.msh` format corresponding to
+2. `meshes/` contains input files and meshes in `.msh` format corresponding to
     different examples.
-
-
+    
+3. `template/` contains a simple [Gmsh](http://gmsh.info/) mesh and a python script to generate the model
+    ready for solids_ISO.
 ## Authors
 - [Juan David Gómez Cataño](http://www.eafit.edu.co/docentes-investigadores/Paginas/juan-gomez.aspx),
     Professor at Universidad EAFIT.
@@ -41,6 +45,13 @@ need [`meshio`](https://github.com/nschloe/meshio) to automatically read
 
     pip install easygui
     pip install meshio
+
+## Run a simple model
+After downloading run an analysis in 3 easy steps (see [template](./docs/template/README.md)):
+- Create the mesh using [Gmsh](http://gmsh.info/).
+- Generate the model files (eles.txt, nodes.txt, mater.txt and loads.txt) using
+  a python script with the aid of [`meshio`](https://github.com/nschloe/meshio).
+- Run solids_ISO.py
 
 ## License
 This project is licensed under the
