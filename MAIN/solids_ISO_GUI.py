@@ -43,7 +43,7 @@ RHSG = ass.loadasem(loads, IBC, neq)
 
 #%% SYSTEM SOLUTION
 UG = sol.static_sol(KG, RHSG)
-if not(np.allclose(KG.dot(UG), RHSG)):
+if not(np.allclose(KG.dot(UG)/KG.max(), RHSG/KG.max())):
     print("The system is not in equilibrium!")
 end_time = datetime.now()
 del KG
