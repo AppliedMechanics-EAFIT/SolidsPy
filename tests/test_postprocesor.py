@@ -30,11 +30,6 @@ def test_strain_nodes():
             [1, 1, 0, 1, 2, 5, 4],
             [2, 1, 0, 3, 4, 7, 6],
             [3, 1, 0, 4, 5, 8, 7]])
-    DME = np.array([
-            [0, 1, 2, 3, 8, 9, 6, 7],
-            [2, 3, 4, 5, 10, 11, 8, 9],
-            [6, 7, 8, 9, 14, 15, 12, 13],
-            [8, 9, 10, 11, 16, 17, 14, 15]], dtype=np.int)
     UC = np.array([
             [0, 0],
             [0, 0],
@@ -45,7 +40,7 @@ def test_strain_nodes():
             [0, 2],
             [0, 2],
             [0, 2]])
-    E_nodes, S_nodes = pos.strain_nodes(nodes , elements, mats, UC, DME)
+    E_nodes, S_nodes = pos.strain_nodes(nodes , elements, mats, UC)
     E_exact = np.zeros((9, 3))
     E_exact[:, 1] = 1
     S_exact = np.zeros((9, 3))

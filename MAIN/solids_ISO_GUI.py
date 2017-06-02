@@ -52,7 +52,7 @@ print('Duration for system solution: {}'.format(end_time - start_time))
 #%% POST-PROCESSING
 start_time = datetime.now()
 UC = pos.complete_disp(IBC, nodes, UG)
-E_nodes, S_nodes = pos.strain_nodes(nodes , elements, mats, UC, DME)
+E_nodes, S_nodes = pos.strain_nodes(nodes , elements, mats, UC)
 pos.fields_plot(elements, nodes, UC, E_nodes=E_nodes, S_nodes=S_nodes)
 print('Duration for post processing: {}'.format(end_time - start_time))
 print('Analysis terminated successfully!')

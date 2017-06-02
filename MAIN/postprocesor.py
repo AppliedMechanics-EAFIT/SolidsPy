@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Postprocessor subroutines
--------------------------
+
 
 """
 from __future__ import division
@@ -17,8 +17,26 @@ rcParams['image.cmap'] = "YlGnBu_r"
 rcParams['axes.axisbelow'] = True
 rcParams['mathtext.fontset'] = "cm"
 
-def fields_plot(elements, nodes, UC, E_nodes=None, S_nodes=None, folder=""):
-    """
+
+#%% Plotting routines
+def fields_plot(elements, nodes, UC, E_nodes=None, S_nodes=None):
+    """Plot contours for displacements, strains and stresses
+
+    Parameters
+    ----------
+    nodes : ndarray (float)
+        Array with number and nodes coordinates:
+         `number coordX coordY BCX BCY`
+    elements : ndarray (int)
+        Array with the node number for the nodes that correspond
+        to each element.
+    UC : ndarray (float)
+        Array with the displacements.
+    E_nodes : ndarray (float)
+        Array with strain field in the nodes.
+    S_nodes : ndarray (float)
+        Array with stress field in the nodes.
+
     """
     # Check for structural elements in the mesh
     struct_pos = 5 in elements[:, 1] or \
@@ -37,7 +55,7 @@ def fields_plot(elements, nodes, UC, E_nodes=None, S_nodes=None, folder=""):
 
 def mesh2tri(nodes, elements):
     """Generate a  matplotlib.tri.Triangulation object from the mesh
-    
+
     Parameters
     ----------
     nodes : ndarray (float)
@@ -46,39 +64,61 @@ def mesh2tri(nodes, elements):
     elements : ndarray (int)
       Array with the node number for the nodes that correspond to each
       element.
-    
+
     Returns
     -------
     tri : Triangulation
         An unstructured triangular grid consisting of npoints points
         and ntri triangles.
-    
+
     """
-    x = nodes[:, 1]
-    y = nodes[:, 2]
+    coord_x = nodes[:, 1]
+    coord_y = nodes[:, 2]
     triangs = []
     for el in elements:
-        if el[1]==1:
+        if el[1] == 1:
             triangs.append(el[[3, 4, 5]])
             triangs.append(el[[5, 6, 3]])
-        if el[1]==2:
+        if el[1] == 2:
             triangs.append(el[[3, 6, 8]])
             triangs.append(el[[6, 7, 8]])
             triangs.append(el[[6, 4, 7]])
             triangs.append(el[[7, 5, 8]])
-        if el[1]==3:
+        if el[1] == 3:
             triangs.append(el[3:])
-    
-    tri = Triangulation(x, y, np.array(triangs))
-    return tri    
+
+    tri = Triangulation(coord_x, coord_y, np.array(triangs))
+    return tri
 
 
 def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
              plt_type="contourf", filename="solution_plot.pdf"):
-    
-    if plt_type=="pcolor":
+    """Plot contours over triangulation
+
+    Parameters
+    ----------
+    tri : ndarray (float)
+        Array with number and nodes coordinates:
+        `number coordX coordY BCX BCY`
+    field : ndarray (float)
+        Array with data to be plotted for each node.
+    title : string (optional)
+        Title of the plot.
+    figtitle : string (optional)
+        Title for the Figure.
+    levels : int (optional)
+        Number of levels to be used in ``contourf``.
+    savefigs : bool (optional)
+        Allow to save the figure.
+    plt_type : string (optional)
+        Plot the field as one of the options: ``pcolor`` or
+        ``contourf``
+    filename : string (optional)
+        Filename to save the figures.
+    """
+    if plt_type == "pcolor":
         disp_plot = plt.tripcolor
-    elif plt_type=="contourf":
+    elif plt_type == "contourf":
         disp_plot = plt.tricontourf
 
     plt.figure(figtitle)
@@ -92,20 +132,30 @@ def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
 
 
 def plot_disp(UC, nodes, elements, plt_type="contourf", levels=12,
-               savefigs=False, title="Solution:"):
+              savefigs=False, title="Solution:"):
     """Plot the nodal displacement using a triangulation
 
     Parameters
     ----------
     UC : ndarray (float)
-      Array with the displacements.
+          Array with the displacements.
     nodes : ndarray (float)
-      Array with number and nodes coordinates:
+        Array with number and nodes coordinates
         `number coordX coordY BCX BCY`
     elements : ndarray (int)
-      Array with the node number for the nodes that correspond to each
-      element.
-
+        Array with the node number for the nodes that correspond
+        to each  element.
+    title : string (optional)
+        Title of the plot.
+    levels : int (optional)
+        Number of levels to be used in ``contourf``.
+    savefigs : bool (optional)
+        Allow to save the figure.
+    plt_type : string (optional)
+        Plot the field as one of the options: ``pcolor`` or
+        ``contourf``.
+    filename : string (optional)
+        Filename to save the figures.
     """
     tri = mesh2tri(nodes, elements)
     tri_plot(tri, UC[:, 0], title=r'$u_x$',
@@ -119,22 +169,31 @@ def plot_disp(UC, nodes, elements, plt_type="contourf", levels=12,
 
 
 def plot_strain(E_nodes, nodes, elements, plt_type="contourf", levels=12,
-               savefigs=False):
+                savefigs=False):
     """Plot the nodal strains using a triangulation
-    
+
     The strains need to be computed at nodes first.
 
     Parameters
     ----------
     E_nodes : ndarray (float)
-      Array with the nodal strains.
+        Array with the nodal strains.
     nodes : ndarray (float)
-      Array with number and nodes coordinates:
+        Array with number and nodes coordinates
         `number coordX coordY BCX BCY`
     elements : ndarray (int)
-      Array with the node number for the nodes that correspond to each
-      element.
-
+        Array with the node number for the nodes that correspond
+        to each element.
+    title : string (optional)
+        Title of the plot.
+    level : int (optional)
+        Number of levels to be used in ``contourf``.
+    savefigs : bool (optional)
+        Allow to save the figure.
+    plt_type : string (optional)
+        Plot the field as one of the options: ``pcolor`` or ``contourf``
+    filename : string (optional)
+        Filename to save the figures.
     """
     tri = mesh2tri(nodes, elements)
     tri_plot(tri, E_nodes[:, 0], title=r'$\epsilon_{xx}$',
@@ -152,9 +211,9 @@ def plot_strain(E_nodes, nodes, elements, plt_type="contourf", levels=12,
 
 
 def plot_stress(S_nodes, nodes, elements, plt_type="contourf", levels=12,
-               savefigs=False):
+                savefigs=False):
     """Plot the nodal stresses using a triangulation
-    
+
     The stresses need to be computed at nodes first.
 
     Parameters
@@ -165,9 +224,18 @@ def plot_stress(S_nodes, nodes, elements, plt_type="contourf", levels=12,
       Array with number and nodes coordinates:
         `number coordX coordY BCX BCY`
     elements : ndarray (int)
-      Array with the node number for the nodes that correspond to each
-      element.
-
+      Array with the node number for the nodes that correspond
+      to each element.
+    title : string (optional)
+      Title of the plot.
+    level : int (optional)
+      Number of levels to be used in ``contourf``.
+    savefigs : bool (optional)
+      Allow to save the figure.
+    plt_type : string (optional)
+      Plot the field as one of the options: ``pcolor`` or ``contourf``.
+    filename : string (optional)
+      Filename to save the figures.
     """
     tri = mesh2tri(nodes, elements)
     tri_plot(tri, S_nodes[:, 0], title=r'$\sigma_{xx}$',
@@ -199,22 +267,22 @@ def grafmat(k):
     plt.ylabel(r"$i$ index", size=10)
     plt.xlabel(r"$j$ index", size=10)
 
-
+#%% Auxiliar variables computation
 def complete_disp(IBC, nodes, UG):
     """
     Fill the displacement vectors with imposed and computed values.
-    
+
     IBC : ndarray (int)
-      IBC (Indicator of Boundary Conditions) indicates if the nodes
-      has any type of boundary conditions applied to it.
+        IBC (Indicator of Boundary Conditions) indicates if the
+        nodes has any type of boundary conditions applied to it.
     UG : ndarray (float)
-      Array with the computed displacements.
+        Array with the computed displacements.
     nodes : ndarray (float)
-      Array with number and nodes coordinates:
-      
+        Array with number and nodes coordinates
+
     Returns
     -------
-    UC : ndarray (float)
+    UC : (nnodes, 2) ndarray (float)
       Array with the displacements.
 
     """
@@ -231,36 +299,36 @@ def complete_disp(IBC, nodes, UG):
     return UC
 
 
-def strain_nodes(nodes , elements, mats, UC, DME):
+def strain_nodes(nodes, elements, mats, UC):
     """Compute averaged strains and stresses at nodes
-    
+
     First, the variable is extrapolated from the Gauss
     point to nodes for each element. Then, these values are averaged
     according to the number of element that share that node. The theory
     for this technique can be found in [1]_.
-    
+
     Parameters
     ----------
     IELCON : ndarray (int)
-      Array with the nodes numbers for each element.
+        Array with the nodes numbers for each element.
     UC : ndarray (float)
-      Array with the displacements. This one contains both, the
-      computed and imposed values.
+        Array with the displacements. This one contains both, the
+        computed and imposed values.
     ne : int
-      Number of elements.
+        Number of elements.
     COORD : ndarray (float).
-      Array with nodes coordinates.
+        Array with nodes coordinates.
     elements : ndarray (int)
-      Array with the node number for the nodes that correspond to each
-      element.
-      
-      
+        Array with the node number for the nodes that correspond
+        to each element.
+
+
     Returns
     -------
     E_nodes : ndarray
         Strains evaluated at the nodes.
-      
-    
+
+
     References
     ----------
     .. [1] O.C. Zienkiewicz and J.Z. Zhu, The Superconvergent patch
@@ -270,16 +338,14 @@ def strain_nodes(nodes , elements, mats, UC, DME):
     """
     ne = elements.shape[0]
     nn = nodes.shape[0]
-    IELCON = np.zeros([ne, 9], dtype=np.integer)
     iet = elements[0, 1]
-    ndof, nnodes, ngpts = fe.eletype(iet)
+    ndof, nnodes, _ = fe.eletype(iet)
 
-    elcoor   = np.zeros([nnodes, 2])
-    E_nodes  = np.zeros([nn , 3])
-    S_nodes  = np.zeros([nn , 3])
+    elcoor = np.zeros([nnodes, 2])
+    E_nodes = np.zeros([nn, 3])
+    S_nodes = np.zeros([nn, 3])
     el_nodes = np.zeros([nn], dtype=int)
     ul = np.zeros([ndof])
-
     IELCON = elements[:, 3:]
 
     for i in range(ne):
@@ -288,16 +354,16 @@ def strain_nodes(nodes , elements, mats, UC, DME):
         fact1 = young/(1 - poisson**2)
         fact2 = poisson*young/(1 - poisson**2)
         for j in range(nnodes):
-            elcoor[j, 0] = nodes[IELCON[i,j], 1]
-            elcoor[j, 1] = nodes[IELCON[i,j], 2]
-            ul[2*j] = UC[IELCON[i,j], 0]
-            ul[2*j + 1] = UC[IELCON[i,j], 1]
+            elcoor[j, 0] = nodes[IELCON[i, j], 1]
+            elcoor[j, 1] = nodes[IELCON[i, j], 2]
+            ul[2*j] = UC[IELCON[i, j], 0]
+            ul[2*j + 1] = UC[IELCON[i, j], 1]
         if iet == 1:
-            epsG, xl = fe.str_el4(elcoor, ul)
+            epsG, _ = fe.str_el4(elcoor, ul)
         elif iet == 2:
-            epsG, xl = fe.str_el6(elcoor, ul)
+            epsG, _ = fe.str_el6(elcoor, ul)
         elif iet == 3:
-            epsG, xl = fe.str_el3(elcoor, ul)
+            epsG, _ = fe.str_el3(elcoor, ul)
 
         for cont, node in enumerate(IELCON[i, :]):
             E_nodes[node, 0] = E_nodes[node, 0] + epsG[cont, 0]
@@ -319,12 +385,12 @@ def strain_nodes(nodes , elements, mats, UC, DME):
     return E_nodes, S_nodes
 
 
-def eigvals(A, tol=1e-6):
+def eigvals(mat, tol=1e-6):
     """Eigenvalues and eigenvectors for a 2x2 symmetric matrix/tensor
-    
+
     Parameters
     ----------
-    A : ndarray
+    mat : ndarray
         Symmetric matrix.
     tol : float (optional)
         Tolerance for considering a matrix diagonal.
@@ -339,13 +405,13 @@ def eigvals(A, tol=1e-6):
         First eigenvector.
     vec2 : ndarray
         Second eigenvector
-    
+
     Examples
     --------
-    
-    >>> A = np.array([[5, 6],
+
+    >>> mat = np.array([[5, 6],
     ...              [6, 9]])
-    >>> eig1, eig2, vec1, vec2 =  eigvals(A)
+    >>> eig1, eig2, vec1, vec2 =  eigvals(mat)
     >>> np.allclose(eig1, 7 + 2*np.sqrt(10))
     True
     >>> np.allclose(eig2, 7 - 2*np.sqrt(10))
@@ -354,24 +420,24 @@ def eigvals(A, tol=1e-6):
     True
     >>> np.allclose(vec2, np.array([-0.8112421851755609,0.584710284663765]))
     True
-    
+
     """
-    if np.abs(A).max() < tol:
+    if np.abs(mat).max() < tol:
         eig1 = 0.0
         eig2 = 0.0
         vec1 = np.array([np.NaN, np.NaN])
         vec2 = np.array([np.NaN, np.NaN])
-    elif abs(A[0, 1])/np.abs(A).max() < tol:
-        eig1 = A[0, 0]
-        eig2 = A[1, 1]
+    elif abs(mat[0, 1])/np.abs(mat).max() < tol:
+        eig1 = mat[0, 0]
+        eig2 = mat[1, 1]
         vec1 = np.array([1, 0])
         vec2 = np.array([0, 1])
     else:
-        tr = A[0, 0] + A[1, 1]
-        det = A[0, 0]*A[1, 1] - A[0, 1]**2
-        eig1 = 0.5*(tr - np.sqrt(tr**2 - 4*det))
-        eig2 = 0.5*(tr + np.sqrt(tr**2 - 4*det))
-        vec1 = np.array([A[0, 0] - eig2, A[0, 1]])
+        trace = mat[0, 0] + mat[1, 1]
+        det = mat[0, 0]*mat[1, 1] - mat[0, 1]**2
+        eig1 = 0.5*(trace - np.sqrt(trace**2 - 4*det))
+        eig2 = 0.5*(trace + np.sqrt(trace**2 - 4*det))
+        vec1 = np.array([mat[0, 0] - eig2, mat[0, 1]])
         vec1 = vec1/np.sqrt(vec1[0]**2 + vec1[1]**2)
         vec2 = np.array([-vec1[1], vec1[0]])
     if abs(eig2) > abs(eig1):
@@ -407,12 +473,12 @@ def principal_dirs(field):
     eigs2 = np.empty((num))
     vecs1 = np.empty((num, 2))
     vecs2 = np.empty((num, 2))
-    A = np.zeros((2, 2))
+    mat = np.zeros((2, 2))
     for cont, tensor in enumerate(field):
-        A[0, 0] = tensor[0]
-        A[1, 1] = tensor[1]
-        A[0, 1] = tensor[2]
-        eig1, eig2, vec1, vec2 = eigvals(A, tol=1e-6)
+        mat[0, 0] = tensor[0]
+        mat[1, 1] = tensor[1]
+        mat[0, 1] = tensor[2]
+        eig1, eig2, vec1, vec2 = eigvals(mat, tol=1e-6)
         eigs1[cont] = eig1
         eigs2[cont] = eig2
         vecs1[cont, :] = vec1
@@ -420,7 +486,7 @@ def principal_dirs(field):
 
     return eigs1, eigs2, vecs1, vecs2
 
-        
+
 def gmeshpost(IBC, nn, UG, folder=""):
     """Export the nodal displacement solution
 
@@ -436,8 +502,8 @@ def gmeshpost(IBC, nn, UG, folder=""):
                 UR[i, j] = 0.0
             else:
                 UR[i, j] = UG[k]
-    nomfile1 = folder + 'out.txt'
-    np.savetxt(nomfile1, UR, fmt='%.18e', delimiter=' ')
+    filename = folder + 'out.txt'
+    np.savetxt(filename, UR, fmt='%.18e', delimiter=' ')
 
 
 def energy(UG, KG):
@@ -447,14 +513,14 @@ def energy(UG, KG):
     Parameters
     ----------
     UG : ndarray (float)
-      Array with the computed displacements.
+        Array with the computed displacements.
     KG : ndarray (float)
-      Global stiffness matrix.
+        Global stiffness matrix.
 
     Returns
     -------
     EFE : scalar (float)
-      Total energy in the system. :math:`-\frac{1}{2} U^T K U`
+        Total energy in the system. :math:`-\frac{1}{2} U^T K U`
 
     """
     f = KG.dot(UG)
@@ -463,7 +529,7 @@ def energy(UG, KG):
     return EFE
 
 
-#%%
+#%% Doc-testing
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
