@@ -1,4 +1,4 @@
-# 2D-Finite Element Analysis with Python
+# SolidsPy: 2D-Finite Element Analysis with Python
 
 
 ![Wrench under bending.](./docs/img/wrench.png)
