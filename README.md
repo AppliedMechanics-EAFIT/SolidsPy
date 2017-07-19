@@ -55,11 +55,12 @@ After installation, you can run an analysis in 3 easy steps (see [template](./do
   a python script with the aid of [`meshio`](https://github.com/nschloe/meshio).
 - Run it in Python
 
-
-    import matplotlib.pyplot as plt  # load matplotlib
-    from solidspy import solids_GUI  # import our package
-    solids_GUI()  # run the Finite Element Analysis
-    plt.show()    # plot contours
+```python
+import matplotlib.pyplot as plt  # load matplotlib
+from solidspy import solids_GUI  # import our package
+solids_GUI()  # run the Finite Element Analysis
+plt.show()    # plot contours
+```
 
 ## License
 This project is licensed under the
