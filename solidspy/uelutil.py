@@ -78,7 +78,7 @@ def uel6ntrian(coord, enu, Emod):
     -------
     kl : ndarray
       Local stiffness matrix for the element (12, 12).
- 
+
     Examples
     --------
 
@@ -105,7 +105,7 @@ def uel6ntrian(coord, enu, Emod):
     ...            [-4, -12, 0, 0, -4, -12, 8, 0, -8, -8, 8, 32]])
     >>> np.allclose(stiff, stiff_ex)
     True
-    
+
     """
     kl = np.zeros([12, 12])
     C = fem.umat(enu, Emod)
@@ -251,11 +251,11 @@ def ueltruss2D(coord, A, Emod):
     vec = coord[1, :] - coord[0, :]
     nx = vec[0]/np.linalg.norm(vec)
     ny = vec[1]/np.linalg.norm(vec)
-    length = np.linalg.norm(vec) 
+    length = np.linalg.norm(vec)
     Q = np.array([
         [nx, ny , 0 , 0],
         [0,  0, nx , ny]])
-    kl =(A*Emod/length) * np.array([
+    kl = (A*Emod/length) * np.array([
         [1, -1],
         [-1, 1]])
     kG = np.dot(np.dot(Q.T, kl), Q)
@@ -284,7 +284,7 @@ def uelbeam2DU(coord, I , Emod):
     vec = coord[1, :] - coord[0, :]
     nx = vec[0]/np.linalg.norm(vec)
     ny = vec[1]/np.linalg.norm(vec)
-    L = np.linalg.norm(vec) 
+    L = np.linalg.norm(vec)
     Q = np.array([
         [-ny , nx ,   0 ,  0 ,  0 , 0 ],
         [  0 ,  0 , 1.0 ,  0 ,  0 , 0 ],

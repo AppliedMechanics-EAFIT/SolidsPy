@@ -107,32 +107,32 @@ def retriever(elements , mats , nodes , i, uel=None):
       Number of degrees of fredom of the current element.
     """
     IELCON = np.zeros([9], dtype=np.integer)
-    iet = elements[i , 1]
+    iet = elements[i, 1]
     ndof, nnodes, ngpts = fem.eletype(iet)
     elcoor = np.zeros([nnodes, 2])
     im = np.int(elements[i, 2])
-    par0 , par1 = mats[im, :]
+    par0, par1 = mats[im, :]
     for j in range(nnodes):
         IELCON[j] = elements[i, j+3]
         elcoor[j, 0] = nodes[IELCON[j], 1]
         elcoor[j, 1] = nodes[IELCON[j], 2]
     if uel is None:
         if iet == 1:
-            kloc = ue.uel4nquad(elcoor, par1 , par0)
+            kloc = ue.uel4nquad(elcoor, par1, par0)
         elif iet == 2:
-            kloc = ue.uel6ntrian(elcoor, par1 , par0)
+            kloc = ue.uel6ntrian(elcoor, par1, par0)
         elif iet == 3:
-            kloc = ue.uel3ntrian(elcoor, par1 , par0)
+            kloc = ue.uel3ntrian(elcoor, par1, par0)
         elif iet == 5:
-            kloc = ue.uelspring(elcoor, par1 , par0)
+            kloc = ue.uelspring(elcoor, par1, par0)
         elif iet == 6:
-            kloc =ue.ueltruss2D(elcoor, par1 , par0)
+            kloc = ue.ueltruss2D(elcoor, par1, par0)
         elif iet == 7:
-            kloc = ue.uelbeam2DU(elcoor, par1 , par0)
+            kloc = ue.uelbeam2DU(elcoor, par1, par0)
     else:
         kloc, ndof, iet = uel(elcoor, par1, par0)
-    
-    return kloc , ndof , iet
+
+    return kloc, ndof, iet
 
 
 def assembler(elements, mats, nodes, neq, DME, sparse=True, uel=None):
@@ -201,16 +201,8 @@ def dense_assem(elements, mats, nodes, neq, DME, uel=None):
     KG = np.zeros((neq, neq))
     nels = elements.shape[0]
     for el in range(nels):
-        kloc , ndof , iet  = retriever(elements , mats  , nodes , el, uel=uel)
-        if iet == 6:
-            dme    = np.zeros([ndof], dtype=np.integer)
-            dme[0] = DME[el, 0]
-            dme[1] = DME[el, 1]
-            dme[2] = DME[el, 3]
-            dme[3] = DME[el, 4]
-        else:
-            dme = DME[el, :ndof]
-
+        kloc, ndof, iet  = retriever(elements, mats, nodes, el, uel=uel)
+        dme = DME[el, :ndof]
         for row in range(ndof):
             glob_row = dme[row]
             if glob_row != -1:
@@ -265,16 +257,9 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
     vals = []
     nels = elements.shape[0]
     for el in range(nels):
-        kloc , ndof , iet  = retriever(elements , mats  , nodes , el, uel=uel)
-        if iet == 6:
-            dme    = np.zeros([ndof], dtype=np.integer)
-            dme[0] = DME[el, 0]
-            dme[1] = DME[el, 1]
-            dme[2] = DME[el, 3]
-            dme[3] = DME[el, 4]
-        else:
-            dme = DME[el, :ndof]
-    
+        kloc, ndof, iet  = retriever(elements , mats  , nodes , el, uel=uel)
+        dme = DME[el, :ndof]
+
         for row in range(ndof):
             glob_row = dme[row]
             if glob_row != -1:
@@ -319,3 +304,7 @@ def loadasem(loads, IBC, neq):
             RHSG[ily] = loads[i, 2]
 
     return RHSG
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
