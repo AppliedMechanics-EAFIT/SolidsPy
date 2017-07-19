@@ -4,12 +4,10 @@ Test cases for functions on ``solutil`` module
 
 """
 from __future__ import division, print_function
-from os import sys
-sys.path.append("../MAIN/")
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse import rand
-import solutil as sol
+import solidspy.solutil as sol
 
 
 def test_static_solve():

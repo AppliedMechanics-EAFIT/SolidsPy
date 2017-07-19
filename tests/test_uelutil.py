@@ -4,10 +4,8 @@ Test cases for functions on ``uelutil`` module
 
 """
 from __future__ import division, print_function
-from os import sys
-sys.path.append("../MAIN/")
 import numpy as np
-import uelutil as uel
+import solidspy.uelutil as uel
 
 
 def test_uel4nquad():
@@ -81,3 +79,17 @@ def test_uelspring():
         [-1, 0, 1, 0],
         [0, 0, 0, 0]])
     assert np.allclose(stiff, stiff_ex)
+
+
+def test_ueltruss2D():
+    
+    coord = np.array([
+        [0, 0],
+        [1, 0]])
+    stiff = uel.ueltruss2D(coord, 1.0 , 1.0)
+    stiff_ex =  np.array([
+    [1, 0, -1, 0],
+    [0, 0, 0, 0],
+    [-1, 0, 1, 0],
+    [0, 0, 0, 0]])
+    np.allclose(stiff, stiff_ex)

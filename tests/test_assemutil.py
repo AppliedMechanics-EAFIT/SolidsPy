@@ -4,10 +4,8 @@ Test cases for functions on ``assemutil`` module
 
 """
 from __future__ import division, print_function
-from os import sys
-sys.path.append("../MAIN/")
 import numpy as np
-import assemutil as ass
+import solidspy.assemutil as ass
 
 
 def test_sparse_assem():
@@ -58,6 +56,7 @@ def test_sparse_assem():
         [0, 0, 0, 0, 0, 0, 0, 0, -3, -4, 0, -5, 0, 0, 0, 1, 3, 8]])
     assert np.allclose(K_ass, K_exact)
 
+
 def test_dense_assem():
     """Tests for dense assembler"""
 
@@ -106,6 +105,7 @@ def test_dense_assem():
         [0, 0, 0, 0, 0, 0, 0, 0, -4, -3, 1, 0, 0, 0, -5, 0, 8, 3], 
         [0, 0, 0, 0, 0, 0, 0, 0, -3, -4, 0, -5, 0, 0, 0, 1, 3, 8]])
     assert np.allclose(K_ass, K_exact)
+
 
     # Test for uel with all ones
     def uel_ones(elcoord, par1, par0):

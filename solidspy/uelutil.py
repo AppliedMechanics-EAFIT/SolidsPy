@@ -194,9 +194,9 @@ def uelspring(coord, enu, Emod):
     ...         [1, 0]])
     >>> stiff = uelspring(coord, 1/3, 8/3)
     >>> stiff_ex = 8/3 * np.array([
-    ...    [-1, 0, 1, 0],
-    ...    [0, 0, 0, 0],
     ...    [1, 0, -1, 0],
+    ...    [0, 0, 0, 0],
+    ...    [-1, 0, 1, 0],
     ...    [0, 0, 0, 0]])
     >>> np.allclose(stiff, stiff_ex)
     True
@@ -238,11 +238,11 @@ def ueltruss2D(coord, A, Emod):
     >>> coord = np.array([
     ...         [0, 0],
     ...         [1, 0]])
-    >>> stiff = ueltruss2D(coord, 1.0 , 1000.0)
-    >>> stiff_ex = 8/3 * np.array([
-    ...    [-1, 0, 1, 0],
-    ...    [0, 0, 0, 0],
+    >>> stiff = ueltruss2D(coord, 1.0 , 1.0)
+    >>> stiff_ex =  np.array([
     ...    [1, 0, -1, 0],
+    ...    [0, 0, 0, 0],
+    ...    [-1, 0, 1, 0],
     ...    [0, 0, 0, 0]])
     >>> np.allclose(stiff, stiff_ex)
     True
@@ -261,9 +261,10 @@ def ueltruss2D(coord, A, Emod):
     kG = np.dot(np.dot(Q.T, kl), Q)
     return kG
 
+
 def uelbeam2DU(coord, I , Emod):
-    """2D-2-noded bam element
-       without axial dformation
+    """2D-2-noded beam element
+       without axial deformation
 
     Parameters
     ----------
@@ -278,21 +279,6 @@ def uelbeam2DU(coord, I , Emod):
     -------
     kl : ndarray
       Local stiffness matrix for the element (4, 4).
-
-    Examples
-    --------
-
-    >>> coord = np.array([
-    ...         [0, 0],
-    ...         [1, 0]])
-    >>> stiff = ueltruss2D(coord, 1.0 , 1000.0)
-    >>> stiff_ex = 8/3 * np.array([
-    ...    [-1, 0, 1, 0],
-    ...    [0, 0, 0, 0],
-    ...    [1, 0, -1, 0],
-    ...    [0, 0, 0, 0]])
-    >>> np.allclose(stiff, stiff_ex)
-    True
 
     """
     vec = coord[1, :] - coord[0, :]
@@ -312,29 +298,7 @@ def uelbeam2DU(coord, I , Emod):
     kG = np.dot(np.dot(Q.T, kl), Q)
     return kG
 
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

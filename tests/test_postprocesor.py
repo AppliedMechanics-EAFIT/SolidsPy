@@ -4,10 +4,8 @@ Test cases for functions on ``postprocesor`` module
 
 """
 from __future__ import division, print_function
-from os import sys
-sys.path.append("../MAIN/")
 import numpy as np
-import postprocesor as pos
+import solidspy.postprocesor as pos
 
 
 def test_strain_nodes():

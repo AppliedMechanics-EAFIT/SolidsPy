@@ -4,10 +4,8 @@ Test cases for functions on ``femutil`` module
 
 """
 from __future__ import division, print_function
-from os import sys
-sys.path.append("../MAIN/")
 import numpy as np
-import femutil as fem
+import solidspy.femutil as fem
 
 
 #%% Tests for Shape functions and derivatives
