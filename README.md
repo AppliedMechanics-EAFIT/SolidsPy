@@ -11,12 +11,12 @@ The _repo_ contains 3 main folders:
 
 1. `solidspy/` stores the package routines:
 
-  - `solids_GUI.py`: run the program;
-  - `preprocesor.py` model input subroutines);
-  - `assemutil.py` (assembly subroutines);
-  - `femutil.py` (general finite element method subroutines);
-  - `uelutil.py` (local matrix subroutines for different elements; and
-  - `postprocesor.py` (results handling subroutines)
+    - `solids_GUI.py`: run the program;
+    - `preprocesor.py` model input subroutines);
+    - `assemutil.py` (assembly subroutines);
+    - `femutil.py` (general finite element method subroutines);
+    - `uelutil.py` (local matrix subroutines for different elements; and
+    - `postprocesor.py` (results handling subroutines)
 
 2. `meshes/` contains input files and meshes in `.msh` format corresponding to
     different examples.
