@@ -53,18 +53,13 @@ After installation, you can run an analysis in 3 easy steps (see [template](./do
 - Create the mesh using [Gmsh](http://gmsh.info/).
 - Generate the model files (eles.txt, nodes.txt, mater.txt and loads.txt) using
   a python script with the aid of [`meshio`](https://github.com/nschloe/meshio).
-- Load the function `solids_GUI` with (and also matplotlib)
+- Run it in Python
 
-    import matplotlib.pyplot as plt
-    from solidspy import solids_GUI
 
-  run it
-
-    solids_GUI()
-
-  and plot the contours with
-
-    plt.show()
+    import matplotlib.pyplot as plt  # load matplotlib
+    from solidspy import solids_GUI  # import our package
+    solids_GUI()  # run the Finite Element Analysis
+    plt.show()    # plot contours
 
 ## License
 This project is licensed under the
