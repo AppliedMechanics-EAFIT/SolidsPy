@@ -98,9 +98,15 @@ The corresponding file has the following data
 
 
 ## Executing the program
-In a terminal type
+After installing the package, you can run the program in a Python
+terminal using
 
-    $ python solids_ISO_GUI.py
+    >>> from solidspy import solids_GUI()
+    >>> solids_GUI()
+
+In Linux and you can also run the program from the terminal using
+
+    $ python -m solidspy
 
 If you have `easygui` installed a pop-up window will appear for you
 to select the folder with the input files
@@ -148,23 +154,22 @@ a good option is [IPython](http://ipython.org/).
 
 In IPython you can run the program with
 
-    In [1]: runfile('solids_ISO_GUI.py')
-    Reloaded modules: preprocesor, postprocesor, femutil, gaussutil, assemutil, uelutil, solutil
+    In [1]: from solidspy import solids_GUI
 
-or just click run (or press F5) if you are using the [Spyder IDE](https://github.com/spyder-ide/spyder).
+    In [2]: UC = solids_GUI()
 
 After running the code we have the nodal variables for post-processing.
 For example, we can print the displacement vector
 
-    In [2]: np.set_printoptions(threshold=np.nan)
+    In [3]: np.set_printoptions(threshold=np.nan)
 
-    In [3]: print(np.round(UG, 3))
+    In [4]: print(np.round(UC, 3))
     [ 0.6 -0.6 -0.6  4.   0.6  4.  -0.6  2.  -0.   4.   0.6  2.  -0.   2. ]
 
 where we first setup the printing option for IPython to show the full
 array and then rounded the array to 3 decimal places.
 
-    In [4]: U_mag = np.sqrt(UG[0::2]**2 + UG[1::2]**2)
+    In [5]: U_mag = np.sqrt(UC[0::2]**2 + UG[1::2]**2)
 
-    In [5]: print(np.round(U_mag, 3))
+    In [6]: print(np.round(U_mag, 3))
     [ 0.849  4.045  4.045  2.088  4.     2.088  2.   ]
