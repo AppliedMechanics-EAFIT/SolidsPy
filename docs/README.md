@@ -73,7 +73,7 @@ The corresponding file has the following data
 The file `mater.txt` contain the material information. Each line in the
 file corresponds to a material profile to be assigned to the different
 elements in the elements file. In this example, there is one material
-profile. Each line in the file is composed of the following fields:  
+profile. Each line in the file is composed of the following fields:
 
 - Column 0: Young's modulus for the current profile (float).
 - Column 1: Poisson's ratio for the current profile (float).
@@ -101,7 +101,7 @@ The corresponding file has the following data
 After installing the package, you can run the program in a Python
 terminal using
 
-    >>> from solidspy import solids_GUI()
+    >>> from solidspy import solids_GUI
     >>> solids_GUI()
 
 In Linux and you can also run the program from the terminal using
