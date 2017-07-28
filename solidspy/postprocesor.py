@@ -2,7 +2,6 @@
 """
 Postprocessor subroutines
 
-
 """
 from __future__ import division
 import numpy as np
@@ -47,11 +46,25 @@ def fields_plot(elements, nodes, UC, E_nodes=None, S_nodes=None):
         # Still not implemented visualization for structural elements
         print(UC)
     else:
-        plot_disp(UC, nodes, elements)
+        plot_node_field(UC, nodes, elements, title=[r"$u_x$", r"$u_y$"],
+                        figtitle=["Horizontal displacement",
+                                  "Vertical displacement"])
         if E_nodes is not None:
-            plot_strain(E_nodes, nodes, elements)
+            plot_node_field(E_nodes, nodes, elements,
+                    title=[r"$\epsilon_{xx}$",
+                           r"$\epsilon_{yy}$",
+                           r"$\gamma_{xy}$",],
+                    figtitle=["Strain epsilon-xx",
+                              "Strain epsilon-yy",
+                              "Strain gamma-xy"])
         if S_nodes is not None:
-            plot_stress(S_nodes, nodes, elements)
+            plot_node_field(S_nodes, nodes, elements,
+                    title=[r"$\sigma_{xx}$",
+                           r"$\sigma_{yy}$",
+                           r"$\tau_{xy}$",],
+                    figtitle=["Stress sigma-xx",
+                              "Stress sigma-yy",
+                              "Stress tau-xy"])
 
 
 def mesh2tri(nodes, elements):
@@ -131,126 +144,51 @@ def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
     if savefigs:
         plt.savefig(filename)
 
-
-def plot_disp(UC, nodes, elements, plt_type="contourf", levels=12,
-              savefigs=False, title="Solution:"):
+def plot_node_field(field, nodes, elements, plt_type="contourf", levels=12,
+              savefigs=False, title=None, figtitle=None, filename=None) :
     """Plot the nodal displacement using a triangulation
 
     Parameters
     ----------
-    UC : ndarray (float)
-          Array with the displacements.
+    field : ndarray (float)
+          Array with the field to be plotted. The number of columns
+          determine the number of plots.
     nodes : ndarray (float)
         Array with number and nodes coordinates
         `number coordX coordY BCX BCY`
     elements : ndarray (int)
         Array with the node number for the nodes that correspond
         to each  element.
-    title : string (optional)
-        Title of the plot.
+    plt_type : string (optional)
+        Plot the field as one of the options: ``pcolor`` or
+        ``contourf``.
     levels : int (optional)
         Number of levels to be used in ``contourf``.
     savefigs : bool (optional)
         Allow to save the figure.
-    plt_type : string (optional)
-        Plot the field as one of the options: ``pcolor`` or
-        ``contourf``.
-    filename : string (optional)
-        Filename to save the figures.
+    title : Tuple of strings (optional)
+        Titles of the plots. If not provided the plots will not have
+        a title.
+    figtitle : Tuple of strings (optional)
+        Titles of the plotting windows. If not provided the
+        windows will not have a title.
+    filename : Tuple of strings (optional)
+        Filenames to save the figures. Only used when `savefigs=True`.
+        If not provided the name of the figures would be "outputk.pdf",
+        where `k` is the number of the column.
     """
     tri = mesh2tri(nodes, elements)
-    tri_plot(tri, UC[:, 0], title=r'$u_x$',
-             figtitle=title + "Horizontal displacement",
-             levels=levels, plt_type=plt_type, savefigs=savefigs,
-             filename="ux_sol.pdf")
-    tri_plot(tri, UC[:, 1], title=r'$u_y$',
-             figtitle=title + "Vertical displacement",
-             levels=levels, plt_type=plt_type, savefigs=savefigs,
-             filename="uy_sol.pdf")
-
-
-def plot_strain(E_nodes, nodes, elements, plt_type="contourf", levels=12,
-                savefigs=False):
-    """Plot the nodal strains using a triangulation
-
-    The strains need to be computed at nodes first.
-
-    Parameters
-    ----------
-    E_nodes : ndarray (float)
-        Array with the nodal strains.
-    nodes : ndarray (float)
-        Array with number and nodes coordinates
-        `number coordX coordY BCX BCY`
-    elements : ndarray (int)
-        Array with the node number for the nodes that correspond
-        to each element.
-    title : string (optional)
-        Title of the plot.
-    level : int (optional)
-        Number of levels to be used in ``contourf``.
-    savefigs : bool (optional)
-        Allow to save the figure.
-    plt_type : string (optional)
-        Plot the field as one of the options: ``pcolor`` or ``contourf``
-    filename : string (optional)
-        Filename to save the figures.
-    """
-    tri = mesh2tri(nodes, elements)
-    tri_plot(tri, E_nodes[:, 0], title=r'$\epsilon_{xx}$',
-             figtitle="Solution: epsilon-xx strain",
-             levels=levels, plt_type=plt_type, savefigs=savefigs,
-             filename="epsxx_sol.pdf")
-    tri_plot(tri, E_nodes[:, 1], title=r'$\epsilon_{yy}$',
-             figtitle="Solution: epsilon-yy strain",
-             levels=levels, plt_type=plt_type, savefigs=savefigs,
-             filename="epsyy_sol.pdf")
-    tri_plot(tri, E_nodes[:, 2], title=r'$\gamma_{xy}$',
-             figtitle="Solution: gamma-xy strain",
-             levels=levels, plt_type=plt_type, savefigs=savefigs,
-             filename="gammaxy_sol.pdf")
-
-
-def plot_stress(S_nodes, nodes, elements, plt_type="contourf", levels=12,
-                savefigs=False):
-    """Plot the nodal stresses using a triangulation
-
-    The stresses need to be computed at nodes first.
-
-    Parameters
-    ----------
-    S_nodes : ndarray (float)
-      Array with the nodal stresses.
-    nodes : ndarray (float)
-      Array with number and nodes coordinates:
-        `number coordX coordY BCX BCY`
-    elements : ndarray (int)
-      Array with the node number for the nodes that correspond
-      to each element.
-    title : string (optional)
-      Title of the plot.
-    level : int (optional)
-      Number of levels to be used in ``contourf``.
-    savefigs : bool (optional)
-      Allow to save the figure.
-    plt_type : string (optional)
-      Plot the field as one of the options: ``pcolor`` or ``contourf``.
-    filename : string (optional)
-      Filename to save the figures.
-    """
-    tri = mesh2tri(nodes, elements)
-    tri_plot(tri, S_nodes[:, 0], title=r'$\sigma_{xx}$',
-             figtitle="Solution: sigma-xx stress",
-             levels=levels, plt_type=plt_type, savefigs=savefigs,
-             filename="sigmaxx_sol.pdf")
-    tri_plot(tri, S_nodes[:, 1], title=r'$\sigma_{yy}$',
-             figtitle="Solution: sigma-yy stres",
-             levels=levels, plt_type=plt_type, savefigs=savefigs,
-             filename="sigmayy_sol.pdf")
-    tri_plot(tri, S_nodes[:, 2], title=r'$\sigma_{xy}$',
-             figtitle="Solution: sigma-xy stress",
-             levels=levels, plt_type=plt_type, savefigs=savefigs,
-             filename="sigmaxy_sol.pdf")
+    _, nfields = field.shape
+    if title is None:
+        title = ["" for cont in range(nfields)]
+    if figtitle is None:
+        figtitle = ["" for cont in range(nfields)]
+    if filename is None:
+        filename = ["output{}.pdf".format(cont) for cont in range(nfields)]
+    for cont in range(nfields):
+        tri_plot(tri, field[:, cont], title=title[cont],
+             figtitle=figtitle[cont], levels=levels,
+             plt_type=plt_type, savefigs=savefigs, filename=filename[cont])
 
 
 #%% Auxiliar variables computation

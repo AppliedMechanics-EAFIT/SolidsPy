@@ -19,7 +19,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
 import solidspy.preprocesor as pre
-import solidspy.postprocesor as pos
+#import solidspy.postprocesor as pos
+import postprocesor as pos
 import solidspy.assemutil as ass
 import solidspy.solutil as sol
 
