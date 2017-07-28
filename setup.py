@@ -19,7 +19,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='solidspy',
 
-    version='1.0.3',
+    version='1.0.4',
 
     description='A simple Finite Element program',
     long_description=long_description,
@@ -56,7 +56,7 @@ setup(
         'Programming Language :: Python :: 3',
     ],
 
-     keywords='finite-elements fem scientific-computing',
+    keywords='finite-elements fem scientific-computing',
 
 
     # You can just specify the packages manually here if your project is

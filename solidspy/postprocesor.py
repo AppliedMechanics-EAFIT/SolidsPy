@@ -457,7 +457,7 @@ def stress_truss(nodes, elements, mats, disp):
         local_stiff = uel.ueltruss2D(coords, * mats[mat_id, :])
         local_disp = np.hstack((disp[ini, :], disp[end, :]))
         local_forces = local_stiff.dot(local_disp)
-        stress[cont] = local_forces[2:].dot(tan_vec)/length
+        stress[cont] = local_forces[2:].dot(tan_vec)/(length*mats[mat_id, 1])
     return stress
 
 
