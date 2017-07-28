@@ -7,6 +7,7 @@ Postprocessor subroutines
 from __future__ import division
 import numpy as np
 import femutil as fe
+import uelutil as uel
 import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
 from matplotlib import rcParams
@@ -252,21 +253,6 @@ def plot_stress(S_nodes, nodes, elements, plt_type="contourf", levels=12,
              filename="sigmaxy_sol.pdf")
 
 
-def grafmat(k):
-    """Plot stiffness matrix sparsity
-
-    Parameters
-    ----------
-    k : ndarray (int)
-      Stiffness matrix of the system.
-
-    """
-    plt.figure("Stiffness matrix")
-    plt.spy(k)
-    plt.title("Stiffness matrix")
-    plt.ylabel(r"$i$ index", size=10)
-    plt.xlabel(r"$j$ index", size=10)
-
 #%% Auxiliar variables computation
 def complete_disp(IBC, nodes, UG):
     """
@@ -309,19 +295,16 @@ def strain_nodes(nodes, elements, mats, UC):
 
     Parameters
     ----------
-    IELCON : ndarray (int)
-        Array with the nodes numbers for each element.
-    UC : ndarray (float)
-        Array with the displacements. This one contains both, the
-        computed and imposed values.
-    ne : int
-        Number of elements.
-    COORD : ndarray (float).
+    nodes : ndarray (float).
         Array with nodes coordinates.
     elements : ndarray (int)
         Array with the node number for the nodes that correspond
         to each element.
-
+    mats : ndarray (float)
+        Array with material profiles.
+    UC : ndarray (float)
+        Array with the displacements. This one contains both, the
+        computed and imposed values.
 
     Returns
     -------
@@ -383,6 +366,161 @@ def strain_nodes(nodes, elements, mats, UC):
     S_nodes[:, 1] = S_nodes[:, 1]/el_nodes
     S_nodes[:, 2] = S_nodes[:, 2]/el_nodes
     return E_nodes, S_nodes
+
+
+def stress_truss(nodes, elements, mats, disp):
+    r"""Compute axial stresses in truss members
+
+    Parameters
+    ----------
+    nodes : ndarray (float).
+        Array with nodes coordinates.
+    elements : ndarray (int)
+        Array with the node number for the nodes that correspond
+        to each element.
+    mats : ndarray (float)
+        Array with material profiles.
+    disp : ndarray (float)
+        Array with the displacements. This one contains both, the
+        computed and imposed values.
+
+    Returns
+    -------
+    stress : ndarray
+        Stresses for each member on the truss
+
+    Examples
+    --------
+
+    The following examples are taken from [1]_. In all the examples
+    :math:`A=1`, :math:`E=1`.
+
+    >>> import assemutil as ass
+    >>> import solidspy.solutil as sol
+
+    >>> def fem_sol(nodes, elements, mats, loads):
+    ...     DME , IBC , neq = ass.DME(nodes, elements)
+    ...     KG = ass.assembler(elements, mats, nodes, neq, DME)
+    ...     RHSG = ass.loadasem(loads, IBC, neq)
+    ...     UG = sol.static_sol(KG, RHSG)
+    ...     UC = complete_disp(IBC, nodes, UG)
+    ...     return UC
+
+    **Exercise 3.3-18**
+
+    The axial stresses in this example are
+
+    .. math::
+        [\sigma] = \left[\frac{1}{2},\frac{\sqrt{3}}{4},\frac{1}{4}\right]
+
+
+    >>> nodes = np.array([
+    ... [0, 0.0,  0.0, 0, -1],
+    ... [1, -1.0,  0.0, -1, -1],
+    ... [2,  -np.cos(np.pi/6),  -np.sin(np.pi/6),  -1,  -1],
+    ... [3,  -np.cos(np.pi/3),  -np.sin(np.pi/3),  -1,  -1]])
+    >>> mats = np.array([[1.0, 1.0]])
+    >>> elements = np.array([
+    ... [0, 6, 0, 1, 0],
+    ... [1, 6, 0, 2, 0],
+    ... [2, 6, 0, 3, 0]])
+    >>> loads = np.array([[0, 1.0, 0]])
+    >>> disp = fem_sol(nodes, elements, mats, loads)
+    >>> stress = stress_truss(nodes, elements, mats, disp)
+    >>> stress_exact = np.array([1/2, np.sqrt(3)/4, 1/4])
+    >>> np.allclose(stress_exact, stress)
+    True
+
+    **Exercise 3.3-19**
+
+    The axial stresses in this example are
+
+    .. math::
+
+        [\sigma] = \left[\frac{1}{\sqrt{2}+2},
+        \frac{\sqrt{2}}{\sqrt{2}+1},
+        \frac{1}{\sqrt{2}+2}\right]
+
+    >>> nodes = np.array([
+    ...    [0, 0.0,  0.0, 0, 0],
+    ...    [1, -1.0,  -1.0, -1, -1],
+    ...    [2,  0.0,  -1.0,  -1,  -1],
+    ...    [3,  1.0, -1.0,  -1,  -1]])
+    >>> mats = np.array([[1.0, 1.0]])
+    >>> elements = np.array([
+    ...    [0, 6, 0, 1, 0],
+    ...    [1, 6, 0, 2, 0],
+    ...    [2, 6, 0, 3, 0]])
+    >>> loads = np.array([[0, 0, 1]])
+    >>> disp = fem_sol(nodes, elements, mats, loads)
+    >>> stress = stress_truss(nodes, elements, mats, disp)
+    >>> stress_exact = np.array([
+    ...     1/(np.sqrt(2) + 2),
+    ...     np.sqrt(2)/(np.sqrt(2) + 1),
+    ...     1/(np.sqrt(2) + 2)])
+    >>> np.allclose(stress_exact, stress)
+    True
+
+    **Exercise 3.3-22**
+
+    The axial stresses in this example are
+
+    .. math::
+
+        [\sigma] =\left[\frac{1}{3 \sqrt{2}},\frac{5}{12},
+            \frac{1}{2^{\frac{3}{2}}},
+            \frac{1}{12},
+            -\frac{1}{3 \sqrt{2}}\right]
+
+    >>> cathetus = np.cos(np.pi/4)
+    >>> nodes = np.array([
+    ...    [0, 0.0,  0.0, 0, 0],
+    ...    [1, -1.0,  0.0, -1, -1],
+    ...    [2,  -cathetus,  cathetus,  -1,  -1],
+    ...    [3,  0.0, 1.0,  -1,  -1],
+    ...    [4,  cathetus, cathetus,  -1,  -1],
+    ...    [5,  1.0, 0.0,  -1,  -1]])
+    >>> mats = np.array([[1.0, 1.0]])
+    >>> elements = np.array([
+    ...    [0, 6, 0, 1, 0],
+    ...    [1, 6, 0, 2, 0],
+    ...    [2, 6, 0, 3, 0],
+    ...    [3, 6, 0, 4, 0],
+    ...    [4, 6, 0, 5, 0]])
+    >>> loads = np.array([[0, cathetus, -cathetus]])
+    >>> disp = fem_sol(nodes, elements, mats, loads)
+    >>> stress = stress_truss(nodes, elements, mats, disp)
+    >>> stress_exact = np.array([
+    ...     1/(3*np.sqrt(2)),
+    ...     5/12,
+    ...     1/2**(3/2),
+    ...     1/12,
+    ...     -1/(3*np.sqrt(2))])
+    >>> np.allclose(stress_exact, stress)
+    True
+
+
+    References
+    ----------
+    .. [1] William Weaver and James Gere. Matrix Analysis
+        of Framed Structures. Third Edition, Van Nostrand
+        Reinhold, New York (1990).
+
+    """
+    neles = elements.shape[0]
+    stress = np.zeros((neles))
+    for cont, elem in enumerate(elements):
+        ini = elements[cont, 3]
+        end = elements[cont, 4]
+        coords = nodes[[ini, end], 1:3]
+        tan_vec = coords[1, :] - coords[0, :]
+        length = np.linalg.norm(tan_vec)
+        mat_id = elements[cont, 2]
+        local_stiff = uel.ueltruss2D(coords, * mats[mat_id, :])
+        local_disp = np.hstack((disp[ini, :], disp[end, :]))
+        local_forces = local_stiff.dot(local_disp)
+        stress[cont] = local_forces[2:].dot(tan_vec)/length
+    return stress
 
 
 def eigvals(mat, tol=1e-6):

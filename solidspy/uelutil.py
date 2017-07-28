@@ -249,9 +249,9 @@ def ueltruss2D(coord, A, Emod):
 
     """
     vec = coord[1, :] - coord[0, :]
-    nx = vec[0]/np.linalg.norm(vec)
-    ny = vec[1]/np.linalg.norm(vec)
     length = np.linalg.norm(vec)
+    nx = vec[0]/length
+    ny = vec[1]/length
     Q = np.array([
         [nx, ny , 0 , 0],
         [0,  0, nx , ny]])
