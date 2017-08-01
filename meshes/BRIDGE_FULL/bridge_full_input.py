@@ -7,7 +7,7 @@ distributed on top (y==rise + thickness).
 """
 from __future__ import division
 import meshio
-import numpy as np 
+import numpy as np
 
 
 points, cells, point_data, cell_data, field_data = \
