@@ -236,7 +236,7 @@ def rect_grid(length, height, nx, ny, eletype=None):
 
     """
     y, x = np.mgrid[-height/2:height/2:ny*1j,
-                    length/2:length/2:nx*1j]
+                    -length/2:length/2:nx*1j]
     els = np.zeros(((nx - 1)*(ny - 1), 7), dtype=int)
     els[:, 1] = 1
     for row in range(ny - 1):

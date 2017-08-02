@@ -1,7 +1,7 @@
  # -*- coding: utf-8 -*-
 """A simple Finite Element program
 
-https://github.com/jgomezc1/FEM_PYTHON
+https://github.com/AppliedMechanics-EAFIT/SolidsPy
 """
 
 # Always prefer setuptools over distutils
@@ -19,13 +19,13 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='solidspy',
 
-    version='1.0.4',
+    version='1.0.7',
 
     description='A simple Finite Element program',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/jgomezc1/FEM_PYTHON',
+    url='https://github.com/AppliedMechanics-EAFIT/SolidsPy',
 
 
     # Author details
