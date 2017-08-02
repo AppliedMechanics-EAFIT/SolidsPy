@@ -7,9 +7,9 @@ This _repo_ contains a simple finite element analysis code for 2D elasticity
 problems. The code uses as input simple-to-create text files defining a model in terms of
 nodal, element, material and load data.
 
-The _repo_ contains 3 main folders:
+The _repo_ contains 4 main folders:
 
-1. `solidspy/` Which stores the source code in the following subroutines:
+1. `solidspy/` Which stores the source code in the following modules:
 
     - `solids_GUI.py`: The main program;
     - `preprocesor.py` Pre-processing subrotuines including Gmsh convertion functions using meshio;
@@ -30,7 +30,7 @@ The _repo_ contains 3 main folders:
 5. `tests/` contains unit testing.
 
 ## Authors
-- [Juan David Gómez Cataño](http://www.eafit.edu.co/docentes-investigadores/Paginas/juan-gomez.aspx),
+- [Juan Gomez](http://www.eafit.edu.co/docentes-investigadores/Paginas/juan-gomez.aspx),
     Professor at Universidad EAFIT.
 - [Nicolás Guarín-Zapata](https://github.com/nicoguaro), PhD Student at
     Purdue University.
@@ -38,17 +38,17 @@ The _repo_ contains 3 main folders:
 ## Installation
 The code is written in Python and it depends on `numpy`, `scipy` and `sympy`.
 
+To install _SolidsPy_ use:
+
+    pip install solidspy
+
 To run the examples with GUI input you will need to install
-[`easygui`](http://easygui.readthedocs.org/en/master/). And, you will
-need [`meshio`](https://github.com/nschloe/meshio) to automatically read
-[Gmsh](http://gmsh.info/) mesh files. These two can be installed with
+[`easygui`](http://easygui.readthedocs.org/en/master/).
+To easily generate the required SolidsPy text files out of a [Gmsh](http://gmsh.info/) model
+you will need [`meshio`](https://github.com/nschloe/meshio).These two can be installed with:
 
     pip install easygui
     pip install meshio
-
-To install _SolidsPy_ use
-
-    pip install solidspy
 
 ## Run a simple model
 After installation, you can run an analysis in 3 easy steps (see [template](./docs/template/README.md)):
