@@ -4,26 +4,28 @@
 ![Wrench under bending.](./docs/img/wrench.png)
 
 This _repo_ contains a simple finite element analysis code for 2D elasticity
-problems. The code uses as input data simple-to-create text files containing
+problems. The code uses as input simple-to-create text files defining a model in terms of
 nodal, element, material and load data.
 
 The _repo_ contains 3 main folders:
 
-1. `solidspy/` stores the package routines:
+1. `solidspy/` Which stores the source code in the following subroutines:
 
-    - `solids_GUI.py`: run the program;
-    - `preprocesor.py` model input subroutines);
-    - `assemutil.py` (assembly subroutines);
-    - `femutil.py` (general finite element method subroutines);
-    - `uelutil.py` (local matrix subroutines for different elements; and
-    - `postprocesor.py` (results handling subroutines)
+    - `solids_GUI.py`: The main program;
+    - `preprocesor.py` Pre-processing subrotuines including Gmsh convertion functions using meshio;
+    - `assemutil.py` Assembly of elemental stiffnesss matrices ;
+    - `femutil.py` Shape functions, iots derivatives and general finite element method subroutines;
+    - `uelutil.py` Elemental or local matrix subroutines for different elements; and
+    - `postprocesor.py` Several results handling subroutines
 
-2. `meshes/` contains input files and meshes in `.msh` format corresponding to
-    different examples.
+2. `meshes/` Complete models including its gmsh representation and a Python script to produce the required
+    (nodes, elements, materials and load) text files ready for input.
 
-3. `docs/` contains the documentation files.
+3. `docs/` Contains the documentation files like easy-to-follow tutorials
+     showing how to define a SolidsPy model in trms of text files and model
+     creation with gmsh.
 
-4. `examples/` contains some examples of the use of the package.
+4. `examples/` Specific applications using SolidsPy functions to conduct analysis.
 
 5. `tests/` contains unit testing.
 
