@@ -9,31 +9,25 @@ nodal, element, material and load data.
 
 The _repo_ contains 4 main folders:
 
-1. `solidspy/` Which stores the source code in the following modules:
+1. `solidspy/` which stores the source code in the following modules:
 
     - `solids_GUI.py`: The main program;
-    - `preprocesor.py` Pre-processing subrotuines including Gmsh convertion functions using meshio;
+    - `preprocesor.py` Pre-processing subroutines including Gmsh convertion functions using meshio;
     - `assemutil.py` Assembly of elemental stiffnesss matrices ;
-    - `femutil.py` Shape functions, iots derivatives and general finite element method subroutines;
+    - `femutil.py` Shape functions, its derivatives and general finite element method subroutines;
     - `uelutil.py` Elemental or local matrix subroutines for different elements; and
-    - `postprocesor.py` Several results handling subroutines
+    - `postprocesor.py` Several results handling subroutines.
 
-2. `meshes/` Complete models including its gmsh representation and a Python script to produce the required
+2. `meshes/` Complete models including its Gmsh representation and a Python script to produce the required
     (nodes, elements, materials and load) text files ready for input.
 
-3. `docs/` Contains the documentation files like easy-to-follow tutorials
-     showing how to define a SolidsPy model in trms of text files and model
-     creation with gmsh.
+3. `docs/` Documentation files like easy-to-follow tutorials
+     showing how to define a SolidsPy model in terms of text files and model
+     creation with Gmsh.
 
 4. `examples/` Specific applications using SolidsPy functions to conduct analysis.
 
-5. `tests/` contains unit testing.
-
-## Authors
-- [Juan Gomez](http://www.eafit.edu.co/docentes-investigadores/Paginas/juan-gomez.aspx),
-    Professor at Universidad EAFIT.
-- [Nicolás Guarín-Zapata](https://github.com/nicoguaro), PhD Student at
-    Purdue University.
+5. `tests/` Unit testing scripts.
 
 ## Installation
 The code is written in Python and it depends on `numpy`, `scipy` and `sympy`.
@@ -74,5 +68,12 @@ licensed under
 [Creative Commons Attribution License](http://creativecommons.org/licenses/by/4.0/).
 
 Since this project is used to teach Finite Element Methods and Computational
-Mechanics, we have included some examples and documents and code snippets
+Mechanics, we have included some examples, documents and code snippets
 developed by students. Their license is specified in each particular directory.
+
+
+## Authors
+- [Juan Gomez](http://www.eafit.edu.co/docentes-investigadores/Paginas/juan-gomez.aspx),
+    Professor at Universidad EAFIT.
+- [Nicolás Guarín-Zapata](https://github.com/nicoguaro), PhD Student at
+    Purdue University.
