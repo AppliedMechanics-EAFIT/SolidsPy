@@ -44,6 +44,7 @@ To install _SolidsPy_ use:
 
 To run the examples with GUI input you will need to install
 [`easygui`](http://easygui.readthedocs.org/en/master/).
+
 To easily generate the required SolidsPy text files out of a [Gmsh](http://gmsh.info/) model
 you will need [`meshio`](https://github.com/nschloe/meshio).These two can be installed with:
 
