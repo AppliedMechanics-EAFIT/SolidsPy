@@ -7,6 +7,16 @@ This _repo_ contains a simple finite element analysis code for 2D elasticity
 problems. The code uses as input simple-to-create text files defining a model in terms of
 nodal, element, material and load data.
 
+## Features
+The code allows to find the displacement, strain and stress
+solution for an arbitrary two-dimensional domain discretized into finite
+elements and subjected to point loads. It has been  created for
+academic purposes and it is part of the teaching material developed for
+the courses IC0602 Introduction to the Finite Element Methods and
+IC0285 Computational Modeling at Universidad EAFIT. The code is organized
+in independent modules for pre-processing, assembly and post-processing
+allowing the user to easily modify it or add features like new elements.
+
 The _repo_ contains 5 main folders:
 
 1. `solidspy/` which stores the source code in the following modules:
