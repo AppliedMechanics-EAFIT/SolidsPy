@@ -42,11 +42,11 @@ The _repo_ contains 5 main folders:
 ## Installation
 The code is written in Python and it depends on `numpy`, `scipy` and `sympy`.
 
-To install _SolidsPy_ use:
+To install _SolidsPy_ open a terminal and type:
 
     pip install solidspy
 
-To run the examples with GUI input you will need to install
+To run the examples with specification of the folder stoing the input files through a GUI you will need to install
 [`easygui`](http://easygui.readthedocs.org/en/master/).
 
 To easily generate the required SolidsPy text files out of a [Gmsh](http://gmsh.info/) model
