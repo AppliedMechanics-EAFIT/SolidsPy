@@ -31,7 +31,7 @@ The _repo_ contains 5 main folders:
 2. `meshes/` Complete models including its Gmsh representation and a Python script to produce the required
     (nodes, elements, materials and load) text files ready for input.
 
-3. `docs/` Documentation files like easy-to-follow tutorials
+3. `docs/` Documentation files in the form of easy-to-follow tutorials
      showing how to define a SolidsPy model in terms of text files and model
      creation with Gmsh.
 
