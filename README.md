@@ -22,7 +22,7 @@ The _repo_ contains 5 main folders:
 1. `solidspy/` which stores the source code in the following modules:
 
     - `solids_GUI.py`: The main program;
-    - `preprocesor.py`: Pre-processing subroutines including [Gmsh](http://gmsh.info/) convertion functions using [`meshio`]                           (https://github.com/nschloe/meshio);
+    - `preprocesor.py`: Pre-processing subroutines including [Gmsh](http://gmsh.info/) convertion functions using [`meshio`]  (https://github.com/nschloe/meshio);
     - `assemutil.py`: Assembly of elemental stiffnesss matrices ;
     - `femutil.py`: Shape functions, its derivatives and general finite element method subroutines;
     - `uelutil.py`: Elemental or local matrix subroutines for different elements; and
