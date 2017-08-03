@@ -194,7 +194,7 @@ def loading(cells, cell_data, phy_lin, P_x, P_y):
     # Bounds contains data corresponding to the physical line.
     phy_line = cell_data["line"]["physical"]
     id_carga = [cont for cont in range(len(phy_line))
-                if phy_line[cont] == 500]
+                if phy_line[cont] == phy_lin]
     nodes_carga = lines[id_carga]
     nodes_carga = nodes_carga.flatten()
     nodes_carga = list(set(nodes_carga))
