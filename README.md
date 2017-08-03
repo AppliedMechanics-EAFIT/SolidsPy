@@ -59,10 +59,10 @@ These two can be installed with:
 
 ## How to run a simple model
 After installation, you can run an analysis in 3 easy steps (see [template](./docs/template/README.md)):
-- Create the mesh using [Gmsh](http://gmsh.info/).
-- Generate the model files (eles.txt, nodes.txt, mater.txt and loads.txt) using
-  a python script with the aid of [`meshio`](https://github.com/nschloe/meshio).
-- Run it in Python
+- Create the model (i.e., geometry and mesh) using [Gmsh](http://gmsh.info/).
+- Generate the text files (eles.txt, nodes.txt, mater.txt and loads.txt) required by _SolidsPy_ using
+  a python script based on [`meshio`](https://github.com/nschloe/meshio).
+- Run it in Python as follows:
 
 ```python
 import matplotlib.pyplot as plt  # load matplotlib
@@ -75,12 +75,8 @@ plt.show()    # plot contours
 This project is licensed under the
 [MIT license](http://en.wikipedia.org/wiki/MIT_License). The documents are
 licensed under
+
 [Creative Commons Attribution License](http://creativecommons.org/licenses/by/4.0/).
-
-Since this project is used to teach Finite Element Methods and Computational
-Mechanics, we have included some examples, documents and code snippets
-developed by students. Their license is specified in each particular directory.
-
 
 ## Authors
 - [Juan Gomez](http://www.eafit.edu.co/docentes-investigadores/Paginas/juan-gomez.aspx),
