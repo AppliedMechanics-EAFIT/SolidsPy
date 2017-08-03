@@ -8,7 +8,7 @@ problems. The code uses as input simple-to-create text files defining a model in
 nodal, element, material and load data.
 
 ## Features
-The code allows to find the displacement, strain and stress
+The code allows the user to find the displacement, strain and stress
 solution for an arbitrary two-dimensional domain discretized into finite
 elements and subjected to point loads. It has been  created for
 academic purposes and it is part of the teaching material developed for
