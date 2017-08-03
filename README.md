@@ -57,7 +57,7 @@ These two can be installed with:
     pip install easygui
     pip install meshio
 
-## Run a simple model
+## How to run a simple model
 After installation, you can run an analysis in 3 easy steps (see [template](./docs/template/README.md)):
 - Create the mesh using [Gmsh](http://gmsh.info/).
 - Generate the model files (eles.txt, nodes.txt, mater.txt and loads.txt) using
