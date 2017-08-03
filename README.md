@@ -7,7 +7,7 @@ This _repo_ contains a simple finite element analysis code for 2D elasticity
 problems. The code uses as input simple-to-create text files defining a model in terms of
 nodal, element, material and load data.
 
-The _repo_ contains 4 main folders:
+The _repo_ contains 5 main folders:
 
 1. `solidspy/` which stores the source code in the following modules:
 
