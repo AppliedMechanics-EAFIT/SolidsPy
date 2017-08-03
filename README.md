@@ -33,7 +33,7 @@ The _repo_ contains 5 main folders:
 
 3. `docs/` Documentation files in the form of easy-to-follow tutorials
      showing how to define a SolidsPy model in terms of text files and model
-     creation with Gmsh.
+     creation with [Gmsh](http://gmsh.info/).
 
 4. `examples/` Specific applications using SolidsPy functions to conduct analysis.
 
