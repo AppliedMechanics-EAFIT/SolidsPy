@@ -1,15 +1,13 @@
 # SolidsPy
 
-The aim of this project is to find the displacement, strain and stress
-solution for an arbitrary two-dimensional domain discretized into finite
-elements and subjected to point loads. It has been  created for
-academic purposes and it is part of the teaching material developed for
-the courses IC0602 Introduction to the Finite Element Methods and
-IC0285 Computational Modeling at Universidad EAFIT. The code is
-written in Python 2 dialect (although, most of it works as well
-in Python 3) and it is organized in independent modules for
-pre-processing, assembly and post-processing allowing the user to
-easily modify it or add features like new elements.
+Here we show through simple examples how to conduct an analysis using SolidsPy.
+First we describe the structure of the text files for the problem of small 2x2 square
+plate under axial loading.
+
+In the second part of the documents we describe the creation of a SolidsPy model
+with the aid of [Gmsh](http://gmsh.info/). This is necessary when conducting analysis in
+large and complex geometries. In this case the Gmsh files need to be converted into text
+files using subroutines based upon meshio [meshio](https://pypi.python.org/pypi/meshio).
 
 ## Contents
 
