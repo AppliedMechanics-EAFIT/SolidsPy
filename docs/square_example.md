@@ -43,20 +43,20 @@ following fields:
 
 - Column 0: Element identifier (integer).
 - Column 1: Element type (integer):
-  1. 4 nodes quadrilateral.
-  2. 6 nodes triangle.
-  3. 3 nodes triangle.
+  1. (1) for a 4-noded quadrilateral.
+  2. (2) for a 6-noded triangle.
+  3. (3) for a 3-noded triangle.
 - Column 2: Material profile for the current element (integer).
-- Column 3 to end: Element connectivity, that is a list of the nodes
+- Column 3 to end: Element connectivity, this is a list of the nodes
 conforming each element. The nodes should be listed in counterclockwise
 orientation.
 
 The corresponding file has the following data
 
-    0   2   1   0   4   8   7
-    1   2   1   4   1   5   8
-    2   2   1   7   8   6   3
-    3   2   1   8   5   2   6
+    0   1   1   0   4   8   7
+    1   1   1   4   1   5   8
+    2   1   1   7   8   6   3
+    3   1   1   8   5   2   6
 
 The file `mater.txt` contain the material information. Each line in the
 file corresponds to a material profile to be assigned to the different
