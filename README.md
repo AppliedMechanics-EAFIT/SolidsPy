@@ -71,6 +71,8 @@ solids_GUI()  # run the Finite Element Analysis
 plt.show()    # plot contours
 ```
 
+This would not work properly in Anaconda for Mac OS. In that case is suggested to use an IPython console to run the example.
+
 ## License
 This project is licensed under the
 [MIT license](http://en.wikipedia.org/wiki/MIT_License). The documents are
