@@ -56,7 +56,7 @@ def initial_params():
     return folder
 
 
-def ele_writer(cells, cell_data ,ele_tag , phy_sur,  ele_type, mat_tag, nini):
+def ele_writer(cells, cell_data, ele_tag, phy_sur,  ele_type, mat_tag, nini):
     """
     Extracts a subset of elements from a complete mesh according to the
     physical surface  phy_sur and writes down the proper fields into an
@@ -82,7 +82,7 @@ def ele_writer(cells, cell_data ,ele_tag , phy_sur,  ele_type, mat_tag, nini):
         nnode : int
             Number of nodes for the element.
         nini : int
-        Element id for the first element in the set.
+            Element id for the first element in the set.
 
     Returns
     -------
@@ -93,7 +93,9 @@ def ele_writer(cells, cell_data ,ele_tag , phy_sur,  ele_type, mat_tag, nini):
 
     """
     eles = cells[ele_tag]
-    dict_nnode = {'triangle': 3 , 'triangle6':6 }
+    dict_nnode = {'triangle': 3,
+                  'triangle6': 6,
+                  'quad': 4}
     nnode = dict_nnode[ele_tag]
     phy_surface = cell_data[ele_tag]['physical']
     ele_id = [cont for cont, _ in enumerate(phy_surface[:])
