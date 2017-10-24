@@ -59,7 +59,7 @@ These two can be installed with:
 
 ## How to run a simple model
 After installation, you can run an analysis in 3 easy steps (see [template](./docs/template/README.md)):
-- Create the model (i.e., geometry and mesh) using [Gmsh](http://gmsh.info/). Several meshes are available in the repo [`SOLIDSPy-meshes`](https://github.com/AppliedMechanics-EAFIT/SolidsPy-meshes) 
+- Create the model (i.e., geometry and mesh) using [Gmsh](http://gmsh.info/). Several meshes are available in the repo [`SOLIDSPy-meshes`](https://github.com/AppliedMechanics-EAFIT/SolidsPy-meshes)
 - Generate the text files (eles.txt, nodes.txt, mater.txt and loads.txt) required by _SolidsPy_ using
   a python script based on [`meshio`](https://github.com/nschloe/meshio).
 - Run it in Python as follows:
@@ -67,7 +67,7 @@ After installation, you can run an analysis in 3 easy steps (see [template](./do
 ```python
 import matplotlib.pyplot as plt  # load matplotlib
 from solidspy import solids_GUI  # import our package
-solids_GUI()  # run the Finite Element Analysis
+disp = solids_GUI()  # run the Finite Element Analysis
 plt.show()    # plot contours
 ```
 

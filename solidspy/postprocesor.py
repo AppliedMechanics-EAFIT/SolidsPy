@@ -12,7 +12,6 @@ from matplotlib.tri import Triangulation
 from matplotlib import rcParams
 
 rcParams['font.family'] = 'serif'
-rcParams['font.size'] = 14
 rcParams['image.cmap'] = "YlGnBu_r"
 rcParams['axes.axisbelow'] = True
 rcParams['mathtext.fontset'] = "cm"
@@ -144,6 +143,7 @@ def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
     if savefigs:
         plt.savefig(filename)
 
+
 def plot_node_field(field, nodes, elements, plt_type="contourf", levels=12,
               savefigs=False, title=None, figtitle=None, filename=None) :
     """Plot the nodal displacement using a triangulation
@@ -178,7 +178,10 @@ def plot_node_field(field, nodes, elements, plt_type="contourf", levels=12,
         where `k` is the number of the column.
     """
     tri = mesh2tri(nodes, elements)
-    _, nfields = field.shape
+    if len(field.shape) == 1:
+        nfields = 1
+    else:
+        _, nfields = field.shape
     if title is None:
         title = ["" for cont in range(nfields)]
     if figtitle is None:
@@ -189,6 +192,77 @@ def plot_node_field(field, nodes, elements, plt_type="contourf", levels=12,
         tri_plot(tri, field[:, cont], title=title[cont],
              figtitle=figtitle[cont], levels=levels,
              plt_type=plt_type, savefigs=savefigs, filename=filename[cont])
+
+
+def plot_truss(UC, nodes, elements, mats, loads, tol=1e-5,
+               savefigs=False, title=None, figtitle=None, filename=None):
+    """Plot a truss and encodes the stresses in a colormap
+
+    Parameters
+    ----------
+    UC : (nnodes, 2) ndarray (float)
+      Array with the displacements.
+    nodes : ndarray (float)
+        Array with number and nodes coordinates
+        `number coordX coordY BCX BCY`
+    elements : ndarray (int)
+        Array with the node number for the nodes that correspond
+        to each  element.
+    mats : ndarray (float)
+        Array with material profiles.
+    loads : ndarray (float)
+        Array with loads.
+    tol : float (optional)
+        Minimum difference between cross-section areas of the members
+        to be considered different.
+    savefigs : bool (optional)
+        Allow to save the figure.
+    title : Tuple of strings (optional)
+        Titles of the plots. If not provided the plots will not have
+        a title.
+    figtitle : Tuple of strings (optional)
+        Titles of the plotting windows. If not provided the
+        windows will not have a title.
+    filename : Tuple of strings (optional)
+        Filenames to save the figures. Only used when `savefigs=True`.
+        If not provided the name of the figures would be "outputk.pdf",
+        where `k` is the number of the column.
+
+    """
+    stresses = stress_truss(nodes, elements, mats, UC)
+    max_stress = max(-stresses.min(), stresses.max())
+    scaled_stress = 0.5*(stresses + max_stress)/max_stress
+    min_area = mats[:, 1].min()
+    max_area = mats[:, 1].max()
+    areas = mats[:, 1].copy()
+    max_val = 4
+    min_val = 0.5
+    if max_area - min_area > tol:
+        widths = (max_val - min_val)*(areas - min_area)/(max_area - min_area)\
+            + min_val
+    else:
+        widths = 3*np.ones_like(areas)
+    plt.figure(figtitle)
+    for el in elements:
+        if areas[el[2]] > tol:
+            ini, end = el[3:]
+            color = plt.cm.seismic(scaled_stress[el[0]])
+            plt.plot([nodes[ini, 1], nodes[end, 1]],
+                     [nodes[ini, 2], nodes[end, 2]],
+                     color=color, lw=widths[el[2]])
+
+    if title is None:
+        title = ''
+    if figtitle is None:
+        figtitle = ""
+    if filename is None:
+        filename = "output.pdf"
+    plt.title(title)
+    plt.colorbar(orientation='vertical')
+    plt.axis("image")
+    plt.grid()
+    if savefigs:
+        plt.savefig(filename)
 
 
 #%% Auxiliar variables computation
