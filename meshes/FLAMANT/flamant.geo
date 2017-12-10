@@ -21,8 +21,8 @@ Line Loop(4) = {1, 2, 3};
 Plane Surface(5) = {4};
 
 //Subdivision de superficies
-Physical Surface(6) = {5};
+Physical Surface(10000) = {5};
 Transfinite Surface {5};
 
 // Linea fisica para aplicar condiciones de frontera
-Physical Line(7) = {3};
+Physical Line(100) = {3};
