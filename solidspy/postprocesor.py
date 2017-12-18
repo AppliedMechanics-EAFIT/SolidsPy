@@ -189,9 +189,12 @@ def plot_node_field(field, nodes, elements, plt_type="contourf", levels=12,
     if filename is None:
         filename = ["output{}.pdf".format(cont) for cont in range(nfields)]
     for cont in range(nfields):
+        plt.figure(figtitle[cont])
         tri_plot(tri, field[:, cont], title=title[cont],
              figtitle=figtitle[cont], levels=levels,
              plt_type=plt_type, savefigs=savefigs, filename=filename[cont])
+        if savefigs:
+            plt.savefig(filename[cont])
 
 
 def plot_truss(UC, nodes, elements, mats, loads, tol=1e-5,
