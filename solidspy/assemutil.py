@@ -7,11 +7,11 @@ Functions to assemble the system of equations for the Finite Element
 Analysis.
 
 """
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import numpy as np
 from scipy.sparse import coo_matrix
-import uelutil as ue
-import femutil as fem
+import solidspy.uelutil as ue
+import solidspy.femutil as fem
 
 
 def eqcounter(nodes):

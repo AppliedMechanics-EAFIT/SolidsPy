@@ -20,8 +20,8 @@ References
    Pearson Education, 2006.
 
 """
-from __future__ import division, print_function
-import gaussutil as gau
+from __future__ import absolute_import, division, print_function
+import solidspy.gaussutil as gau
 import numpy as np
 
 

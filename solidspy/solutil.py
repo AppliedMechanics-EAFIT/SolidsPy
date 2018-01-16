@@ -5,7 +5,7 @@ solutil.py
 Utilities for solution of FEM systems
 
 """
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 from numpy import ndarray
 from numpy.linalg import solve
 from scipy.sparse.csr import csr_matrix

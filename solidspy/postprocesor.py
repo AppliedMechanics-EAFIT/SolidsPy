@@ -3,10 +3,10 @@
 Postprocessor subroutines
 
 """
-from __future__ import division
+from __future__ import absolute_import, division
 import numpy as np
-import femutil as fe
-import uelutil as uel
+import solidspy.femutil as fe
+import solidspy.uelutil as uel
 import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
 from matplotlib import rcParams
