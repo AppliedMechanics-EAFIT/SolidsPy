@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from solids_GUI import solids_GUI
+from __future__ import absolute_import
+from solidspy.solids_GUI import solids_GUI
 
 __all__ = ["assemutil",
            "femutil",

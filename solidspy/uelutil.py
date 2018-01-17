@@ -8,10 +8,10 @@ finite element.
 New elements can be added by including additional subroutines.
 
 """
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import numpy as np
-import femutil as fem
-import gaussutil as gau
+import solidspy.femutil as fem
+import solidspy.gaussutil as gau
 
 
 def uel4nquad(coord, enu, Emod):
