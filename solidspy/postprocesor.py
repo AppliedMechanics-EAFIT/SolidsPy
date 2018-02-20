@@ -640,25 +640,6 @@ def principal_dirs(field):
     return eigs1, eigs2, vecs1, vecs2
 
 
-def gmeshpost(IBC, nn, UG, folder=""):
-    """Export the nodal displacement solution
-
-    Stores the nodal displacements solution vector into the file
-    `out.txt` required to produce Gmesh readable files.
-
-    """
-    UR = np.zeros([nn, 2])
-    for i in range(nn):
-        for j in range(2):
-            k = IBC[i, j]
-            if k == -1:
-                UR[i, j] = 0.0
-            else:
-                UR[i, j] = UG[k]
-    filename = folder + 'out.txt'
-    np.savetxt(filename, UR, fmt='%.18e', delimiter=' ')
-
-
 def energy(UG, KG):
     r"""
     Computes the potential energy for the current sln.
