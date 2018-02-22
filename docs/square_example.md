@@ -53,10 +53,10 @@ orientation.
 
 The corresponding file has the following data
 
-    0   1   1   0   4   8   7
-    1   1   1   4   1   5   8
-    2   1   1   7   8   6   3
-    3   1   1   8   5   2   6
+    0   1   0   0   4   8   7
+    1   1   0   4   1   5   8
+    2   1   0   7   8   6   3
+    3   1   0   8   5   2   6
 
 The file `mater.txt` contain the material information. Each line in the
 file corresponds to a material profile to be assigned to the different
