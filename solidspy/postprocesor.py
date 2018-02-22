@@ -3,22 +3,21 @@
 Postprocessor subroutines
 
 """
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 import numpy as np
 import solidspy.femutil as fe
 import solidspy.uelutil as uel
 import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
-from matplotlib import rcParams
 
-rcParams['font.family'] = 'serif'
-rcParams['image.cmap'] = "YlGnBu_r"
-rcParams['axes.axisbelow'] = True
-rcParams['mathtext.fontset'] = "cm"
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['image.cmap'] = "YlGnBu_r"
+plt.rcParams['axes.axisbelow'] = True
+plt.rcParams['mathtext.fontset'] = "cm"
 
 
 #%% Plotting routines
-def fields_plot(elements, nodes, UC, E_nodes=None, S_nodes=None):
+def fields_plot(elements, nodes, disp, E_nodes=None, S_nodes=None):
     """Plot contours for displacements, strains and stresses
 
     Parameters
@@ -29,7 +28,7 @@ def fields_plot(elements, nodes, UC, E_nodes=None, S_nodes=None):
     elements : ndarray (int)
         Array with the node number for the nodes that correspond
         to each element.
-    UC : ndarray (float)
+    disp : ndarray (float)
         Array with the displacements.
     E_nodes : ndarray (float)
         Array with strain field in the nodes.
@@ -43,65 +42,29 @@ def fields_plot(elements, nodes, UC, E_nodes=None, S_nodes=None):
              7 in elements[:, 1]
     if struct_pos:
         # Still not implemented visualization for structural elements
-        print(UC)
+        print(disp)
     else:
-        plot_node_field(UC, nodes, elements, title=[r"$u_x$", r"$u_y$"],
+        plot_node_field(disp, nodes, elements, title=[r"$u_x$", r"$u_y$"],
                         figtitle=["Horizontal displacement",
                                   "Vertical displacement"])
         if E_nodes is not None:
             plot_node_field(E_nodes, nodes, elements,
-                    title=[r"$\epsilon_{xx}$",
-                           r"$\epsilon_{yy}$",
-                           r"$\gamma_{xy}$",],
-                    figtitle=["Strain epsilon-xx",
-                              "Strain epsilon-yy",
-                              "Strain gamma-xy"])
+                            title=[r"$\epsilon_{xx}$",
+                                   r"$\epsilon_{yy}$",
+                                   r"$\gamma_{xy}$",],
+                            figtitle=["Strain epsilon-xx",
+                                      "Strain epsilon-yy",
+                                      "Strain gamma-xy"])
         if S_nodes is not None:
             plot_node_field(S_nodes, nodes, elements,
-                    title=[r"$\sigma_{xx}$",
-                           r"$\sigma_{yy}$",
-                           r"$\tau_{xy}$",],
-                    figtitle=["Stress sigma-xx",
-                              "Stress sigma-yy",
-                              "Stress tau-xy"])
+                            title=[r"$\sigma_{xx}$",
+                                   r"$\sigma_{yy}$",
+                                   r"$\tau_{xy}$",],
+                            figtitle=["Stress sigma-xx",
+                                      "Stress sigma-yy",
+                                      "Stress tau-xy"])
 
 
-def mesh2tri(nodes, elements):
-    """Generate a  matplotlib.tri.Triangulation object from the mesh
-
-    Parameters
-    ----------
-    nodes : ndarray (float)
-      Array with number and nodes coordinates:
-        `number coordX coordY BCX BCY`
-    elements : ndarray (int)
-      Array with the node number for the nodes that correspond to each
-      element.
-
-    Returns
-    -------
-    tri : Triangulation
-        An unstructured triangular grid consisting of npoints points
-        and ntri triangles.
-
-    """
-    coord_x = nodes[:, 1]
-    coord_y = nodes[:, 2]
-    triangs = []
-    for el in elements:
-        if el[1] == 1:
-            triangs.append(el[[3, 4, 5]])
-            triangs.append(el[[5, 6, 3]])
-        if el[1] == 2:
-            triangs.append(el[[3, 6, 8]])
-            triangs.append(el[[6, 7, 8]])
-            triangs.append(el[[6, 4, 7]])
-            triangs.append(el[[7, 5, 8]])
-        if el[1] == 3:
-            triangs.append(el[3:])
-
-    tri = Triangulation(coord_x, coord_y, np.array(triangs))
-    return tri
 
 
 def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
@@ -139,13 +102,13 @@ def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
     plt.title(title)
     plt.colorbar(orientation='vertical')
     plt.axis("image")
-    plt.grid()
     if savefigs:
         plt.savefig(filename)
 
 
 def plot_node_field(field, nodes, elements, plt_type="contourf", levels=12,
-              savefigs=False, title=None, figtitle=None, filename=None) :
+                    savefigs=False, title=None, figtitle=None,
+                    filename=None):
     """Plot the nodal displacement using a triangulation
 
     Parameters
@@ -191,14 +154,16 @@ def plot_node_field(field, nodes, elements, plt_type="contourf", levels=12,
     for cont in range(nfields):
         plt.figure(figtitle[cont])
         tri_plot(tri, field[:, cont], title=title[cont],
-             figtitle=figtitle[cont], levels=levels,
-             plt_type=plt_type, savefigs=savefigs, filename=filename[cont])
+                 figtitle=figtitle[cont], levels=levels,
+                 plt_type=plt_type, savefigs=savefigs,
+                 filename=filename[cont])
         if savefigs:
             plt.savefig(filename[cont])
 
 
-def plot_truss(UC, nodes, elements, mats, loads, tol=1e-5,
-               savefigs=False, title=None, figtitle=None, filename=None):
+def plot_truss(nodes, elements, mats, stresses=None, max_val=4,
+               min_val=0.5, savefigs=False, title=None, figtitle=None,
+               filename=None):
     """Plot a truss and encodes the stresses in a colormap
 
     Parameters
@@ -232,27 +197,26 @@ def plot_truss(UC, nodes, elements, mats, loads, tol=1e-5,
         where `k` is the number of the column.
 
     """
-    stresses = stress_truss(nodes, elements, mats, UC)
-    max_stress = max(-stresses.min(), stresses.max())
-    scaled_stress = 0.5*(stresses + max_stress)/max_stress
     min_area = mats[:, 1].min()
     max_area = mats[:, 1].max()
     areas = mats[:, 1].copy()
-    max_val = 4
-    min_val = 0.5
-    if max_area - min_area > tol:
+    if stresses is None:
+        scaled_stress = np.ones_like(elements[:, 0])
+    else:
+        max_stress = max(-stresses.min(), stresses.max())
+        scaled_stress = 0.5*(stresses + max_stress)/max_stress
+    if max_area - min_area > 1e-6:
         widths = (max_val - min_val)*(areas - min_area)/(max_area - min_area)\
             + min_val
     else:
         widths = 3*np.ones_like(areas)
     plt.figure(figtitle)
-    for el in elements:
-        if areas[el[2]] > tol:
-            ini, end = el[3:]
-            color = plt.cm.seismic(scaled_stress[el[0]])
-            plt.plot([nodes[ini, 1], nodes[end, 1]],
-                     [nodes[ini, 2], nodes[end, 2]],
-                     color=color, lw=widths[el[2]])
+    for elem in elements:
+        ini, end = elem[3:]
+        color = plt.cm.seismic(scaled_stress[elem[0]])
+        plt.plot([nodes[ini, 1], nodes[end, 1]],
+                 [nodes[ini, 2], nodes[end, 2]],
+                 color=color, lw=widths[elem[2]])
 
     if title is None:
         title = ''
@@ -261,11 +225,48 @@ def plot_truss(UC, nodes, elements, mats, loads, tol=1e-5,
     if filename is None:
         filename = "output.pdf"
     plt.title(title)
-    plt.colorbar(orientation='vertical')
     plt.axis("image")
-    plt.grid()
     if savefigs:
         plt.savefig(filename)
+
+
+#%% Auxiliar functions for plotting
+def mesh2tri(nodes, elements):
+    """Generate a  matplotlib.tri.Triangulation object from the mesh
+
+    Parameters
+    ----------
+    nodes : ndarray (float)
+      Array with number and nodes coordinates:
+        `number coordX coordY BCX BCY`
+    elements : ndarray (int)
+      Array with the node number for the nodes that correspond to each
+      element.
+
+    Returns
+    -------
+    tri : Triangulation
+        An unstructured triangular grid consisting of npoints points
+        and ntri triangles.
+
+    """
+    coord_x = nodes[:, 1]
+    coord_y = nodes[:, 2]
+    triangs = []
+    for elem in elements:
+        if elem[1] == 1:
+            triangs.append(elem[[3, 4, 5]])
+            triangs.append(elem[[5, 6, 3]])
+        if elem[1] == 2:
+            triangs.append(elem[[3, 6, 8]])
+            triangs.append(elem[[6, 7, 8]])
+            triangs.append(elem[[6, 4, 7]])
+            triangs.append(elem[[7, 5, 8]])
+        if elem[1] == 3:
+            triangs.append(elem[3:])
+
+    tri = Triangulation(coord_x, coord_y, np.array(triangs))
+    return tri
 
 
 #%% Auxiliar variables computation
@@ -287,9 +288,9 @@ def complete_disp(IBC, nodes, UG):
       Array with the displacements.
 
     """
-    nn = nodes.shape[0]
-    UC = np.zeros([nn, 2], dtype=np.float)
-    for i in range(nn):
+    nnodes = nodes.shape[0]
+    UC = np.zeros([nnodes, 2], dtype=np.float)
+    for i in range(nnodes):
         for j in range(2):
             kk = IBC[i, j]
             if kk == -1:
@@ -334,24 +335,24 @@ def strain_nodes(nodes, elements, mats, UC):
         recovery technique, Int. J. Numer. Methods Eng., 33,
         1331-1364 (1992).
     """
-    ne = elements.shape[0]
-    nn = nodes.shape[0]
+    nelems = elements.shape[0]
+    nnodes = nodes.shape[0]
     iet = elements[0, 1]
-    ndof, nnodes, _ = fe.eletype(iet)
+    ndof, nnodes_elem, _ = fe.eletype(iet)
 
-    elcoor = np.zeros([nnodes, 2])
-    E_nodes = np.zeros([nn, 3])
-    S_nodes = np.zeros([nn, 3])
-    el_nodes = np.zeros([nn], dtype=int)
+    elcoor = np.zeros([nnodes_elem, 2])
+    E_nodes = np.zeros([nnodes, 3])
+    S_nodes = np.zeros([nnodes, 3])
+    el_nodes = np.zeros([nnodes], dtype=int)
     ul = np.zeros([ndof])
     IELCON = elements[:, 3:]
 
-    for i in range(ne):
+    for i in range(nelems):
         young, poisson = mats[np.int(elements[i, 2]), :]
         shear = young/(2*(1 + poisson))
         fact1 = young/(1 - poisson**2)
         fact2 = poisson*young/(1 - poisson**2)
-        for j in range(nnodes):
+        for j in range(nnodes_elem):
             elcoor[j, 0] = nodes[IELCON[i, j], 1]
             elcoor[j, 1] = nodes[IELCON[i, j], 2]
             ul[2*j] = UC[IELCON[i, j], 0]
@@ -524,7 +525,7 @@ def stress_truss(nodes, elements, mats, disp):
     """
     neles = elements.shape[0]
     stress = np.zeros((neles))
-    for cont, elem in enumerate(elements):
+    for cont in range(neles):
         ini = elements[cont, 3]
         end = elements[cont, 4]
         coords = nodes[[ini, end], 1:3]
@@ -640,27 +641,27 @@ def principal_dirs(field):
     return eigs1, eigs2, vecs1, vecs2
 
 
-def energy(UG, KG):
+def energy(disp, stiff):
     r"""
-    Computes the potential energy for the current sln.
+    Computes the potential energy for the current solution.
 
     Parameters
     ----------
-    UG : ndarray (float)
+    disp : ndarray (float)
         Array with the computed displacements.
-    KG : ndarray (float)
+    stiff : ndarray (float)
         Global stiffness matrix.
 
     Returns
     -------
-    EFE : scalar (float)
+    el_energy : scalar (float)
         Total energy in the system. :math:`-\frac{1}{2} U^T K U`
 
     """
-    f = KG.dot(UG)
-    EFE = -0.5*f.dot(UG)
+    force = stiff.dot(disp)
+    el_energy = -0.5*force.dot(disp)
 
-    return EFE
+    return el_energy
 
 
 #%% Doc-testing
