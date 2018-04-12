@@ -290,13 +290,13 @@ def complete_disp(IBC, nodes, UG):
     """
     nnodes = nodes.shape[0]
     UC = np.zeros([nnodes, 2], dtype=np.float)
-    for i in range(nnodes):
-        for j in range(2):
-            kk = IBC[i, j]
-            if kk == -1:
-                UC[i, j] = 0.0
+    for row in range(nnodes):
+        for col in range(2):
+            cons = IBC[row, col]
+            if cons == -1:
+                UC[row, col] = 0.0
             else:
-                UC[i, j] = UG[kk]
+                UC[row, col] = UG[cons]
 
     return UC
 

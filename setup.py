@@ -19,10 +19,11 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='solidspy',
 
-    version='1.0.11',
+    version='1.0.11a',
 
     description='A simple Finite Element program',
     long_description=long_description,
+    long_description_content_type="text/markdown",
 
     # The project's main homepage.
     url='https://github.com/AppliedMechanics-EAFIT/SolidsPy',
