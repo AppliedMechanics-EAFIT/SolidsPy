@@ -69,7 +69,7 @@ How to run a simple model
 
 For further explanation check the `docs <http://solidspy.readthedocs.io/en/latest/>`__.
 
-Let's suppose that we a simple model represented by the following
+Let's suppose that we have a simple model represented by the following
 files (see `tutorials/square example <http://solidspy.readthedocs.io/en/latest/tutorials/square_example.html>`__
 for further explanation).
 
