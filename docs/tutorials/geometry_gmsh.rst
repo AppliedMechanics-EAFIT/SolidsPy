@@ -56,6 +56,6 @@ The following steps would be:
 
 -  Generate the model files (eles.txt, nodes.txt, mater.txt and
    loads.txt) using a python script with the aid of
-   ```meshio`` <https://github.com/nschloe/meshio>`__.
+   `meshio <https://github.com/nschloe/meshio>`__.
 
 -  Run SolidsPy

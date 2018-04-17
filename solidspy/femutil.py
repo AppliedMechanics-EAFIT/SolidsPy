@@ -1,7 +1,7 @@
  # -*- coding: utf-8 -*-
 """
-femutil.py
-----------
+FEM routines
+------------
 
 Functions to compute kinematics variables for the Finite
 Element Analysis.

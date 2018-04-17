@@ -15,7 +15,7 @@ that we want to find the response of the 2×2 square under unitary
 vertical point loads shown in the following figure. Where one corner is
 located at (0,0) and the opposite one at (2,2).
 
-.. figure:: img/square-4_elements.png
+.. figure:: ../img/square-4_elements.png
    :alt: 4-element solid under point loads.
 
    4-element solid under point loads.
@@ -130,7 +130,8 @@ In Linux and you can also run the program from the terminal using
 If you have ``easygui`` installed a pop-up window will appear for you to
 select the folder with the input files
 
-.. figure:: img/Folder_selection.png
+.. figure:: ../img/Folder_selection.png
+   :width: 400px
    :alt: Folder selection window.
 
    Folder selection window.
@@ -144,11 +145,6 @@ the path to your folder. The path can be absolute or relative.
 
     Enter folder (empty for the current one):
 
-In this example, the path can be entered as
-
-::
-
-    Enter folder (empty for the current one): ../examples/square-4_elements/
 
 Then, you will see some information regarding your analysis
 
@@ -164,24 +160,12 @@ Then, you will see some information regarding your analysis
 And, once the solution is achieved you will see displacements and stress
 solutions as contour plots, like the following
 
-.. raw:: html
+.. image:: ../img/square-4_elements-horizontal_disp.png
+   :width: 400px
 
-   <table>
-
-::
-
-    <tr>
-    <td>
-    <img src="img/square-4_elements-horizontal_disp.png"></img>
-    </td>
-    <td>
-    <img src="img/square-4_elements-vertical_disp.png"></img>
-    </td>
-    </tr>
-
-.. raw:: html
-
-   </table>
+.. image:: ../img/square-4_elements-vertical_disp.png
+   :width: 400px
+   
 
 Interactive execution
 ~~~~~~~~~~~~~~~~~~~~~

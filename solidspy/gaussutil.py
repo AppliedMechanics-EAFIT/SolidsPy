@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-gaussutil.py
-------------
+Numeric integration routines
+----------------------------
 Weights and coordinates for Gauss-Legendre quadrature [1]_. The
 values for triangles is presented in section 5.5 of Bathe book [2]_.
 

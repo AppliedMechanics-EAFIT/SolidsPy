@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 """
+Postprocessor subroutines
+-------------------------
+
 This module contains functions to preprocess the input files to compute
 a Finite Element Analysis.
 

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Postprocessor subroutines
+-------------------------
+
+This module contains functions to postprocess results.
 
 """
 from __future__ import absolute_import, division, print_function

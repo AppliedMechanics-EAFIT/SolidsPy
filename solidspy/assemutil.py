@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-assemutil.py
-------------
+Assembly routine
+----------------
 
 Functions to assemble the system of equations for the Finite Element
 Analysis.

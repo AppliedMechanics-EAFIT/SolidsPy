@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 """
+solids_GUI: simple interface
+----------------------------
+
 Computes the displacement solution for a finite element assembly
 of 2D solids under point loads using as input easy-to-create
 text files containing element, nodal, materials and loads data.
