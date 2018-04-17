@@ -95,7 +95,7 @@ To cite SolidsPy in publications use
 
 A BibTeX entry for LaTeX users is
 
-.. code-block:: none
+.. code-block::
 
     @software{solidspy,
      title = {SolidsPy: 2D-Finite Element Analysis with Python},
