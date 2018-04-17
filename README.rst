@@ -57,15 +57,19 @@ These two can be installed with:
 How to run a simple model
 -------------------------
 
-After installation, you can run an analysis in 3 easy steps (see
-`template <./docs/template/README.md>`__): - Create the model (i.e.,
-geometry and mesh) using `Gmsh <http://gmsh.info/>`__. Several meshes
+For further explanation check the
+[docs](http://solidspy.readthedocs.io/en/latest/). You can run an
+analysis in 3 steps:
+
+- Create the model (i.e.,
+geometry and mesh) using `Gmsh <http://gmsh.info/>`__, for example. Several meshes
 are available in the repo
 `SOLIDSPy-meshes <https://github.com/AppliedMechanics-EAFIT/SolidsPy-meshes>`__
+
 - Generate the text files (eles.txt, nodes.txt, mater.txt and loads.txt)
-required by *SolidsPy* using a python script based on
-`meshio <https://github.com/nschloe/meshio>`__. - Run it in Python
-as follows:
+required by *SolidsPy* using `meshio <https://github.com/nschloe/meshio>`__.
+
+- Run it in Python as follows:
 
 .. code:: python
 
