@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Assembly routine
-----------------
+Assembly routines
+-----------------
 
 Functions to assemble the system of equations for the Finite Element
 Analysis.

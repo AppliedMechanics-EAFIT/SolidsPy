@@ -20,7 +20,7 @@ located at (0,0) and the opposite one at (2,2).
 
    4-element solid under point loads.
 
-The file ``nodes.txt``\ is composed of the following fields:
+The file ``nodes.txt`` is composed of the following fields:
 
 -  Column 0: Nodal identifier (integer).
 -  Column 1: x-coordinate (float).
@@ -44,7 +44,7 @@ The corresponding file has the following data
     7  0.00  1.00   0   0
     8  1.00  1.00   0   0
 
-The file ``eles.txt``\ contain the element information. Each line in the
+The file ``eles.txt`` contain the element information. Each line in the
 file defines the information for a single element and is composed of the
 following fields:
 

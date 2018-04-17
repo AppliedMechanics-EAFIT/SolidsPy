@@ -4,34 +4,44 @@ SolidsPy: 2D-Finite Element Analysis with Python
 .. figure:: https://raw.githubusercontent.com/AppliedMechanics-EAFIT/SolidsPy/master/docs/img/wrench.png
    :alt: Wrench under bending.
 
-   Wrench under bending.
 
 A simple finite element analysis code for 2D elasticity problems.
 The code uses as input simple-to-create text files
 defining a model in terms of nodal, element, material and load data.
 
-It has been created for academic purposes and it is part of the
-teaching material developed for the courses IC0602 Introduction to
-the Finite Element Methods and IC0285 Computational Modeling at
-Universidad EAFIT.
+- Documentation: http://solidspy.readthedocs.io
+- GitHub: https://github.com/AppliedMechanics-EAFIT/SolidsPy
+- PyPI: https://pypi.org/project/solidspy/
+- Free and open source software: `MIT license <http://en.wikipedia.org/wiki/MIT_License>`__
+
+
 
 Features
 --------
 
-The code allows the user to find the displacement, strain and stress
-solution for an arbitrary two-dimensional domain discretized into finite
-elements and subjected to point loads.
+* It is based on an open-source environment.
 
-The code is organized in independent modules for pre-processing, assembly
-and post-processing allowing the user to easily modify it or add features
-like new elements or analyses.
+* It is easy to use.
+
+* The code allows to find displacement, strain and stress solutions for
+  arbitrary two-dimensional domains discretized into finite elements and
+  subject to point loads.
+
+* The code is organized in independent modules for pre-processing, assembly and
+  post-processing allowing the user to easily modify it or add features like
+  new elements or analyses pipelines.
+
+* It was created with academic purposes and is used to teach:
+
+  - IC0285 Computational Modeling (Universidad EAFIT).
+  - IC0602 Introduction to the Finite Element Methods (Universidad EAFIT).
 
 
 Installation
 ------------
 
 The code is written in Python and it depends on ``numpy``, ``scipy`` and
-``sympy``.
+``sympy``. It has been tested under Windows, Mac, Linux and Android.
 
 To install *SolidsPy* open a terminal and type:
 
@@ -39,9 +49,8 @@ To install *SolidsPy* open a terminal and type:
 
     pip install solidspy
 
-To run the examples with specification of the folder stoing the input
-files through a GUI you will need to install
-`easygui <http://easygui.readthedocs.org/en/master/>`__.
+To specify through a GUI the folder where the input
+files are stored  you will need to install `easygui <http://easygui.readthedocs.org/en/master/>`__.
 
 To easily generate the required SolidsPy text files out of a
 `Gmsh <http://gmsh.info/>`__ model you will need
@@ -58,13 +67,50 @@ These two can be installed with:
 How to run a simple model
 -------------------------
 
-For further explanation check the `docs <http://solidspy.readthedocs.io/en/latest/>`__. You can run an analysis in 3 steps:
+For further explanation check the `docs <http://solidspy.readthedocs.io/en/latest/>`__.
 
-- Create the model (i.e., geometry and mesh) using `Gmsh <http://gmsh.info/>`__, for example. Several meshes are available in the repo `SOLIDSPy-meshes <https://github.com/AppliedMechanics-EAFIT/SolidsPy-meshes>`__
+Let's suppose that we a simple model represented by the following
+files (see `tutorials/square example <http://solidspy.readthedocs.io/en/latest/tutorials/square_example.html>`__
+for further explanation).
 
-- Generate the text files (eles.txt, nodes.txt, mater.txt and loads.txt) required by *SolidsPy* using `meshio <https://github.com/nschloe/meshio>`__.
+- ``nodes.txt``
 
-- Run it in Python as follows:
+::
+
+    0  0.00  0.00   0  -1
+    1  2.00  0.00   0  -1
+    2  2.00  2.00   0   0
+    3  0.00  2.00   0   0
+    4  1.00  0.00  -1  -1
+    5  2.00  1.00   0   0
+    6  1.00  2.00   0   0
+    7  0.00  1.00   0   0
+    8  1.00  1.00   0   0
+
+- ``eles.txt``
+
+::
+
+    0   1   0   0   4   8   7
+    1   1   0   4   1   5   8
+    2   1   0   7   8   6   3
+    3   1   0   8   5   2   6
+
+- ``mater.txt``
+
+::
+
+    1.0  0.3
+
+- ``loads.txt``
+
+::
+
+    3  0.0  1.0
+    6  0.0  2.0
+    2  0.0  1.0
+
+Run it in Python as follows:
 
 .. code:: python
 
@@ -94,12 +140,12 @@ To cite SolidsPy in publications use
 
 A BibTeX entry for LaTeX users is
 
-.. code::
+.. code:: bibtex
 
     @software{solidspy,
      title = {SolidsPy: 2D-Finite Element Analysis with Python},
      author = {Gómez, Juan and Guarín-Zapata, Nicolás},
-     year = 2017,
+     year = 2018,
      keywords = {Python, Computer algebra system, Symbolics},
      abstract = {SolidsPy is a simple finite element analysis code for
        2D elasticity problems. The code uses as input simple-to-create text
