@@ -54,8 +54,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'SolidsPy'
-copyright = '2018, Juan Gómez & Nicolás Guarín-Zapata'
-author = 'Juan Gómez & Nicolás Guarín-Zapata'
+copyright = u'2018, Juan Gómez & Nicolás Guarín-Zapata'
+author = u'Juan Gómez & Nicolás Guarín-Zapata'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -147,7 +147,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'SolidsPy.tex', 'SolidsPy Documentation',
-     'Juan Gómez \\& Nicolás Guarín-Zapata', 'manual'),
+     u'Juan Gómez \\& Nicolás Guarín-Zapata', 'manual'),
 ]
 
 
