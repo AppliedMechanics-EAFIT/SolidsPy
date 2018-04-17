@@ -1,5 +1,3 @@
-.. :changelog:
-
 History
 -------
 
@@ -7,7 +5,7 @@ History
 ~~~~~~~~~~~~~~~~~~
 
 * Documentation built with Sphinx.
-* Docs in readthedocs.
+* Docs in ReadTheDocs.
 
 1.0.0 (2017-07-17)
 ~~~~~~~~~~~~~~~~~~
@@ -18,4 +16,3 @@ Roadmap
 -------
 
 Pending ...
-

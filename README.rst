@@ -7,7 +7,7 @@ SolidsPy: 2D-Finite Element Analysis with Python
    Wrench under bending.
 
 A simple finite element analysis code for 2D elasticity problems.
-The code uses as input simple-to-create text files 
+The code uses as input simple-to-create text files
 defining a model in terms of nodal, element, material and load data.
 
 It has been created for academic purposes and it is part of the
@@ -20,7 +20,7 @@ Features
 
 The code allows the user to find the displacement, strain and stress
 solution for an arbitrary two-dimensional domain discretized into finite
-elements and subjected to point loads. 
+elements and subjected to point loads.
 
 The code is organized in independent modules for pre-processing, assembly
 and post-processing allowing the user to easily modify it or add features
@@ -40,7 +40,7 @@ To install *SolidsPy* open a terminal and type:
     pip install solidspy
 
 To run the examples with specification of the folder stoing the input
-files through a GUI you will need to install 
+files through a GUI you will need to install
 `easygui <http://easygui.readthedocs.org/en/master/>`__.
 
 To easily generate the required SolidsPy text files out of a
@@ -58,9 +58,7 @@ These two can be installed with:
 How to run a simple model
 -------------------------
 
-For further explanation check the
-[docs](http://solidspy.readthedocs.io/en/latest/). You can run an
-analysis in 3 steps:
+For further explanation check the `docs <http://solidspy.readthedocs.io/en/latest/>`__. You can run an analysis in 3 steps:
 
 - Create the model (i.e., geometry and mesh) using `Gmsh <http://gmsh.info/>`__, for example. Several meshes are available in the repo `SOLIDSPy-meshes <https://github.com/AppliedMechanics-EAFIT/SolidsPy-meshes>`__
 
@@ -96,7 +94,7 @@ To cite SolidsPy in publications use
 
 A BibTeX entry for LaTeX users is
 
-.. code-block::
+.. code::
 
     @software{solidspy,
      title = {SolidsPy: 2D-Finite Element Analysis with Python},

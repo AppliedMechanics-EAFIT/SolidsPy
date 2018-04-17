@@ -3,7 +3,7 @@ Contributing
 ============
 
 Contributions are welcome, and they are greatly appreciated! Every
-little bit helps, and credit will always be given. 
+little bit helps, and credit will always be given.
 
 
 Types of Contributions
@@ -15,7 +15,7 @@ Create FEM Analysis
 ~~~~~~~~~~~~~~~~~~~
 
 If you run a Finite Element Analysis using SolidsPy, and want to share it
-with the community, submit a pull request to our sibling project 
+with the community, submit a pull request to our sibling project
 `SolidsPy-meshes <https://github.com/AppliedMechanics-EAFIT/SolidsPy-meshes>`__.
 
 
@@ -69,9 +69,6 @@ If you are proposing a feature:
   are welcome :)
 
 
-
-
-
 Contributor Guidelines
 ----------------------
 
@@ -114,5 +111,3 @@ Coding Standards
             return re.search(r"(?i)(arr|avast|yohoho)!", message) is not None
 
   * Write new code in Python 3.
-
-

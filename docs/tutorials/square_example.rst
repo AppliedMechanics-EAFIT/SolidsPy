@@ -175,7 +175,7 @@ good option is `IPython <http://ipython.org/>`__.
 
 In IPython you can run the program with
 
-::
+.. code:: ipython
 
     In [1]: from solidspy import solids_GUI
 
@@ -184,7 +184,7 @@ In IPython you can run the program with
 After running the code we have the nodal variables for post-processing.
 For example, we can print the displacement vector
 
-::
+.. code:: ipython
 
     In [3]: np.set_printoptions(threshold=np.nan)
 
@@ -194,9 +194,10 @@ For example, we can print the displacement vector
 where we first setup the printing option for IPython to show the full
 array and then rounded the array to 3 decimal places.
 
-::
+.. code:: ipython
 
     In [5]: U_mag = np.sqrt(UC[0::2]**2 + UG[1::2]**2)
 
     In [6]: print(np.round(U_mag, 3))
     [ 0.849  4.045  4.045  2.088  4.     2.088  2.   ]
+
