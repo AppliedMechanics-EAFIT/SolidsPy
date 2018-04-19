@@ -1,12 +1,15 @@
 Creation of a simple geometry using Gmsh
 ========================================
 
+:Author: Juan Gómez
+:Date: October, 2017
+
 We want to create a mesh for the following geometry
 
 .. figure:: ../img/template_schematic.png
-   :alt: Template for bilayer model.
+   :alt: Bilayer model.
 
-   Template for bilayer model.
+   Bilayer model.
 
 The ``.geo`` file for this model is the following
 
@@ -49,13 +52,3 @@ The ``.geo`` file for this model is the following
     Physical Line(300) = {5, 6, 3, 2};  // Lineas laterales
     Physical Line(400) = {1};  // Linea inferior
     Physical Line(500) = {4};  // Linea superior (cargas)
-
-The following steps would be:
-
--  Create the mesh in Gmsh.
-
--  Generate the model files (eles.txt, nodes.txt, mater.txt and
-   loads.txt) using a python script with the aid of
-   `meshio <https://github.com/nschloe/meshio>`__.
-
--  Run SolidsPy

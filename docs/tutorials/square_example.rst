@@ -1,5 +1,8 @@
-2×2 square with axial load
-==========================
+Start here: 2×2 square with axial load
+======================================
+
+:Author: Nicolás Guarín-Zapata
+:Date: May, 2017
 
 In this document we briefly describe the use of SolidsPy, through a
 simple example corresponding to a square plate under point loads.
@@ -51,17 +54,9 @@ following fields:
 -  Column 0: Element identifier (integer).
 -  Column 1: Element type (integer):
 
-1. 
-
-   (1) for a 4-noded quadrilateral.
-
-2. 
-
-   (2) for a 6-noded triangle.
-
-3. 
-
-   (3) for a 3-noded triangle.
+   - 1 for a 4-noded quadrilateral.
+   - 2 for a 6-noded triangle.
+   - 3 for a 3-noded triangle.
 
 -  Column 2: Material profile for the current element (integer).
 -  Column 3 to end: Element connectivity, this is a list of the nodes
@@ -165,7 +160,7 @@ solutions as contour plots, like the following
 
 .. image:: ../img/square-4_elements-vertical_disp.png
    :width: 400px
-   
+
 
 Interactive execution
 ~~~~~~~~~~~~~~~~~~~~~
@@ -200,4 +195,3 @@ array and then rounded the array to 3 decimal places.
 
     In [6]: print(np.round(U_mag, 3))
     [ 0.849  4.045  4.045  2.088  4.     2.088  2.   ]
-
