@@ -1,6 +1,12 @@
 History
 -------
 
+1.0.13 (2018-05-07)
+~~~~~~~~~~~~~~~~~~
+
+* Update meshio syntax for physical groups.
+* Add citation information to package.
+
 1.0.12 (2018-04-16)
 ~~~~~~~~~~~~~~~~~~
 
