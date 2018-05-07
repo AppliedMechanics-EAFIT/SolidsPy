@@ -13,10 +13,18 @@ import solidspy.uelutil as uel
 import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
 
-plt.rcParams['font.family'] = 'serif'
+# Set plotting defaults
+gray = '#757575'
 plt.rcParams['image.cmap'] = "YlGnBu_r"
-plt.rcParams['axes.axisbelow'] = True
-plt.rcParams['mathtext.fontset'] = "cm"
+plt.rcParams["mathtext.fontset"] = "cm"
+plt.rcParams["text.color"] = gray
+plt.rcParams["font.size"] = 12
+plt.rcParams["xtick.color"] = gray
+plt.rcParams["ytick.color"] = gray
+plt.rcParams["axes.labelcolor"] = gray
+plt.rcParams["axes.edgecolor"] = gray
+plt.rcParams["axes.spines.right"] = False
+plt.rcParams["axes.spines.top"] = False
 
 
 #%% Plotting routines
@@ -70,7 +78,7 @@ def fields_plot(elements, nodes, disp, E_nodes=None, S_nodes=None):
 
 
 
-def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
+def tri_plot(tri, field, title="", levels=12, savefigs=False,
              plt_type="contourf", filename="solution_plot.pdf"):
     """Plot contours over triangulation
 
@@ -83,8 +91,6 @@ def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
         Array with data to be plotted for each node.
     title : string (optional)
         Title of the plot.
-    figtitle : string (optional)
-        Title for the Figure.
     levels : int (optional)
         Number of levels to be used in ``contourf``.
     savefigs : bool (optional)
@@ -99,8 +105,6 @@ def tri_plot(tri, field, title="", figtitle="", levels=12, savefigs=False,
         disp_plot = plt.tripcolor
     elif plt_type == "contourf":
         disp_plot = plt.tricontourf
-
-    plt.figure(figtitle)
     disp_plot(tri, field, levels, shading="gouraud")
     plt.title(title)
     plt.colorbar(orientation='vertical')
@@ -151,13 +155,18 @@ def plot_node_field(field, nodes, elements, plt_type="contourf", levels=12,
     if title is None:
         title = ["" for cont in range(nfields)]
     if figtitle is None:
-        figtitle = ["" for cont in range(nfields)]
+        figs = plt.get_fignums()
+        nfigs = len(figs)
+        figtitle = [cont + 1 for cont in range(nfigs, nfigs + nfields)]
     if filename is None:
         filename = ["output{}.pdf".format(cont) for cont in range(nfields)]
     for cont in range(nfields):
+        if nfields == 1:
+            current_field = field
+        else:
+            current_field = field[:, cont]
         plt.figure(figtitle[cont])
-        tri_plot(tri, field[:, cont], title=title[cont],
-                 figtitle=figtitle[cont], levels=levels,
+        tri_plot(tri, current_field, title=title[cont], levels=levels,
                  plt_type=plt_type, savefigs=savefigs,
                  filename=filename[cont])
         if savefigs:

@@ -26,7 +26,7 @@ requirements = ['numpy',
 setup(
     name='solidspy',
 
-    version='1.0.12',
+    version='1.0.13',
 
     description='A simple Finite Element program',
     long_description=long_description,
