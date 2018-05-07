@@ -100,7 +100,7 @@ def ele_writer(cells, cell_data, ele_tag, phy_sur,  ele_type, mat_tag, nini):
                   'triangle6': 6,
                   'quad': 4}
     nnode = dict_nnode[ele_tag]
-    phy_surface = cell_data[ele_tag]['physical']
+    phy_surface = cell_data[ele_tag]['gmsh:physical']
     ele_id = [cont for cont, _ in enumerate(phy_surface[:])
               if phy_surface[cont] == phy_sur]
     els_array = np.zeros([len(ele_id) , 3 + nnode], dtype=int)
@@ -161,7 +161,7 @@ def boundary_conditions(cells, cell_data, phy_lin, nodes_array, bc_x, bc_y):
     """
     lines = cells["line"]
     # Bounds contains data corresponding to the physical line.
-    phy_line = cell_data["line"]["physical"]
+    phy_line = cell_data["line"]["gmsh:physical"]
     id_frontera = [cont for cont in range(len(phy_line))
                    if phy_line[cont] == phy_lin]
     nodes_frontera = lines[id_frontera]
@@ -197,7 +197,7 @@ def loading(cells, cell_data, phy_lin, P_x, P_y):
     """
     lines = cells["line"]
     # Bounds contains data corresponding to the physical line.
-    phy_line = cell_data["line"]["physical"]
+    phy_line = cell_data["line"]["gmsh:physical"]
     id_carga = [cont for cont in range(len(phy_line))
                 if phy_line[cont] == phy_lin]
     nodes_carga = lines[id_carga]
@@ -224,9 +224,9 @@ def rect_grid(length, height, nx, ny, eletype=None):
         height : gloat
             Height of the domain.
         nx : int
-            Number of points in the x direction.
+            Number of elements in the x direction.
         ny : int
-            Number of points in the y direction.
+            Number of elements in the y direction.
         eletype : None
             It does nothing right now.
 
@@ -240,13 +240,13 @@ def rect_grid(length, height, nx, ny, eletype=None):
             Array with element data.
 
     """
-    y, x = np.mgrid[-height/2:height/2:ny*1j,
-                    -length/2:length/2:nx*1j]
-    els = np.zeros(((nx - 1)*(ny - 1), 7), dtype=int)
+    y, x = np.mgrid[-height/2:height/2:(ny + 1)*1j,
+                    -length/2:length/2:(nx + 1)*1j]
+    els = np.zeros((nx*ny, 7), dtype=int)
     els[:, 1] = 1
-    for row in range(ny - 1):
-        for col in range(nx - 1):
-            cont = row*(nx - 1) + col
+    for row in range(ny):
+        for col in range(nx):
+            cont = row*nx + col
             els[cont, 0] = cont
             els[cont, 3:7] = [cont + row, cont + row + 1,
                               cont + row + nx + 1, cont + row + nx]
