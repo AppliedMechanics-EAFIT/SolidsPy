@@ -245,12 +245,13 @@ def rect_grid(length, height, nx, ny, eletype=None):
     >>> x, y, els = rect_grid(2, 2, 2, 2)
     >>> x
     array([-1.,  0.,  1., -1.,  0.,  1., -1.,  0.,  1.])
+    >>> y
     array([-1., -1., -1.,  0.,  0.,  0.,  1.,  1.,  1.])
     >>> els
-    array([[0, 1, 0, 0, 1, 3, 2],
-           [1, 1, 0, 1, 2, 4, 3],
-           [2, 1, 0, 3, 4, 6, 5],
-           [3, 1, 0, 4, 5, 7, 6]])
+    array([[0, 1, 0, 0, 1, 4, 3],
+           [1, 1, 0, 1, 2, 5, 4],
+           [2, 1, 0, 3, 4, 7, 6],
+           [3, 1, 0, 4, 5, 8, 7]])
 
     """
     y, x = np.mgrid[-height/2:height/2:(ny + 1)*1j,
@@ -262,7 +263,7 @@ def rect_grid(length, height, nx, ny, eletype=None):
             cont = row*nx + col
             els[cont, 0] = cont
             els[cont, 3:7] = [cont + row, cont + row + 1,
-                              cont + row + nx + 1, cont + row + nx]
+                              cont + row + nx + 2, cont + row + nx + 1]
     return x.flatten(), y.flatten(), els
 
 
