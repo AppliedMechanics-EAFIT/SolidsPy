@@ -394,6 +394,11 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# Pytest
+.cache/
+.pytest_cache/
+
+
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
