@@ -146,7 +146,7 @@ A BibTeX entry for LaTeX users is
      title = {SolidsPy: 2D-Finite Element Analysis with Python},
      author = {Gómez, Juan and Guarín-Zapata, Nicolás},
      year = 2018,
-     keywords = {Python, Computer algebra system, Symbolics},
+     keywords = {Python, Finite elements, Scientific computing, Computational mechanics},
      abstract = {SolidsPy is a simple finite element analysis code for
        2D elasticity problems. The code uses as input simple-to-create text
        files defining a model in terms of nodal, element, material and
