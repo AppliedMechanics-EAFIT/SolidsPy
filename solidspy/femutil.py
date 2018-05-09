@@ -334,6 +334,8 @@ def stdm3NT(r, s, coord):
 
 def jacoper(dhdx, coord):
     """
+    Compute the Jacobian of the transformation evaluated at
+    the Gauss point
 
     Parameters
     ----------
@@ -345,13 +347,19 @@ def jacoper(dhdx, coord):
 
     Returns
     -------
-    xja : ndarray (2, 2)
+    jaco_inv : ndarray (2, 2)
       Jacobian of the transformation evaluated at `(r, s)`.
 
     """
     jaco = dhdx.dot(coord)
     det = np.linalg.det(jaco)
+    if np.isclose(np.abs(det), 0.0):
+        msg = "Jacobian close to zero. Check the shape of your elements!"
+        raise ValueError(msg)
     jaco_inv = np.linalg.inv(jaco)
+    if det < 0.0:
+        msg = "Jacobian is negative. Check your elements orientation!"
+        raise ValueError(msg)
     return det, jaco_inv
 
 #%% Material routines

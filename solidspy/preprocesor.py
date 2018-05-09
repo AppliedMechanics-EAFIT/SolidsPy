@@ -239,6 +239,19 @@ def rect_grid(length, height, nx, ny, eletype=None):
         els : ndarray
             Array with element data.
 
+    Examples
+    --------
+
+    >>> x, y, els = rect_grid(2, 2, 2, 2)
+    >>> x
+    array([-1.,  0.,  1., -1.,  0.,  1., -1.,  0.,  1.])
+    array([-1., -1., -1.,  0.,  0.,  0.,  1.,  1.,  1.])
+    >>> els
+    array([[0, 1, 0, 0, 1, 3, 2],
+           [1, 1, 0, 1, 2, 4, 3],
+           [2, 1, 0, 3, 4, 6, 5],
+           [3, 1, 0, 4, 5, 7, 6]])
+
     """
     y, x = np.mgrid[-height/2:height/2:(ny + 1)*1j,
                     -length/2:length/2:(nx + 1)*1j]
@@ -251,3 +264,8 @@ def rect_grid(length, height, nx, ny, eletype=None):
             els[cont, 3:7] = [cont + row, cont + row + 1,
                               cont + row + nx + 1, cont + row + nx]
     return x.flatten(), y.flatten(), els
+
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
