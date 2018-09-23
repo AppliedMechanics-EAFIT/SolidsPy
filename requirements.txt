@@ -2,4 +2,4 @@ numpy
 scipy
 matplotlib
 easygui
-meshio
+meshio==2.1
