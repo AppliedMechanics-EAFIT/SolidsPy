@@ -3,7 +3,7 @@ Geometry in Gmsh and solution with SolidsPy
 ==========================================================================
 
 :Author: Nicolás Guarín-Zapata
-:Date: April, 208
+:Date: September, 2018
 
 This document is a tutorial on how to generate a (specific) geometry
 using Gmsh [Gmsh2009]_ and its subsequent processing for the generation
@@ -206,13 +206,14 @@ Run the finite element program in Python.
 
 .. code-block:: python
 
-  from __future__ import division, print_function
   import meshio
   import numpy as np
 
-
-  points, cells, point_data, cell_data, field_data = \
-      meshio.read("Prueba_brasilera.msh")
+  mesh = meshio.read("Prueba_brasilera.msh")
+  points = mesh.points
+  cells = mesh.cells
+  point_data = mesh.point_data
+  cell_data = mesh.cell_data
 
   # Element data
   eles = cells["triangle"]
@@ -277,13 +278,15 @@ same directory as the Python file that will process it.
 
 .. code:: python
 
-  from __future__ import division, print_function
   import meshio
   import numpy as np
 
 
-  points, cells, point_data, cell_data, field_data = \
-    meshio.read("Prueba_brasilera.msh")
+  mesh = meshio.read("Prueba_brasilera.msh")
+  points = mesh.points
+  cells = mesh.cells
+  point_data = mesh.point_data
+  cell_data = mesh.cell_data
 
 Element data
 ------------
