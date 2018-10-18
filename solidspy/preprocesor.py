@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Postprocessor subroutines
+Preprocessor subroutines
 -------------------------
 
 This module contains functions to preprocess the input files to compute

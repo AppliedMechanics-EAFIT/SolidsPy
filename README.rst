@@ -31,7 +31,9 @@ Features
   post-processing allowing the user to easily modify it or add features like
   new elements or analyses pipelines.
 
-* It was created with academic purposes and is used to teach:
+* It was created with academic and research purposes.
+
+* It has been used to tech the following courses:
 
   - IC0285 Computational Modeling (Universidad EAFIT).
   - IC0602 Introduction to the Finite Element Methods (Universidad EAFIT).
@@ -119,8 +121,7 @@ Run it in Python as follows:
     disp = solids_GUI()  # run the Finite Element Analysis
     plt.show()    # plot contours
 
-This would not work properly in Anaconda for Mac OS. In that case is
-suggested to use an IPython console to run the example.
+For Mac users it is suggested to use an IPython console to run the example.
 
 License
 -------
