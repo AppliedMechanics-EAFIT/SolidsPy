@@ -14,6 +14,14 @@ import solidspy.uelutil as ue
 import solidspy.femutil as fem
 
 
+ELEM_ID = {1: ue.uel4nquad,
+           2: ue.uel6ntrian,
+           3: ue.uel3ntrian,
+           5: ue.uelspring,
+           6: ue.ueltruss2D,
+           7: ue.uelbeam2DU}
+
+
 def eqcounter(nodes):
     """Counts active equations and creates BCs array IBC
 
@@ -35,7 +43,7 @@ def eqcounter(nodes):
     IBC = np.zeros([nnodes, 2], dtype=np.integer)
     for i in range(nnodes):
         for k in range(2):
-            IBC[i, k] = int(nodes[i , k+3])
+            IBC[i, k] = int(nodes[i, k+3])
     neq = 0
     for i in range(nnodes):
         for j in range(2):
@@ -70,7 +78,6 @@ def DME(nodes, elements):
     nels = elements.shape[0]
     IELCON = np.zeros([nels, 9], dtype=np.integer)
     DME = np.zeros([nels, 18], dtype=np.integer)
-
     neq, IBC = eqcounter(nodes)
 
     for i in range(nels):
@@ -92,11 +99,11 @@ def retriever(elements, mats, nodes, i, uel=None):
     ----------
     elements : ndarray
       Array with the number for the nodes in each element.
-    mats    : ndarray.
+    mats : ndarray.
       Array with the material profiles.
-    nodes    : ndarray.
+    nodes : ndarray.
       Array with the nodal numbers and coordinates.
-    i    : int.
+    i : int.
       Identifier of the element to be assembled.
 
     Returns
@@ -105,34 +112,26 @@ def retriever(elements, mats, nodes, i, uel=None):
       Array with the local stiffness matrix.
     ndof : int.
       Number of degrees of fredom of the current element.
+    iet : integer
+      Element identifier.
     """
     IELCON = np.zeros([9], dtype=np.integer)
-    iet = elements[i, 1]
-    ndof, nnodes, ngpts = fem.eletype(iet)
+    elem_type = elements[i, 1]
+    ndof, nnodes, ngpts = fem.eletype(elem_type)
     elcoor = np.zeros([nnodes, 2])
     im = np.int(elements[i, 2])
-    par0, par1 = mats[im, :]
+    params = mats[im, :]
     for j in range(nnodes):
         IELCON[j] = elements[i, j+3]
         elcoor[j, 0] = nodes[IELCON[j], 1]
         elcoor[j, 1] = nodes[IELCON[j], 2]
     if uel is None:
-        if iet == 1:
-            kloc = ue.uel4nquad(elcoor, par1, par0)
-        elif iet == 2:
-            kloc = ue.uel6ntrian(elcoor, par1, par0)
-        elif iet == 3:
-            kloc = ue.uel3ntrian(elcoor, par1, par0)
-        elif iet == 5:
-            kloc = ue.uelspring(elcoor, par1, par0)
-        elif iet == 6:
-            kloc = ue.ueltruss2D(elcoor, par1, par0)
-        elif iet == 7:
-            kloc = ue.uelbeam2DU(elcoor, par1, par0)
+        uel = ELEM_ID[elem_type]
+        kloc = uel(elcoor, params)
     else:
-        kloc, ndof, iet = uel(elcoor, par1, par0)
+        kloc, ndof, elem_type = uel(elcoor, params)
 
-    return kloc, ndof, iet
+    return kloc, ndof, elem_type
 
 
 def assembler(elements, mats, nodes, neq, DME, sparse=True, uel=None):
@@ -201,7 +200,7 @@ def dense_assem(elements, mats, nodes, neq, DME, uel=None):
     KG = np.zeros((neq, neq))
     nels = elements.shape[0]
     for el in range(nels):
-        kloc, ndof, iet  = retriever(elements, mats, nodes, el, uel=uel)
+        kloc, ndof, iet = retriever(elements, mats, nodes, el, uel=uel)
         dme = DME[el, :ndof]
         for row in range(ndof):
             glob_row = dme[row]
@@ -257,7 +256,7 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
     vals = []
     nels = elements.shape[0]
     for el in range(nels):
-        kloc, ndof, iet  = retriever(elements, mats, nodes, el, uel=uel)
+        kloc, ndof, iet = retriever(elements, mats, nodes, el, uel=uel)
         dme = DME[el, :ndof]
 
         for row in range(ndof):

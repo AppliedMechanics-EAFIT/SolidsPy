@@ -14,7 +14,7 @@ import solidspy.femutil as fem
 import solidspy.gaussutil as gau
 
 
-def uel4nquad(coord, poisson, young):
+def uel4nquad(coord, params):
     """Quadrilateral element with 4 nodes
 
     Parameters
@@ -35,7 +35,7 @@ def uel4nquad(coord, poisson, young):
     --------
 
     >>> coord = np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]])
-    >>> stiff = uel4nquad(coord, 1/3, 8/3)
+    >>> stiff = uel4nquad(coord, [1/3, 8/3])
     >>> stiff_ex = 1/6 * np.array([
     ...             [ 8,  3, -5,  0, -4, -3,  1,  0],
     ...             [ 3,  8,  0,  1, -3, -4,  0, -5],
@@ -50,7 +50,8 @@ def uel4nquad(coord, poisson, young):
 
     """
     kl = np.zeros([8, 8])
-    C = fem.umat(poisson, young)
+    poisson, young = params
+    C = fem.umat(params)
     XW, XP = gau.gpoints2x2()
     ngpts = 4
     for i in range(0, ngpts):
@@ -58,11 +59,11 @@ def uel4nquad(coord, poisson, young):
         si = XP[i, 1]
         alf = XW[i]
         ddet, B = fem.stdm4NQ(ri, si, coord)
-        kl = kl + np.dot(np.dot(B.T,C), B)*alf*ddet
+        kl = kl + np.dot(np.dot(B.T, C), B)*alf*ddet
     return kl
 
 
-def uel6ntrian(coord, poisson, young):
+def uel6ntrian(coord, params):
     """Triangular element with 6 nodes
 
     Parameters
@@ -89,7 +90,7 @@ def uel6ntrian(coord, poisson, young):
     ...         [0.5, 0],
     ...         [0.5, 0.5],
     ...         [0, 0.5]])
-    >>> stiff = uel6ntrian(coord,1/3, 8/3)
+    >>> stiff = uel6ntrian(coord, [1/3, 8/3])
     >>> stiff_ex = 1/6 * np.array([
     ...            [12, 6, 3, 1, 1, 1, -12, -4, 0, 0, -4, -4],
     ...            [6, 12, 1, 1, 1, 3, -4, -4, 0, 0, -4, -12],
@@ -108,7 +109,7 @@ def uel6ntrian(coord, poisson, young):
 
     """
     kl = np.zeros([12, 12])
-    C = fem.umat(poisson, young)
+    C = fem.umat(params)
     XW, XP = gau.gpoints7()
     ngpts = 7
     for i in range(ngpts):
@@ -116,11 +117,11 @@ def uel6ntrian(coord, poisson, young):
         si = XP[i, 1]
         alf = XW[i]
         ddet, B = fem.stdm6NT(ri, si, coord)
-        kl = kl + 0.5*np.dot(np.dot(B.T,C), B)*alf*ddet
+        kl = kl + 0.5*np.dot(np.dot(B.T, C), B)*alf*ddet
     return kl
 
 
-def uel3ntrian(coord, poisson, young):
+def uel3ntrian(coord, params):
     """Triangular element with 3 nodes
 
     Parameters
@@ -144,7 +145,7 @@ def uel3ntrian(coord, poisson, young):
     ...         [0, 0],
     ...         [1, 0],
     ...         [0, 1]])
-    >>> stiff = uel3ntrian(coord, 1/3, 8/3)
+    >>> stiff = uel3ntrian(coord, [1/3, 8/3])
     >>> stiff_ex = 1/2 * np.array([
     ...            [4, 2, -3, -1, -1, -1],
     ...            [2, 4, -1, -1, -1, -3],
@@ -157,7 +158,7 @@ def uel3ntrian(coord, poisson, young):
 
     """
     kl = np.zeros([6, 6])
-    C = fem.umat(poisson, young)
+    C = fem.umat(params)
     XW, XP = gau.gpoints3()
     ngpts = 3
     for i in range(ngpts):
@@ -165,21 +166,19 @@ def uel3ntrian(coord, poisson, young):
         si = XP[i, 1]
         alf = XW[i]
         ddet, B = fem.stdm3NT(ri, si, coord)
-        kl = kl + 0.5*np.dot(np.dot(B.T,C), B)*alf*ddet
+        kl = kl + 0.5*np.dot(np.dot(B.T, C), B)*alf*ddet
     return kl
 
 
-def uelspring(coord, poisson, stiff):
+def uelspring(coord, stiff):
     """1D-2-noded Spring element
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (2, 2).
-    poisson : float
-      Fictitious parameter.
-    young : float
-      Young modulus (>0).
+    stiff : float
+      Spring stiffness (>0).
 
     Returns
     -------
@@ -192,7 +191,7 @@ def uelspring(coord, poisson, stiff):
     >>> coord = np.array([
     ...         [0, 0],
     ...         [1, 0]])
-    >>> stiff = uelspring(coord, 1/3, 8/3)
+    >>> stiff = uelspring(coord, [1/3, 8/3])
     >>> stiff_ex = 8/3 * np.array([
     ...    [1, 0, -1, 0],
     ...    [0, 0, 0, 0],
@@ -206,8 +205,8 @@ def uelspring(coord, poisson, stiff):
     nx = vec[0]/np.linalg.norm(vec)
     ny = vec[1]/np.linalg.norm(vec)
     Q = np.array([
-        [nx, ny, 0 , 0],
-        [0,  0, nx , ny]])
+        [nx, ny, 0, 0],
+        [0, 0, nx, ny]])
     kl = stiff * np.array([
         [1, -1],
         [-1, 1]])
@@ -215,7 +214,7 @@ def uelspring(coord, poisson, stiff):
     return kG
 
 
-def ueltruss2D(coord, area, young):
+def ueltruss2D(coord, params):
     """2D-2-noded truss element
 
     Parameters
@@ -238,7 +237,7 @@ def ueltruss2D(coord, area, young):
     >>> coord = np.array([
     ...         [0, 0],
     ...         [1, 0]])
-    >>> stiff = ueltruss2D(coord, 1.0 , 1.0)
+    >>> stiff = ueltruss2D(coord, [1.0 , 1.0])
     >>> stiff_ex =  np.array([
     ...    [1, 0, -1, 0],
     ...    [0, 0, 0, 0],
@@ -254,8 +253,9 @@ def ueltruss2D(coord, area, young):
     ny = vec[1]/length
     Q = np.array([
         [nx, ny, 0, 0],
-        [0,  0, nx , ny]])
-    stiff = area*young/length 
+        [0, 0, nx, ny]])
+    area, young = params
+    stiff = area*young/length
     kl = stiff * np.array([
         [1, -1],
         [-1, 1]])
@@ -263,7 +263,7 @@ def ueltruss2D(coord, area, young):
     return kG
 
 
-def uelbeam2DU(coord, I, young):
+def uelbeam2DU(coord, params):
     """2D-2-noded beam element
        without axial deformation
 
@@ -287,16 +287,17 @@ def uelbeam2DU(coord, I, young):
     ny = vec[1]/np.linalg.norm(vec)
     L = np.linalg.norm(vec)
     Q = np.array([
-        [-ny, nx,  0,  0,  0, 0 ],
-        [  0,  0,  1,  0,  0, 0 ],
-        [  0,  0,  0,-ny, nx, 0 ],
-        [  0,  0,  0,  0,  0, 1]])
+        [-ny, nx, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0],
+        [0, 0, 0, -ny, nx, 0],
+        [0, 0, 0, 0, 0, 1]])
+    I, young = params
     bending_stiff = I*young/L**3
-    kl =  bending_stiff * np.array([
-        [12, 6*L , -12 , 6*L],
-        [6*L,  4*L*L , -6*L , 2*L*L],
-        [-12,  -6*L , 12 , -6*L],
-        [6*L,  2*L*L , -6*L , 4*L*L]])
+    kl = bending_stiff * np.array([
+        [12, 6*L, -12, 6*L],
+        [6*L, 4*L*L, -6*L, 2*L*L],
+        [-12, -6*L, 12, -6*L],
+        [6*L, 2*L*L, -6*L, 4*L*L]])
     kG = np.dot(np.dot(Q.T, kl), Q)
     return kG
 

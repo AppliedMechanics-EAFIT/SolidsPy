@@ -363,7 +363,7 @@ def jacoper(dhdx, coord):
     return det, jaco_inv
 
 #%% Material routines
-def umat(nu, E):
+def umat(params):
     """2D Elasticity consitutive matrix in plane stress
 
     For plane strain use effective properties.
@@ -392,6 +392,7 @@ def umat(nu, E):
     True
 
     """
+    E, nu = params
     C = np.zeros((3, 3))
     enu = E/(1 - nu**2)
     mnu = (1 - nu)/2
