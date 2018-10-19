@@ -14,16 +14,16 @@ import solidspy.femutil as fem
 import solidspy.gaussutil as gau
 
 
-def uel4nquad(coord, enu, Emod):
+def uel4nquad(coord, poisson, young):
     """Quadrilateral element with 4 nodes
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (4, 2).
-    enu : float
+    poisson : float
       Poisson coefficient (-1, 0.5).
-    Emod : float
+    young : float
       Young modulus (>0).
 
     Returns
@@ -50,7 +50,7 @@ def uel4nquad(coord, enu, Emod):
 
     """
     kl = np.zeros([8, 8])
-    C = fem.umat(enu, Emod)
+    C = fem.umat(poisson, young)
     XW, XP = gau.gpoints2x2()
     ngpts = 4
     for i in range(0, ngpts):
@@ -62,16 +62,16 @@ def uel4nquad(coord, enu, Emod):
     return kl
 
 
-def uel6ntrian(coord, enu, Emod):
+def uel6ntrian(coord, poisson, young):
     """Triangular element with 6 nodes
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (6, 2).
-    enu : float
+    poisson : float
       Poisson coefficient (-1, 0.5).
-    Emod : float
+    young : float
       Young modulus (>0).
 
     Returns
@@ -108,7 +108,7 @@ def uel6ntrian(coord, enu, Emod):
 
     """
     kl = np.zeros([12, 12])
-    C = fem.umat(enu, Emod)
+    C = fem.umat(poisson, young)
     XW, XP = gau.gpoints7()
     ngpts = 7
     for i in range(ngpts):
@@ -120,16 +120,16 @@ def uel6ntrian(coord, enu, Emod):
     return kl
 
 
-def uel3ntrian(coord, enu, Emod):
+def uel3ntrian(coord, poisson, young):
     """Triangular element with 3 nodes
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (3, 2).
-    enu : float
+    poisson : float
       Poisson coefficient (-1, 0.5).
-    Emod : float
+    young : float
       Young modulus (>0).
 
     Returns
@@ -157,7 +157,7 @@ def uel3ntrian(coord, enu, Emod):
 
     """
     kl = np.zeros([6, 6])
-    C = fem.umat(enu, Emod)
+    C = fem.umat(poisson, young)
     XW, XP = gau.gpoints3()
     ngpts = 3
     for i in range(ngpts):
@@ -169,17 +169,17 @@ def uel3ntrian(coord, enu, Emod):
     return kl
 
 
-def uelspring(coord, enu, Emod):
+def uelspring(coord, poisson, stiff):
     """1D-2-noded Spring element
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (2, 2).
-    enu : float
+    poisson : float
       Fictitious parameter.
-    Emod : float
-      Stiffness coefficient (>0).
+    young : float
+      Young modulus (>0).
 
     Returns
     -------
@@ -206,25 +206,25 @@ def uelspring(coord, enu, Emod):
     nx = vec[0]/np.linalg.norm(vec)
     ny = vec[1]/np.linalg.norm(vec)
     Q = np.array([
-        [nx, ny , 0 , 0],
+        [nx, ny, 0 , 0],
         [0,  0, nx , ny]])
-    kl = Emod * np.array([
+    kl = stiff * np.array([
         [1, -1],
         [-1, 1]])
     kG = np.dot(np.dot(Q.T, kl), Q)
     return kG
 
 
-def ueltruss2D(coord, A, Emod):
+def ueltruss2D(coord, area, young):
     """2D-2-noded truss element
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (2, 2).
-    A : float
+    area : float
       Cross section area.
-    Emod : float
+    young : float
       Young modulus (>0).
 
     Returns
@@ -253,16 +253,17 @@ def ueltruss2D(coord, A, Emod):
     nx = vec[0]/length
     ny = vec[1]/length
     Q = np.array([
-        [nx, ny , 0 , 0],
+        [nx, ny, 0, 0],
         [0,  0, nx , ny]])
-    kl = (A*Emod/length) * np.array([
+    stiff = area*young/length 
+    kl = stiff * np.array([
         [1, -1],
         [-1, 1]])
     kG = np.dot(np.dot(Q.T, kl), Q)
     return kG
 
 
-def uelbeam2DU(coord, I , Emod):
+def uelbeam2DU(coord, I, young):
     """2D-2-noded beam element
        without axial deformation
 
@@ -270,9 +271,9 @@ def uelbeam2DU(coord, I , Emod):
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (2, 2).
-    A : float
-      Cross section area.
-    Emod : float
+    I : float
+      Second moment of area.
+    young : float
       Young modulus (>0).
 
     Returns
@@ -286,14 +287,15 @@ def uelbeam2DU(coord, I , Emod):
     ny = vec[1]/np.linalg.norm(vec)
     L = np.linalg.norm(vec)
     Q = np.array([
-        [-ny , nx ,   0 ,  0 ,  0 , 0 ],
-        [  0 ,  0 , 1.0 ,  0 ,  0 , 0 ],
-        [  0 ,  0 ,   0 ,-ny , nx , 0 ],
-        [  0 ,  0  ,  0 ,  0 ,  0 , 1.0 ]])
-    kl =(I*Emod/(L*L*L)) * np.array([
-        [12.0, 6*L , -12.0 , 6*L],
+        [-ny, nx,  0,  0,  0, 0 ],
+        [  0,  0,  1,  0,  0, 0 ],
+        [  0,  0,  0,-ny, nx, 0 ],
+        [  0,  0,  0,  0,  0, 1]])
+    bending_stiff = I*young/L**3
+    kl =  bending_stiff * np.array([
+        [12, 6*L , -12 , 6*L],
         [6*L,  4*L*L , -6*L , 2*L*L],
-        [-12.0,  -6*L , 12.0 , -6*L],
+        [-12,  -6*L , 12 , -6*L],
         [6*L,  2*L*L , -6*L , 4*L*L]])
     kG = np.dot(np.dot(Q.T, kl), Q)
     return kG

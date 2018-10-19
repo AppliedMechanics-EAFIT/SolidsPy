@@ -35,7 +35,7 @@ def eqcounter(nodes):
     IBC = np.zeros([nnodes, 2], dtype=np.integer)
     for i in range(nnodes):
         for k in range(2):
-            IBC[i , k] = int(nodes[i , k+3])
+            IBC[i, k] = int(nodes[i , k+3])
     neq = 0
     for i in range(nnodes):
         for j in range(2):
@@ -82,10 +82,10 @@ def DME(nodes, elements):
             for l in range(2):
                 DME[i, 2*j+l] = IBC[kk, l]
 
-    return DME , IBC , neq
+    return DME, IBC, neq
 
 
-def retriever(elements , mats , nodes , i, uel=None):
+def retriever(elements, mats, nodes, i, uel=None):
     """Computes the elemental stiffness matrix of element i
 
     Parameters
@@ -257,7 +257,7 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
     vals = []
     nels = elements.shape[0]
     for el in range(nels):
-        kloc, ndof, iet  = retriever(elements , mats  , nodes , el, uel=uel)
+        kloc, ndof, iet  = retriever(elements, mats, nodes, el, uel=uel)
         dme = DME[el, :ndof]
 
         for row in range(ndof):
@@ -304,6 +304,7 @@ def loadasem(loads, IBC, neq):
             RHSG[ily] = loads[i, 2]
 
     return RHSG
+
 
 if __name__ == "__main__":
     import doctest

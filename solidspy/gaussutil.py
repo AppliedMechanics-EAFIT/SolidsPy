@@ -28,9 +28,8 @@ def gpoints2x2():
       Points for the Gauss-Legendre quadrature.
 
     """
-    xw = np.zeros([4])
+    xw = np.ones([4])
     xp = np.zeros([4, 2])
-    xw[:] = 1.0
     xp[0, 0] = -0.577350269189626
     xp[1, 0] = 0.577350269189626
     xp[2, 0] = -0.577350269189626
