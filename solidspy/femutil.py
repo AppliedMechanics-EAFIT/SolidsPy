@@ -21,8 +21,8 @@ References
 
 """
 from __future__ import absolute_import, division, print_function
-import solidspy.gaussutil as gau
 import numpy as np
+import solidspy.gaussutil as gau
 
 
 def eletype(iet):
@@ -219,10 +219,7 @@ def sha3(x, y):
 
     """
     N = np.zeros((2, 6))
-    H = np.array([
-        (1 - x - y),
-         x,
-         y])
+    H = np.array([(1 - x - y), x, y])
     N[0, ::2] = H
     N[1, 1::2] = H
 
@@ -253,8 +250,8 @@ def stdm4NQ(r, s, coord):
     nn = 4
     B = np.zeros((3, 2*nn))
     dhdx = 0.25*np.array([
-            [s - 1, -s + 1, s + 1, -s - 1],
-            [r - 1, -r - 1, r + 1, -r + 1]])
+        [s - 1, -s + 1, s + 1, -s - 1],
+        [r - 1, -r - 1, r + 1, -r + 1]])
     det, jaco_inv = jacoper(dhdx, coord)
     dhdx = np.dot(jaco_inv, dhdx)
     B[0, ::2] = dhdx[0, :]
@@ -287,8 +284,8 @@ def stdm6NT(r, s, coord):
     nn = 6
     B = np.zeros((3, 2*nn))
     dhdx = np.array([
-        [4*r + 4*s - 3, 4*r - 1, 0, -8*r - 4*s + 4, 4*s,  -4*s],
-        [4*r + 4*s - 3, 0, 4*s - 1,  -4*r, 4*r, -4*r - 8*s + 4]])
+        [4*r + 4*s - 3, 4*r - 1, 0, -8*r - 4*s + 4, 4*s, -4*s],
+        [4*r + 4*s - 3, 0, 4*s - 1, -4*r, 4*r, -4*r - 8*s + 4]])
     det, jaco_inv = jacoper(dhdx, coord)
     dhdx = np.dot(jaco_inv, dhdx)
     B[0, ::2] = dhdx[0, :]
@@ -321,8 +318,8 @@ def stdm3NT(r, s, coord):
     nn = 3
     B = np.zeros((3, 2*nn))
     dhdx = np.array([
-            [-1, 1, 0],
-            [-1, 0, 1]])
+        [-1, 1, 0],
+        [-1, 0, 1]])
     det, jaco_inv = jacoper(dhdx, coord)
     dhdx = np.dot(jaco_inv, dhdx)
     B[0, ::2] = dhdx[0, :]
@@ -383,7 +380,8 @@ def umat(params):
     Examples
     --------
 
-    >>> C = umat(1/3, 8/3)
+    >>> params = 8/3, 1/3
+    >>> C = umat(params)
     >>> C_ex = np.array([
     ...    [3, 1, 0],
     ...    [1, 3, 0],

@@ -14,7 +14,7 @@ import solidspy.femutil as fem
 import solidspy.gaussutil as gau
 
 
-def uel4nquad(coord, params):
+def uel4nquad(coord, params, mass_params=None):
     """Quadrilateral element with 4 nodes
 
     Parameters
@@ -35,7 +35,8 @@ def uel4nquad(coord, params):
     --------
 
     >>> coord = np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]])
-    >>> stiff = uel4nquad(coord, [1/3, 8/3])
+    >>> params = [8/3, 1/3]
+    >>> stiff, mass = uel4nquad(coord, params)
     >>> stiff_ex = 1/6 * np.array([
     ...             [ 8,  3, -5,  0, -4, -3,  1,  0],
     ...             [ 3,  8,  0,  1, -3, -4,  0, -5],
@@ -45,22 +46,39 @@ def uel4nquad(coord, params):
     ...             [-3, -4,  0, -5,  3,  8,  0,  1],
     ...             [ 1,  0, -4,  3, -5,  0,  8, -3],
     ...             [ 0, -5,  3, -4,  0,  1, -3,  8]])
+    >>> mass_ex = 1/9 * np.array([
+    ...             [4, 0, 2, 0, 1, 0, 2, 0],
+    ...             [0, 4, 0, 2, 0, 1, 0, 2],
+    ...             [2, 0, 4, 0, 2, 0, 1, 0],
+    ...             [0, 2, 0, 4, 0, 2, 0, 1],
+    ...             [1, 0, 2, 0, 4, 0, 2, 0],
+    ...             [0, 1, 0, 2, 0, 4, 0, 2],
+    ...             [2, 0, 1, 0, 2, 0, 4, 0],
+    ...             [0, 2, 0, 1, 0, 2, 0, 4]])
     >>> np.allclose(stiff, stiff_ex)
+    True
+    >>> np.allclose(mass, mass_ex)
     True
 
     """
-    kl = np.zeros([8, 8])
-    poisson, young = params
+    stiff_mat = np.zeros([8, 8])
+    mass_mat = np.zeros([8, 8])
     C = fem.umat(params)
-    XW, XP = gau.gpoints2x2()
+    if mass_params is None:
+        dens = 1.0
+    else:
+        dens = mass_params
+    gwts, gpts = gau.gpoints2x2()
     ngpts = 4
     for i in range(0, ngpts):
-        ri = XP[i, 0]
-        si = XP[i, 1]
-        alf = XW[i]
+        ri = gpts[i, 0]
+        si = gpts[i, 1]
         ddet, B = fem.stdm4NQ(ri, si, coord)
-        kl = kl + np.dot(np.dot(B.T, C), B)*alf*ddet
-    return kl
+        N = fem.sha4(ri, si)
+        factor = ddet * gwts[i]
+        stiff_mat += factor * (B.T @ C @ B)
+        mass_mat += dens*factor* (N.T @ N)
+    return stiff_mat, mass_mat
 
 
 def uel6ntrian(coord, params):
@@ -90,7 +108,8 @@ def uel6ntrian(coord, params):
     ...         [0.5, 0],
     ...         [0.5, 0.5],
     ...         [0, 0.5]])
-    >>> stiff = uel6ntrian(coord, [1/3, 8/3])
+    >>> params = [8/3, 1/3]
+    >>> stiff = uel6ntrian(coord, params)
     >>> stiff_ex = 1/6 * np.array([
     ...            [12, 6, 3, 1, 1, 1, -12, -4, 0, 0, -4, -4],
     ...            [6, 12, 1, 1, 1, 3, -4, -4, 0, 0, -4, -12],
@@ -108,17 +127,17 @@ def uel6ntrian(coord, params):
     True
 
     """
-    kl = np.zeros([12, 12])
+    stiff_mat = np.zeros([12, 12])
     C = fem.umat(params)
-    XW, XP = gau.gpoints7()
+    gwts, gpts = gau.gpoints7()
     ngpts = 7
     for i in range(ngpts):
-        ri = XP[i, 0]
-        si = XP[i, 1]
-        alf = XW[i]
+        ri = gpts[i, 0]
+        si = gpts[i, 1]
         ddet, B = fem.stdm6NT(ri, si, coord)
-        kl = kl + 0.5*np.dot(np.dot(B.T, C), B)*alf*ddet
-    return kl
+        factor = gwts[i] * ddet
+        stiff_mat += 0.5*factor*(B.T @ C @ B)
+    return stiff_mat
 
 
 def uel3ntrian(coord, params):
@@ -145,7 +164,8 @@ def uel3ntrian(coord, params):
     ...         [0, 0],
     ...         [1, 0],
     ...         [0, 1]])
-    >>> stiff = uel3ntrian(coord, [1/3, 8/3])
+    >>> params = [8/3, 1/3]
+    >>> stiff = uel3ntrian(coord, params)
     >>> stiff_ex = 1/2 * np.array([
     ...            [4, 2, -3, -1, -1, -1],
     ...            [2, 4, -1, -1, -1, -3],
@@ -157,17 +177,17 @@ def uel3ntrian(coord, params):
     True
 
     """
-    kl = np.zeros([6, 6])
+    stiff_mat = np.zeros([6, 6])
     C = fem.umat(params)
-    XW, XP = gau.gpoints3()
+    gwts, gpts = gau.gpoints3()
     ngpts = 3
     for i in range(ngpts):
-        ri = XP[i, 0]
-        si = XP[i, 1]
-        alf = XW[i]
+        ri = gpts[i, 0]
+        si = gpts[i, 1]
         ddet, B = fem.stdm3NT(ri, si, coord)
-        kl = kl + 0.5*np.dot(np.dot(B.T, C), B)*alf*ddet
-    return kl
+        factor = ddet * gwts[i]
+        stiff_mat += 0.5*factor*(B.T @ C @ B)
+    return stiff_mat
 
 
 def uelspring(coord, stiff):
@@ -191,7 +211,7 @@ def uelspring(coord, stiff):
     >>> coord = np.array([
     ...         [0, 0],
     ...         [1, 0]])
-    >>> stiff = uelspring(coord, [1/3, 8/3])
+    >>> stiff = uelspring(coord, 8/3)
     >>> stiff_ex = 8/3 * np.array([
     ...    [1, 0, -1, 0],
     ...    [0, 0, 0, 0],
@@ -207,11 +227,11 @@ def uelspring(coord, stiff):
     Q = np.array([
         [nx, ny, 0, 0],
         [0, 0, nx, ny]])
-    kl = stiff * np.array([
+    stiff_mat = stiff * np.array([
         [1, -1],
         [-1, 1]])
-    kG = np.dot(np.dot(Q.T, kl), Q)
-    return kG
+    stiff_mat = Q.T @ stiff_mat @ Q
+    return stiff_mat
 
 
 def ueltruss2D(coord, params):
@@ -256,11 +276,11 @@ def ueltruss2D(coord, params):
         [0, 0, nx, ny]])
     area, young = params
     stiff = area*young/length
-    kl = stiff * np.array([
+    stiff_mat = stiff * np.array([
         [1, -1],
         [-1, 1]])
-    kG = np.dot(np.dot(Q.T, kl), Q)
-    return kG
+    stiff_mat = Q.T @ stiff_mat @ Q
+    return stiff_mat
 
 
 def uelbeam2DU(coord, params):
@@ -293,13 +313,13 @@ def uelbeam2DU(coord, params):
         [0, 0, 0, 0, 0, 1]])
     I, young = params
     bending_stiff = I*young/L**3
-    kl = bending_stiff * np.array([
+    stiff_mat = bending_stiff * np.array([
         [12, 6*L, -12, 6*L],
         [6*L, 4*L*L, -6*L, 2*L*L],
         [-12, -6*L, 12, -6*L],
         [6*L, 2*L*L, -6*L, 4*L*L]])
-    kG = np.dot(np.dot(Q.T, kl), Q)
-    return kG
+    stiff_mat = Q.T @ stiff_mat @ Q
+    return stiff_mat
 
 
 if __name__ == "__main__":
