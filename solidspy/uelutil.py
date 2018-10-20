@@ -81,7 +81,7 @@ def uel4nquad(coord, params, mass_params=None):
     return stiff_mat, mass_mat
 
 
-def uel6ntrian(coord, params):
+def uel6ntrian(coord, params, mass_params=None):
     """Triangular element with 6 nodes
 
     Parameters
@@ -109,7 +109,7 @@ def uel6ntrian(coord, params):
     ...         [0.5, 0.5],
     ...         [0, 0.5]])
     >>> params = [8/3, 1/3]
-    >>> stiff = uel6ntrian(coord, params)
+    >>> stiff, mass = uel6ntrian(coord, params)
     >>> stiff_ex = 1/6 * np.array([
     ...            [12, 6, 3, 1, 1, 1, -12, -4, 0, 0, -4, -4],
     ...            [6, 12, 1, 1, 1, 3, -4, -4, 0, 0, -4, -12],
@@ -128,19 +128,26 @@ def uel6ntrian(coord, params):
 
     """
     stiff_mat = np.zeros([12, 12])
+    mass_mat = np.zeros([12, 12])
     C = fem.umat(params)
+    if mass_params is None:
+        dens = 1.0
+    else:
+        dens = mass_params
     gwts, gpts = gau.gpoints7()
     ngpts = 7
     for i in range(ngpts):
         ri = gpts[i, 0]
         si = gpts[i, 1]
         ddet, B = fem.stdm6NT(ri, si, coord)
+        N = fem.sha6(ri, si)
         factor = gwts[i] * ddet
         stiff_mat += 0.5*factor*(B.T @ C @ B)
-    return stiff_mat
+        mass_mat += dens*factor* (N.T @ N)
+    return stiff_mat, mass_mat
 
 
-def uel3ntrian(coord, params):
+def uel3ntrian(coord, params, mass_params=None):
     """Triangular element with 3 nodes
 
     Parameters
@@ -165,7 +172,7 @@ def uel3ntrian(coord, params):
     ...         [1, 0],
     ...         [0, 1]])
     >>> params = [8/3, 1/3]
-    >>> stiff = uel3ntrian(coord, params)
+    >>> stiff, mass = uel3ntrian(coord, params)
     >>> stiff_ex = 1/2 * np.array([
     ...            [4, 2, -3, -1, -1, -1],
     ...            [2, 4, -1, -1, -1, -3],
@@ -178,16 +185,23 @@ def uel3ntrian(coord, params):
 
     """
     stiff_mat = np.zeros([6, 6])
+    mass_mat = np.zeros([6, 6])
     C = fem.umat(params)
+    if mass_params is None:
+        dens = 1.0
+    else:
+        dens = mass_params
     gwts, gpts = gau.gpoints3()
     ngpts = 3
     for i in range(ngpts):
         ri = gpts[i, 0]
         si = gpts[i, 1]
         ddet, B = fem.stdm3NT(ri, si, coord)
+        N = fem.sha3(ri, si)
         factor = ddet * gwts[i]
         stiff_mat += 0.5*factor*(B.T @ C @ B)
-    return stiff_mat
+        mass_mat += dens*factor* (N.T @ N)
+    return stiff_mat, mass_mat
 
 
 def uelspring(coord, stiff):
@@ -211,7 +225,7 @@ def uelspring(coord, stiff):
     >>> coord = np.array([
     ...         [0, 0],
     ...         [1, 0]])
-    >>> stiff = uelspring(coord, 8/3)
+    >>> stiff, mass = uelspring(coord, 8/3)
     >>> stiff_ex = 8/3 * np.array([
     ...    [1, 0, -1, 0],
     ...    [0, 0, 0, 0],
@@ -231,10 +245,10 @@ def uelspring(coord, stiff):
         [1, -1],
         [-1, 1]])
     stiff_mat = Q.T @ stiff_mat @ Q
-    return stiff_mat
+    return stiff_mat, 0*stiff_mat
 
 
-def ueltruss2D(coord, params):
+def ueltruss2D(coord, params, mass_params=None):
     """2D-2-noded truss element
 
     Parameters
@@ -257,7 +271,8 @@ def ueltruss2D(coord, params):
     >>> coord = np.array([
     ...         [0, 0],
     ...         [1, 0]])
-    >>> stiff = ueltruss2D(coord, [1.0 , 1.0])
+    >>> params = [1.0 , 1.0]
+    >>> stiff, mass = ueltruss2D(coord, params)
     >>> stiff_ex =  np.array([
     ...    [1, 0, -1, 0],
     ...    [0, 0, 0, 0],
@@ -280,10 +295,20 @@ def ueltruss2D(coord, params):
         [1, -1],
         [-1, 1]])
     stiff_mat = Q.T @ stiff_mat @ Q
-    return stiff_mat
+    if mass_params is None:
+        dens = 1.0
+    else:
+        dens = mass_params
+    mass = area * length * dens
+    mass_mat = mass/6*np.array([
+            [2, 0, 1, 0],
+            [0, 2, 0, 1],
+            [1, 0, 2, 0],
+            [0, 1, 0, 2]])
+    return stiff_mat, mass_mat
 
 
-def uelbeam2DU(coord, params):
+def uelbeam2DU(coord, params, mass_params=None):
     """2D-2-noded beam element
        without axial deformation
 
@@ -318,8 +343,21 @@ def uelbeam2DU(coord, params):
         [6*L, 4*L*L, -6*L, 2*L*L],
         [-12, -6*L, 12, -6*L],
         [6*L, 2*L*L, -6*L, 4*L*L]])
+    
+    if mass_params is None:
+        dens = 1.0
+        area = 1.0
+    else:
+        dens, area = mass_params
+    mass = area * L * dens
+    mass_mat = mass/420*np.array([
+            [156, 22*L, 54, -13*L],
+            [22*L, 2, 13*L, -3*L**2],
+            [54, 13*L, 156, -22*L],
+            [-13*L, -3*L**2, -22*L, 4*L**2]])
     stiff_mat = Q.T @ stiff_mat @ Q
-    return stiff_mat
+    mass_mat = Q.T @ mass_mat @ Q
+    return stiff_mat, mass_mat
 
 
 if __name__ == "__main__":
