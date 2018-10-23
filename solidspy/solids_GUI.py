@@ -19,9 +19,9 @@ EAFIT.
 
 """
 from __future__ import absolute_import, division, print_function
+from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
-from datetime import datetime
 import solidspy.preprocesor as pre
 import solidspy.postprocesor as pos
 import solidspy.assemutil as ass
@@ -63,7 +63,7 @@ def solids_GUI(plot_contours=True, compute_strains=False, folder=None):
     nodes, mats, elements, loads = pre.readin(folder=folder)
     if echo:
         pre.echomod(nodes, mats, elements, loads, folder=folder)
-    DME , IBC , neq = ass.DME(nodes, elements)
+    DME, IBC, neq = ass.DME(nodes, elements)
     print("Number of nodes: {}".format(nodes.shape[0]))
     print("Number of elements: {}".format(elements.shape[0]))
     print("Number of equations: {}".format(neq))
@@ -74,7 +74,7 @@ def solids_GUI(plot_contours=True, compute_strains=False, folder=None):
 
     # System solution
     UG = sol.static_sol(KG, RHSG)
-    if not(np.allclose(KG.dot(UG)/KG.max(), RHSG/KG.max())):
+    if not np.allclose(KG.dot(UG)/KG.max(), RHSG/KG.max()):
         print("The system is not in equilibrium!")
     end_time = datetime.now()
     print('Duration for system solution: {}'.format(end_time - start_time))
@@ -84,7 +84,7 @@ def solids_GUI(plot_contours=True, compute_strains=False, folder=None):
     UC = pos.complete_disp(IBC, nodes, UG)
     E_nodes, S_nodes = None, None
     if compute_strains:
-        E_nodes, S_nodes = pos.strain_nodes(nodes , elements, mats, UC)
+        E_nodes, S_nodes = pos.strain_nodes(nodes, elements, mats, UC)
     if plot_contours:
         pos.fields_plot(elements, nodes, UC, E_nodes=E_nodes, S_nodes=S_nodes)
     end_time = datetime.now()

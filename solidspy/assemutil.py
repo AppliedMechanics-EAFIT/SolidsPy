@@ -92,7 +92,7 @@ def DME(nodes, elements):
     return DME, IBC, neq
 
 
-def retriever(elements, mats, nodes, i, uel=None):
+def retriever(elements, mats, nodes, ele, uel=None):
     """Computes the elemental stiffness matrix of element i
 
     Parameters
@@ -110,17 +110,14 @@ def retriever(elements, mats, nodes, i, uel=None):
     -------
     kloc : ndarray (float)
       Array with the local stiffness matrix.
-    ndof : int.
-      Number of degrees of fredom of the current element.
-    iet : integer
-      Element identifier.
+    mloc : ndarray (float)
+      Array with the local mass matrix.
     """
-    elem_type = elements[i, 1]
-    ndof, nnodes, ngpts = fem.eletype(elem_type)
+    elem_type = elements[ele, 1]
+    _, nnodes, _ = fem.eletype(elem_type)
     elcoor = np.zeros([nnodes, 2])
-    im = np.int(elements[i, 2])
-    params = mats[im, :]
-    elcoor = nodes[elements[i, 3:], 1:3]
+    params = mats[elements[ele, 2], :]
+    elcoor = nodes[elements[ele, 3:], 1:3]
     if uel is None:
         uel = ELEM_ID[elem_type]
     kloc, mloc = uel(elcoor, params)
@@ -150,17 +147,17 @@ def assembler(elements, mats, nodes, neq, DME, sparse=True, uel=None):
 
     Returns
     -------
-    KG : ndarray (float)
+    kglob : ndarray (float)
       Array with the global stiffness matrix. It might be
       dense or sparse, depending on the value of _sparse_
 
     """
     if sparse:
-        KG = sparse_assem(elements, mats, nodes, neq, DME, uel=uel)
+        kglob = sparse_assem(elements, mats, nodes, neq, DME, uel=uel)
     else:
-        KG = dense_assem(elements, mats, nodes, neq, DME, uel=uel)
+        kglob = dense_assem(elements, mats, nodes, neq, DME, uel=uel)
 
-    return KG
+    return kglob
 
 
 def dense_assem(elements, mats, nodes, neq, DME, uel=None):
@@ -185,26 +182,26 @@ def dense_assem(elements, mats, nodes, neq, DME, uel=None):
 
     Returns
     -------
-    KG : ndarray (float)
+    kglob : ndarray (float)
       Array with the global stiffness matrix in a dense numpy
       array.
 
     """
-    KG = np.zeros((neq, neq))
+    kglob = np.zeros((neq, neq))
     nels = elements.shape[0]
-    for el in range(nels):
-        kloc, mloc = retriever(elements, mats, nodes, el, uel=uel)
+    for ele in range(nels):
+        kloc, _ = retriever(elements, mats, nodes, ele, uel=uel)
         ndof = kloc.shape[0]
-        dme = DME[el, :ndof]
+        dme = DME[ele, :ndof]
         for row in range(ndof):
             glob_row = dme[row]
             if glob_row != -1:
                 for col in range(ndof):
                     glob_col = dme[col]
                     if glob_col != -1:
-                        KG[glob_row, glob_col] += kloc[row, col]
+                        kglob[glob_row, glob_col] += kloc[row, col]
 
-    return KG
+    return kglob
 
 
 def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
@@ -248,9 +245,10 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
     cols = []
     vals = []
     nels = elements.shape[0]
-    for el in range(nels):
-        kloc, mloc, ndof, iet = retriever(elements, mats, nodes, el, uel=uel)
-        dme = DME[el, :ndof]
+    for ele in range(nels):
+        kloc, _ = retriever(elements, mats, nodes, ele, uel=uel)
+        ndof = kloc.shape[0]
+        dme = DME[ele, :ndof]
 
         for row in range(ndof):
             glob_row = dme[row]
