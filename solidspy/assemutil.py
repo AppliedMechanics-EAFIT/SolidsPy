@@ -115,23 +115,16 @@ def retriever(elements, mats, nodes, i, uel=None):
     iet : integer
       Element identifier.
     """
-    IELCON = np.zeros([9], dtype=np.integer)
     elem_type = elements[i, 1]
     ndof, nnodes, ngpts = fem.eletype(elem_type)
     elcoor = np.zeros([nnodes, 2])
     im = np.int(elements[i, 2])
     params = mats[im, :]
-    for j in range(nnodes):
-        IELCON[j] = elements[i, j+3]
-        elcoor[j, 0] = nodes[IELCON[j], 1]
-        elcoor[j, 1] = nodes[IELCON[j], 2]
+    elcoor = nodes[elements[i, 3:], 1:3]
     if uel is None:
         uel = ELEM_ID[elem_type]
-        kloc, mloc = uel(elcoor, params)
-    else:
-        kloc, mloc, ndof, elem_type = uel(elcoor, params)
-
-    return kloc, mloc, ndof, elem_type
+    kloc, mloc = uel(elcoor, params)
+    return kloc, mloc
 
 
 def assembler(elements, mats, nodes, neq, DME, sparse=True, uel=None):
@@ -200,7 +193,8 @@ def dense_assem(elements, mats, nodes, neq, DME, uel=None):
     KG = np.zeros((neq, neq))
     nels = elements.shape[0]
     for el in range(nels):
-        kloc, mloc, ndof, iet = retriever(elements, mats, nodes, el, uel=uel)
+        kloc, mloc = retriever(elements, mats, nodes, el, uel=uel)
+        ndof = kloc.shape[0]
         dme = DME[el, :ndof]
         for row in range(ndof):
             glob_row = dme[row]
@@ -208,8 +202,7 @@ def dense_assem(elements, mats, nodes, neq, DME, uel=None):
                 for col in range(ndof):
                     glob_col = dme[col]
                     if glob_col != -1:
-                        KG[glob_row, glob_col] = KG[glob_row, glob_col] +\
-                                                 kloc[row, col]
+                        KG[glob_row, glob_col] += kloc[row, col]
 
     return KG
 

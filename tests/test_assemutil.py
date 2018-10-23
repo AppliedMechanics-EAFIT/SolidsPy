@@ -110,7 +110,7 @@ def test_dense_assem():
     # Test for uel with all ones
     def uel_ones(elcoord, params):
         """Dummy UEL with all ones"""
-        return np.ones((8, 8)), np.ones((8, 8)), 8, 1
+        return np.ones((8, 8)), np.ones((8, 8))
 
     nodes = np.zeros((9, 5))
     nodes[:, 0] = range(0, 9)
