@@ -3,8 +3,8 @@
 Assembly routines
 -----------------
 
-Functions to assemble the system of equations for the Finite Element
-Analysis.
+Functions to assemble the system of equations for a finite element
+analysis.
 
 """
 from __future__ import absolute_import, division, print_function
@@ -14,16 +14,10 @@ import solidspy.uelutil as ue
 import solidspy.femutil as fem
 
 
-ELEM_ID = {1: ue.uel4nquad,
-           2: ue.uel6ntrian,
-           3: ue.uel3ntrian,
-           5: ue.uelspring,
-           6: ue.ueltruss2D,
-           7: ue.uelbeam2DU}
-
-
-def eqcounter(nodes):
-    """Counts active equations and creates BCs array IBC
+def eqcounter(nodes, ndof_node=2):
+    """Count active equations
+    
+    Creates boundary conditions array bc_array
 
     Parameters
     ----------
@@ -35,27 +29,26 @@ def eqcounter(nodes):
     neq : int
       Number of equations in the system after removing the nodes
       with imposed displacements.
-    IBC : ndarray (int)
+    bc_array : ndarray (int)
       Array that maps the nodes with number of equations.
 
     """
     nnodes = nodes.shape[0]
-    IBC = np.zeros([nnodes, 2], dtype=np.integer)
-    for i in range(nnodes):
-        for k in range(2):
-            IBC[i, k] = int(nodes[i, k+3])
+    bc_array = nodes[:, 3:].copy()
     neq = 0
     for i in range(nnodes):
-        for j in range(2):
-            if IBC[i, j] == 0:
-                IBC[i, j] = neq
-                neq = neq + 1
+        for j in range(ndof_node):
+            if bc_array[i, j] == 0:
+                bc_array[i, j] = neq
+                neq += 1
 
-    return neq, IBC
+    return neq, bc_array
 
 
 def DME(nodes, elements):
-    """Counts active equations, creates BCs array IBC[]
+    """Create assembly array operator
+
+    Count active equations, creates boundary conditions array IBC[]
     and the assembly operator DME[]
 
     Parameters
@@ -85,11 +78,37 @@ def DME(nodes, elements):
         ndof, nnodes, ngpts = fem.eletype(iet)
         for j in range(nnodes):
             IELCON[i, j] = elements[i, j+3]
-            kk = IELCON[i, j]
             for l in range(2):
-                DME[i, 2*j+l] = IBC[kk, l]
+                DME[i, 2*j + l] = IBC[IELCON[i, j], l]
 
     return DME, IBC, neq
+
+
+def ele_fun(eletype):
+    """Return the function for the element type given
+
+    Parameters
+    ----------
+    eletype : int
+      Type of element.
+
+    Returns
+    -------
+    ele_fun : callable
+      Function for the element type given.
+    """
+    elem_id = {
+        1: ue.uel4nquad,
+        2: ue.uel6ntrian,
+        3: ue.uel3ntrian,
+        5: ue.uelspring,
+        6: ue.ueltruss2D,
+        7: ue.uelbeam2DU} 
+    try:
+        return elem_id[eletype]
+    except:
+        raise ValueError("You entered an invalid type of element.")
+
 
 
 def retriever(elements, mats, nodes, ele, uel=None):
@@ -114,12 +133,10 @@ def retriever(elements, mats, nodes, ele, uel=None):
       Array with the local mass matrix.
     """
     elem_type = elements[ele, 1]
-    _, nnodes, _ = fem.eletype(elem_type)
-    elcoor = np.zeros([nnodes, 2])
     params = mats[elements[ele, 2], :]
     elcoor = nodes[elements[ele, 3:], 1:3]
     if uel is None:
-        uel = ELEM_ID[elem_type]
+        uel = ele_fun(elem_type)
     kloc, mloc = uel(elcoor, params)
     return kloc, mloc
 

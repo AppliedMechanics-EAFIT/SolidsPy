@@ -25,7 +25,7 @@ import numpy as np
 import solidspy.gaussutil as gau
 
 
-def eletype(iet):
+def eletype(eletype):
     """Assigns number to degrees of freedom
 
     According to iet assigns number of degrees of freedom, number of
@@ -33,7 +33,7 @@ def eletype(iet):
 
     Parameters
     ----------
-    iet :  int
+    eletype :  int
       Type of element. These are:
         1. 4 node bilinear quadrilateral.
         2. 6 node quadratic triangle.
@@ -52,32 +52,17 @@ def eletype(iet):
       Number of Gauss points for the selected element.
 
     """
-    if iet == 1:
-        ndof = 8
-        nnodes = 4
-        ngpts = 4
-    if iet == 2:
-        ndof = 12
-        nnodes = 6
-        ngpts = 7
-    if iet == 3:
-        ndof = 6
-        nnodes = 3
-        ngpts = 3
-    if iet == 5:
-        ndof = 4
-        nnodes = 2
-        ngpts = 3
-    if iet == 6:
-        ndof = 4
-        nnodes = 2
-        ngpts = 3
-    if iet == 7:
-        ndof = 6
-        nnodes = 2
-        ngpts = 3
-
-    return ndof, nnodes, ngpts
+    elem_id = {
+        1: (8, 4, 4),
+        2: (12, 6, 7),
+        3: (6, 3, 3),
+        5: (4, 2, 3),
+        6: (4, 2, 3),
+        7: (6, 2, 3)}
+    try:
+        return elem_id[eletype]
+    except:
+        raise ValueError("You entered an invalid type of element.")
 
 
 #%% Shape functions and derivatives
@@ -359,48 +344,6 @@ def jacoper(dhdx, coord):
         raise ValueError(msg)
     return det, jaco_inv
 
-#%% Material routines
-def umat(params):
-    """2D Elasticity consitutive matrix in plane stress
-
-    For plane strain use effective properties.
-
-    Parameters
-    ----------
-    nu : float
-      Poisson coefficient (-1, 0.5).
-    E : float
-      Young modulus (>0).
-
-    Returns
-    -------
-    C : ndarray
-      Constitutive tensor in Voigt notation.
-
-    Examples
-    --------
-
-    >>> params = 8/3, 1/3
-    >>> C = umat(params)
-    >>> C_ex = np.array([
-    ...    [3, 1, 0],
-    ...    [1, 3, 0],
-    ...    [0, 0, 1]])
-    >>> np.allclose(C, C_ex)
-    True
-
-    """
-    E, nu = params
-    C = np.zeros((3, 3))
-    enu = E/(1 - nu**2)
-    mnu = (1 - nu)/2
-    C[0, 0] = enu
-    C[0, 1] = nu*enu
-    C[1, 0] = C[0, 1]
-    C[1, 1] = enu
-    C[2, 2] = enu*mnu
-
-    return C
 
 #%% Elemental strains
 def str_el4(coord, ul):
@@ -509,6 +452,50 @@ def str_el3(coord, ul):
         xl[i, 0] = sum(N[0, 2*i]*coord[i, 0] for i in range(3))
         xl[i, 1] = sum(N[0, 2*i]*coord[i, 1] for i in range(3))
     return epsG.T, xl
+
+
+#%% Material routines
+def umat(params):
+    """2D Elasticity consitutive matrix in plane stress
+
+    For plane strain use effective properties.
+
+    Parameters
+    ----------
+    nu : float
+      Poisson coefficient (-1, 0.5).
+    E : float
+      Young modulus (>0).
+
+    Returns
+    -------
+    C : ndarray
+      Constitutive tensor in Voigt notation.
+
+    Examples
+    --------
+
+    >>> params = 8/3, 1/3
+    >>> C = umat(params)
+    >>> C_ex = np.array([
+    ...    [3, 1, 0],
+    ...    [1, 3, 0],
+    ...    [0, 0, 1]])
+    >>> np.allclose(C, C_ex)
+    True
+
+    """
+    E, nu = params
+    C = np.zeros((3, 3))
+    enu = E/(1 - nu**2)
+    mnu = (1 - nu)/2
+    C[0, 0] = enu
+    C[0, 1] = nu*enu
+    C[1, 0] = C[0, 1]
+    C[1, 1] = enu
+    C[2, 2] = enu*mnu
+
+    return C
 
 
 if __name__ == "__main__":
