@@ -133,7 +133,7 @@ def test_dense_assem():
         [3, 4, 7, 6],
         [4, 5, 8, 7]])
     mats = np.array([[1, 0.3]])
-    DME, IBC, neq = ass.DME(nodes, elements)
+    DME, IBC, neq = ass.DME(nodes[:, -2:], elements)
     stiff = ass.assembler(elements, mats, nodes, neq, DME, sparse=False,
                           uel=uel_ones)
     stiff_exact = np.array([
@@ -169,7 +169,7 @@ def test_dense_assem():
         [0, 6, 0, 2, 0],
         [1, 6, 0, 1, 0],
         [2, 6, 0, 1, 2]])
-    DME, IBC, neq = ass.DME(nodes, elements)
+    DME, IBC, neq = ass.DME(nodes[:, -2:], elements)
     stiff = ass.assembler(elements, mats, nodes, neq, DME, sparse=False)
     stiff_exact = 250*np.array([
         [8/np.sqrt(3) + 3, -np.sqrt(3), np.sqrt(3)],

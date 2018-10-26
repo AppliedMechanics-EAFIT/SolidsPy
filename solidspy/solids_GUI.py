@@ -63,7 +63,7 @@ def solids_GUI(plot_contours=True, compute_strains=False, folder=None):
     nodes, mats, elements, loads = pre.readin(folder=folder)
     if echo:
         pre.echomod(nodes, mats, elements, loads, folder=folder)
-    DME, IBC, neq = ass.DME(nodes, elements)
+    DME, IBC, neq = ass.DME(nodes[:, -2:], elements)
     print("Number of nodes: {}".format(nodes.shape[0]))
     print("Number of elements: {}".format(elements.shape[0]))
     print("Number of equations: {}".format(neq))

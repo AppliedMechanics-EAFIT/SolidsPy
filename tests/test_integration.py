@@ -31,7 +31,7 @@ def test_4_elements():
             [6, 0, 2],
             [2, 0, 1]])
     mater = np.array([[1.0, 0.3]])
-    DME, IBC, neq = ass.DME(nodes, eles)
+    DME, IBC, neq = ass.DME(nodes[:, -2:], eles)
     KG = ass.assembler(eles, mater, nodes, neq, DME)
     RHSG = ass.loadasem(loads, IBC, neq)
     disp = sol.static_sol(KG, RHSG)

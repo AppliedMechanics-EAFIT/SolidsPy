@@ -14,15 +14,15 @@ import solidspy.uelutil as ue
 import solidspy.femutil as fem
 
 
-def eqcounter(nodes, ndof_node=2):
+def eqcounter(cons, ndof_node=2):
     """Count active equations
-    
+
     Creates boundary conditions array bc_array
 
     Parameters
     ----------
-    nodes : ndarray
-      Array with nodes coordinates and boundary conditions.
+    cons : ndarray.
+      Array with constraints for each node.
 
     Returns
     -------
@@ -33,8 +33,8 @@ def eqcounter(nodes, ndof_node=2):
       Array that maps the nodes with number of equations.
 
     """
-    nnodes = nodes.shape[0]
-    bc_array = nodes[:, 3:].copy()
+    nnodes = cons.shape[0]
+    bc_array = cons.copy()
     neq = 0
     for i in range(nnodes):
         for j in range(ndof_node):
@@ -45,43 +45,37 @@ def eqcounter(nodes, ndof_node=2):
     return neq, bc_array
 
 
-def DME(nodes, elements):
+def DME(cons, elements, ndof_node=2):
     """Create assembly array operator
 
-    Count active equations, creates boundary conditions array IBC[]
-    and the assembly operator DME[]
+    Count active equations, create boundary conditions array ``bc_array``
+    and the assembly operator DME.
 
     Parameters
     ----------
-    nodes    : ndarray.
-      Array with the nodal numbers and coordinates.
+    cons : ndarray.
+      Array with constraints for each degree of freedom in each node.
     elements : ndarray
       Array with the number for the nodes in each element.
 
     Returns
     -------
-    DME : ndarray (int)
+    assem_op : ndarray (int)
       Assembly operator.
-    IBC : ndarray (int)
+    bc_array : ndarray (int)
       Boundary conditions array.
     neq : int
       Number of active equations in the system.
 
     """
     nels = elements.shape[0]
-    IELCON = np.zeros([nels, 9], dtype=np.integer)
-    DME = np.zeros([nels, 18], dtype=np.integer)
-    neq, IBC = eqcounter(nodes)
-
-    for i in range(nels):
-        iet = elements[i, 1]
-        ndof, nnodes, ngpts = fem.eletype(iet)
-        for j in range(nnodes):
-            IELCON[i, j] = elements[i, j+3]
-            for l in range(2):
-                DME[i, 2*j + l] = IBC[IELCON[i, j], l]
-
-    return DME, IBC, neq
+    assem_op = np.zeros([nels, 18], dtype=np.integer)
+    neq, bc_array = eqcounter(cons, ndof_node=2)
+    for ele in range(nels):
+        iet = elements[ele, 1]
+        ndof, _, _ = fem.eletype(iet)
+        assem_op[ele, :ndof] = bc_array[elements[ele, 3:]].flatten()
+    return assem_op, bc_array, neq
 
 
 def ele_fun(eletype):
@@ -103,7 +97,7 @@ def ele_fun(eletype):
         3: ue.uel3ntrian,
         5: ue.uelspring,
         6: ue.ueltruss2D,
-        7: ue.uelbeam2DU} 
+        7: ue.uelbeam2DU}
     try:
         return elem_id[eletype]
     except:
