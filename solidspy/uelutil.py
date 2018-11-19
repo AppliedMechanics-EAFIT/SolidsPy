@@ -352,7 +352,7 @@ def uelbeam2DU(coord, params, mass_params=None):
     mass = area * L * dens
     mass_mat = mass/420*np.array([
             [156, 22*L, 54, -13*L],
-            [22*L, 2, 13*L, -3*L**2],
+            [22*L, 4*L**2, 13*L, -3*L**2],
             [54, 13*L, 156, -22*L],
             [-13*L, -3*L**2, -22*L, 4*L**2]])
     stiff_mat = Q.T @ stiff_mat @ Q
