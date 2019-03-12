@@ -34,7 +34,7 @@ def eqcounter(cons, ndof_node=2):
 
     """
     nnodes = cons.shape[0]
-    bc_array = cons.copy()
+    bc_array = cons.copy().astype(int)
     neq = 0
     for i in range(nnodes):
         for j in range(ndof_node):
@@ -135,7 +135,7 @@ def retriever(elements, mats, nodes, ele, uel=None):
     return kloc, mloc
 
 
-def assembler(elements, mats, nodes, neq, DME, sparse=True, uel=None):
+def assembler(elements, mats, nodes, neq, assem_op, sparse=True, uel=None):
     """Assembles the global stiffness matrix
 
     Parameters
@@ -146,7 +146,7 @@ def assembler(elements, mats, nodes, neq, DME, sparse=True, uel=None):
       Array with the material profiles.
     nodes    : ndarray (float)
       Array with the nodal numbers and coordinates.
-    DME  : ndarray (int)
+    assem_op : ndarray (int)
       Assembly operator.
     neq : int
       Number of active equations in the system.
@@ -164,16 +164,16 @@ def assembler(elements, mats, nodes, neq, DME, sparse=True, uel=None):
 
     """
     if sparse:
-        kglob = sparse_assem(elements, mats, nodes, neq, DME, uel=uel)
+        kglob = sparse_assem(elements, mats, nodes, neq, assem_op, uel=uel)
     else:
-        kglob = dense_assem(elements, mats, nodes, neq, DME, uel=uel)
+        kglob = dense_assem(elements, mats, nodes, neq, assem_op, uel=uel)
 
     return kglob
 
 
-def dense_assem(elements, mats, nodes, neq, DME, uel=None):
+def dense_assem(elements, mats, nodes, neq, assem_op, uel=None):
     """
-    Assembles the global stiffness matrix _KG_
+    Assembles the global stiffness matrix
     using a dense storing scheme
 
     Parameters
@@ -184,7 +184,7 @@ def dense_assem(elements, mats, nodes, neq, DME, uel=None):
       Array with the material profiles.
     nodes    : ndarray (float)
       Array with the nodal numbers and coordinates.
-    DME  : ndarray (int)
+    assem_op : ndarray (int)
       Assembly operator.
     neq : int
       Number of active equations in the system.
@@ -203,7 +203,7 @@ def dense_assem(elements, mats, nodes, neq, DME, uel=None):
     for ele in range(nels):
         kloc, _ = retriever(elements, mats, nodes, ele, uel=uel)
         ndof = kloc.shape[0]
-        dme = DME[ele, :ndof]
+        dme = assem_op[ele, :ndof]
         for row in range(ndof):
             glob_row = dme[row]
             if glob_row != -1:
@@ -215,9 +215,9 @@ def dense_assem(elements, mats, nodes, neq, DME, uel=None):
     return kglob
 
 
-def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
+def sparse_assem(elements, mats, nodes, neq, assem_op, uel=None):
     """
-    Assembles the global stiffness matrix _KG_
+    Assembles the global stiffness matrix
     using a sparse storing scheme
 
     The scheme used to assemble is COOrdinate list (COO), and
@@ -232,7 +232,7 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
       Array with the material profiles.
     nodes    : ndarray (float)
       Array with the nodal numbers and coordinates.
-    DME  : ndarray (int)
+    assem_op : ndarray (int)
       Assembly operator.
     neq : int
       Number of active equations in the system.
@@ -241,7 +241,7 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
 
     Returns
     -------
-    KG : ndarray (float)
+    kglob : sparse matrix (float)
       Array with the global stiffness matrix in a sparse
       Compressed Sparse Row (CSR) format.
 
@@ -259,7 +259,7 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
     for ele in range(nels):
         kloc, _ = retriever(elements, mats, nodes, ele, uel=uel)
         ndof = kloc.shape[0]
-        dme = DME[ele, :ndof]
+        dme = assem_op[ele, :ndof]
 
         for row in range(ndof):
             glob_row = dme[row]
@@ -274,14 +274,14 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
     return coo_matrix((vals, (rows, cols)), shape=(neq, neq)).tocsr()
 
 
-def loadasem(loads, IBC, neq):
-    """Assembles the global Right Hand Side Vector RHSG
+def loadasem(loads, bc_array, neq):
+    """Assembles the global Right Hand Side Vector
 
     Parameters
     ----------
     loads : ndarray
       Array with the loads imposed in the system.
-    IBC : ndarray (int)
+    bc_array : ndarray (int)
       Array that maps the nodes with number of equations.
     neq : int
       Number of equations in the system after removing the nodes
@@ -289,22 +289,22 @@ def loadasem(loads, IBC, neq):
 
     Returns
     -------
-    RHSG : ndarray
+    rhs_vec : ndarray
       Array with the right hand side vector.
 
     """
     nloads = loads.shape[0]
-    RHSG = np.zeros([neq])
-    for i in range(nloads):
-        il = int(loads[i, 0])
-        ilx = IBC[il, 0]
-        ily = IBC[il, 1]
+    rhs_vec = np.zeros([neq])
+    for cont in range(nloads):
+        il = int(loads[cont, 0])
+        ilx = bc_array[il, 0]
+        ily = bc_array[il, 1]
         if ilx != -1:
-            RHSG[ilx] = loads[i, 1]
+            rhs_vec[ilx] = loads[cont, 1]
         if ily != -1:
-            RHSG[ily] = loads[i, 2]
+            rhs_vec[ily] = loads[cont, 2]
 
-    return RHSG
+    return rhs_vec
 
 
 if __name__ == "__main__":
