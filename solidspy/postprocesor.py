@@ -276,41 +276,51 @@ def mesh2tri(nodes, elements):
             triangs.append(elem[[7, 5, 8]])
         if elem[1] == 3:
             triangs.append(elem[3:])
+        if elem[1] == 4:
+            triangs.append(elem[[3, 7, 11]])
+            triangs.append(elem[[7, 4, 8]])
+            triangs.append(elem[[3, 11, 10]])
+            triangs.append(elem[[7, 8, 11]])
+            triangs.append(elem[[10, 11, 9]])
+            triangs.append(elem[[11, 8, 5]])
+            triangs.append(elem[[10, 9, 6]])
+            triangs.append(elem[[11, 5, 9]])
 
     tri = Triangulation(coord_x, coord_y, np.array(triangs))
     return tri
 
 
 #%% Auxiliar variables computation
-def complete_disp(IBC, nodes, UG):
+def complete_disp(bc_array, nodes, sol, ndof_node=2):
     """
     Fill the displacement vectors with imposed and computed values.
 
-    IBC : ndarray (int)
-        IBC (Indicator of Boundary Conditions) indicates if the
-        nodes has any type of boundary conditions applied to it.
-    UG : ndarray (float)
+    bc_array : ndarray (int)
+        Indicates if the nodes has any type of boundary conditions
+        applied to it.
+    sol : ndarray (float)
         Array with the computed displacements.
     nodes : ndarray (float)
         Array with number and nodes coordinates
+    ndof_node : int
+        Number of degrees of freedom per node.
 
     Returns
     -------
-    UC : (nnodes, 2) ndarray (float)
+    sol_complete : (nnodes, ndof_node) ndarray (float)
       Array with the displacements.
 
     """
     nnodes = nodes.shape[0]
-    UC = np.zeros([nnodes, 2], dtype=np.float)
+    sol_complete = np.zeros([nnodes, ndof_node], dtype=np.float)
     for row in range(nnodes):
-        for col in range(2):
-            cons = IBC[row, col]
+        for col in range(ndof_node):
+            cons = bc_array[row, col]
             if cons == -1:
-                UC[row, col] = 0.0
+                sol_complete[row, col] = 0.0
             else:
-                UC[row, col] = UG[cons]
-
-    return UC
+                sol_complete[row, col] = sol[cons]
+    return sol_complete
 
 
 def strain_nodes(nodes, elements, mats, UC):
