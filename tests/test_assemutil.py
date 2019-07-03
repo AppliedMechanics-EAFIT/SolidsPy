@@ -27,14 +27,14 @@ def test_sparse_assem():
         [1, 1, 0, 1, 2, 5, 4],
         [2, 1, 0, 3, 4, 7, 6],
         [3, 1, 0, 4, 5, 8, 7]])
-    DME = np.array([
+    assem_op = np.array([
         [0, 1, 2, 3, 8, 9, 6, 7],
         [2, 3, 4, 5, 10, 11, 8, 9],
         [6, 7, 8, 9, 14, 15, 12, 13],
         [8, 9, 10, 11, 16, 17, 14, 15]], dtype=np.int)
 
     neq = 18
-    K_ass = ass.sparse_assem(elements, mats, nodes, neq, DME).toarray()
+    K_ass = ass.sparse_assem(elements, mats, nodes, neq, assem_op).toarray()
     K_exact = np.array([
         [8, 3, -5, 0, 0, 0, 1, 0, -4, -3, 0, 0, 0, 0, 0, 0, 0, 0],
         [3, 8, 0, 1, 0, 0, 0, -5, -3, -4, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -77,14 +77,14 @@ def test_dense_assem():
         [1, 1, 0, 1, 2, 5, 4],
         [2, 1, 0, 3, 4, 7, 6],
         [3, 1, 0, 4, 5, 8, 7]])
-    DME = np.array([
+    assem_op = np.array([
         [0, 1, 2, 3, 8, 9, 6, 7],
         [2, 3, 4, 5, 10, 11, 8, 9],
         [6, 7, 8, 9, 14, 15, 12, 13],
         [8, 9, 10, 11, 16, 17, 14, 15]], dtype=np.int)
 
     neq = 18
-    K_ass = ass.dense_assem(elements, mats, nodes, neq, DME)
+    K_ass = ass.dense_assem(elements, mats, nodes, neq, assem_op)
     K_exact = np.array([
         [8, 3, -5, 0, 0, 0, 1, 0, -4, -3, 0, 0, 0, 0, 0, 0, 0, 0],
         [3, 8, 0, 1, 0, 0, 0, -5, -3, -4, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -134,7 +134,7 @@ def test_dense_assem():
         [4, 5, 8, 7]])
     mats = np.array([[1, 0.3]])
     DME, IBC, neq = ass.DME(nodes[:, -2:], elements)
-    stiff = ass.assembler(elements, mats, nodes, neq, DME, sparse=False,
+    stiff = ass.assembler(elements, mats, nodes, neq, assem_op, sparse=False,
                           uel=uel_ones)
     stiff_exact = np.array([
         [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -169,8 +169,8 @@ def test_dense_assem():
         [0, 6, 0, 2, 0],
         [1, 6, 0, 1, 0],
         [2, 6, 0, 1, 2]])
-    DME, IBC, neq = ass.DME(nodes[:, -2:], elements)
-    stiff = ass.assembler(elements, mats, nodes, neq, DME, sparse=False)
+    assem_op, IBC, neq = ass.DME(nodes[:, -2:], elements)
+    stiff = ass.assembler(elements, mats, nodes, neq, assem_op, sparse=False)
     stiff_exact = 250*np.array([
         [8/np.sqrt(3) + 3, -np.sqrt(3), np.sqrt(3)],
         [-np.sqrt(3), 1, -1],

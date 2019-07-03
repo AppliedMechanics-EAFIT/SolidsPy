@@ -106,7 +106,7 @@ def ele_fun(eletype):
 
 
 def retriever(elements, mats, nodes, ele, uel=None):
-    """Computes the elemental stiffness matrix of element i
+    """Computes the elemental stiffness matrix of element ``ele``
 
     Parameters
     ----------
@@ -116,7 +116,7 @@ def retriever(elements, mats, nodes, ele, uel=None):
       Array with the material profiles.
     nodes : ndarray.
       Array with the nodal numbers and coordinates.
-    i : int.
+    ele : int.
       Identifier of the element to be assembled.
 
     Returns
