@@ -49,7 +49,7 @@ def DME(cons, elements, ndof_node=2):
     """Create assembly array operator
 
     Count active equations, create boundary conditions array ``bc_array``
-    and the assembly operator DME.
+    and the assembly operator ``assem_op``.
 
     Parameters
     ----------
