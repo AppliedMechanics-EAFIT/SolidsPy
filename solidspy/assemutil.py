@@ -70,7 +70,7 @@ def DME(cons, elements, ndof_node=2):
     """
     nels = elements.shape[0]
     assem_op = np.zeros([nels, 18], dtype=np.integer)
-    neq, bc_array = eqcounter(cons, ndof_node=2)
+    neq, bc_array = eqcounter(cons, ndof_node=ndof_node)
     for ele in range(nels):
         iet = elements[ele, 1]
         ndof, _, _ = fem.eletype(iet)
