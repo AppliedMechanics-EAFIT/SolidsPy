@@ -284,7 +284,7 @@ def sparse_assem(elements, mats, nodes, neq, assem_op, uel=None):
     return stiff, mass
 
 
-def loadasem(loads, bc_array, neq):
+def loadasem(loads, bc_array, neq, ndof_node=2):
     """Assembles the global Right Hand Side Vector
 
     Parameters
@@ -306,14 +306,11 @@ def loadasem(loads, bc_array, neq):
     nloads = loads.shape[0]
     rhs_vec = np.zeros([neq])
     for cont in range(nloads):
-        il = int(loads[cont, 0])
-        ilx = bc_array[il, 0]
-        ily = bc_array[il, 1]
-        if ilx != -1:
-            rhs_vec[ilx] = loads[cont, 1]
-        if ily != -1:
-            rhs_vec[ily] = loads[cont, 2]
-
+        node = int(loads[cont, 0])
+        for dof in range(ndof_node):
+            dof_id = bc_array[node, dof]
+            if dof_id != -1:
+                rhs_vec[dof_id] = loads[cont, dof + 1]
     return rhs_vec
 
 
