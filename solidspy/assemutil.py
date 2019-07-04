@@ -161,14 +161,19 @@ def assembler(elements, mats, nodes, neq, assem_op, sparse=True, uel=None):
     kglob : ndarray (float)
       Array with the global stiffness matrix. It might be
       dense or sparse, depending on the value of _sparse_
+    mglob : ndarray (float)
+      Array with the global mass matrix. It might be
+      dense or sparse, depending on the value of _sparse_
 
     """
     if sparse:
-        kglob = sparse_assem(elements, mats, nodes, neq, assem_op, uel=uel)
+        kglob, mglob = sparse_assem(elements, mats, nodes, neq, assem_op,
+                                    uel=uel)
     else:
-        kglob = dense_assem(elements, mats, nodes, neq, assem_op, uel=uel)
+        kglob, mglob = dense_assem(elements, mats, nodes, neq, assem_op,
+                                   uel=uel)
 
-    return kglob
+    return kglob, mglob
 
 
 def dense_assem(elements, mats, nodes, neq, assem_op, uel=None):
@@ -199,9 +204,10 @@ def dense_assem(elements, mats, nodes, neq, assem_op, uel=None):
 
     """
     kglob = np.zeros((neq, neq))
+    mglob = np.zeros((neq, neq))
     nels = elements.shape[0]
     for ele in range(nels):
-        kloc, _ = retriever(elements, mats, nodes, ele, uel=uel)
+        kloc, mloc = retriever(elements, mats, nodes, ele, uel=uel)
         ndof = kloc.shape[0]
         dme = assem_op[ele, :ndof]
         for row in range(ndof):
@@ -211,8 +217,9 @@ def dense_assem(elements, mats, nodes, neq, assem_op, uel=None):
                     glob_col = dme[col]
                     if glob_col != -1:
                         kglob[glob_row, glob_col] += kloc[row, col]
+                        mglob[glob_row, glob_col] += mloc[row, col]
 
-    return kglob
+    return kglob, mglob
 
 
 def sparse_assem(elements, mats, nodes, neq, assem_op, uel=None):
@@ -254,13 +261,13 @@ def sparse_assem(elements, mats, nodes, neq, assem_op, uel=None):
     """
     rows = []
     cols = []
-    vals = []
+    stiff_vals = []
+    mass_vals = []
     nels = elements.shape[0]
     for ele in range(nels):
-        kloc, _ = retriever(elements, mats, nodes, ele, uel=uel)
+        kloc, mloc = retriever(elements, mats, nodes, ele, uel=uel)
         ndof = kloc.shape[0]
         dme = assem_op[ele, :ndof]
-
         for row in range(ndof):
             glob_row = dme[row]
             if glob_row != -1:
@@ -269,9 +276,12 @@ def sparse_assem(elements, mats, nodes, neq, assem_op, uel=None):
                     if glob_col != -1:
                         rows.append(glob_row)
                         cols.append(glob_col)
-                        vals.append(kloc[row, col])
+                        stiff_vals.append(kloc[row, col])
+                        mass_vals.append(mloc[row, col])
 
-    return coo_matrix((vals, (rows, cols)), shape=(neq, neq)).tocsr()
+    stiff = coo_matrix((stiff_vals, (rows, cols)), shape=(neq, neq)).tocsr()
+    mass = coo_matrix((mass_vals, (rows, cols)), shape=(neq, neq)).tocsr()
+    return stiff, mass
 
 
 def loadasem(loads, bc_array, neq):

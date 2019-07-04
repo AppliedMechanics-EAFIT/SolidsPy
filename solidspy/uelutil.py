@@ -14,17 +14,22 @@ import solidspy.femutil as fem
 import solidspy.gaussutil as gau
 
 
-def uel4nquad(coord, params, mass_params=None):
+def uel4nquad(coord, params):
     """Quadrilateral element with 4 nodes
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (4, 2).
-    poisson : float
-      Poisson coefficient (-1, 0.5).
-    young : float
-      Young modulus (>0).
+    params : tuple
+        Material parameters in the following order:
+
+            young : float
+                Young modulus (>0).
+            poisson : float
+                Poisson coefficient (-1, 0.5).
+            dens : float, optional
+                Density (>0).
 
     Returns
     -------
@@ -63,11 +68,11 @@ def uel4nquad(coord, params, mass_params=None):
     """
     stiff_mat = np.zeros([8, 8])
     mass_mat = np.zeros([8, 8])
-    C = fem.umat(params)
-    if mass_params is None:
-        dens = 1.0
+    C = fem.umat(params[:2])
+    if len(params) == 2:
+        dens = params[-1]
     else:
-        dens = mass_params
+        dens = 1
     gwts, gpts = gau.gpoints2x2()
     ngpts = 4
     for i in range(0, ngpts):
@@ -81,17 +86,22 @@ def uel4nquad(coord, params, mass_params=None):
     return stiff_mat, mass_mat
 
 
-def uel6ntrian(coord, params, mass_params=None):
+def uel6ntrian(coord, params):
     """Triangular element with 6 nodes
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (6, 2).
-    poisson : float
-      Poisson coefficient (-1, 0.5).
-    young : float
-      Young modulus (>0).
+    params : tuple
+        Material parameters in the following order:
+
+            young : float
+                Young modulus (>0).
+            poisson : float
+                Poisson coefficient (-1, 0.5).
+            dens : float, optional
+                Density (>0).
 
     Returns
     -------
@@ -129,11 +139,11 @@ def uel6ntrian(coord, params, mass_params=None):
     """
     stiff_mat = np.zeros([12, 12])
     mass_mat = np.zeros([12, 12])
-    C = fem.umat(params)
-    if mass_params is None:
-        dens = 1.0
+    C = fem.umat(params[:2])
+    if len(params) == 2:
+        dens = params[-1]
     else:
-        dens = mass_params
+        dens = 1
     gwts, gpts = gau.gpoints7()
     ngpts = 7
     for i in range(ngpts):
@@ -147,17 +157,22 @@ def uel6ntrian(coord, params, mass_params=None):
     return stiff_mat, mass_mat
 
 
-def uel3ntrian(coord, params, mass_params=None):
+def uel3ntrian(coord, params):
     """Triangular element with 3 nodes
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (3, 2).
-    poisson : float
-      Poisson coefficient (-1, 0.5).
-    young : float
-      Young modulus (>0).
+    params : tuple
+        Material parameters in the following order:
+
+            young : float
+                Young modulus (>0).
+            poisson : float
+                Poisson coefficient (-1, 0.5).
+            dens : float, optional
+                Density (>0).
 
     Returns
     -------
@@ -186,11 +201,11 @@ def uel3ntrian(coord, params, mass_params=None):
     """
     stiff_mat = np.zeros([6, 6])
     mass_mat = np.zeros([6, 6])
-    C = fem.umat(params)
-    if mass_params is None:
-        dens = 1.0
+    C = fem.umat(params[:2])
+    if len(params) == 2:
+        dens = params[-1]
     else:
-        dens = mass_params
+        dens = 1
     gwts, gpts = gau.gpoints3()
     ngpts = 3
     for i in range(ngpts):
@@ -245,20 +260,25 @@ def uelspring(coord, stiff):
         [1, -1],
         [-1, 1]])
     stiff_mat = Q.T @ stiff_mat @ Q
-    return stiff_mat, 0*stiff_mat
+    return stiff_mat, np.zeros(2)
 
 
-def ueltruss2D(coord, params, mass_params=None):
+def ueltruss2D(coord, params):
     """2D-2-noded truss element
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (2, 2).
-    area : float
-      Cross section area.
-    young : float
-      Young modulus (>0).
+    params : tuple
+        Element parameters in the following order:
+            area : float
+                Cross-sectional area (>0).
+            young : float
+                Young modulus (>0).
+
+            dens : float, optional
+                Density (>0).
 
     Returns
     -------
@@ -289,16 +309,16 @@ def ueltruss2D(coord, params, mass_params=None):
     Q = np.array([
         [nx, ny, 0, 0],
         [0, 0, nx, ny]])
-    area, young = params
+    area, young = params[:2]
     stiff = area*young/length
     stiff_mat = stiff * np.array([
         [1, -1],
         [-1, 1]])
     stiff_mat = Q.T @ stiff_mat @ Q
-    if mass_params is None:
+    if len(params) == 2:
         dens = 1.0
     else:
-        dens = mass_params
+        dens = params[-1]
     mass = area * length * dens
     mass_mat = mass/6*np.array([
             [2, 0, 1, 0],
@@ -308,7 +328,7 @@ def ueltruss2D(coord, params, mass_params=None):
     return stiff_mat, mass_mat
 
 
-def uelbeam2DU(coord, params, mass_params=None):
+def uelbeam2DU(coord, params):
     """2D-2-noded beam element
        without axial deformation
 
@@ -336,7 +356,7 @@ def uelbeam2DU(coord, params, mass_params=None):
         [0, 0, 1, 0, 0, 0],
         [0, 0, 0, -ny, nx, 0],
         [0, 0, 0, 0, 0, 1]])
-    I, young = params
+    I, young = params[:2]
     bending_stiff = I*young/L**3
     stiff_mat = bending_stiff * np.array([
         [12, 6*L, -12, 6*L],
@@ -344,11 +364,11 @@ def uelbeam2DU(coord, params, mass_params=None):
         [-12, -6*L, 12, -6*L],
         [6*L, 2*L*L, -6*L, 4*L*L]])
     
-    if mass_params is None:
+    if len(params) == 2:
         dens = 1.0
         area = 1.0
     else:
-        dens, area = mass_params
+        dens, area = params[2:]
     mass = area * L * dens
     mass_mat = mass/420*np.array([
             [156, 22*L, 54, -13*L],

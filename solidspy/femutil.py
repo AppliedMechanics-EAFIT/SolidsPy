@@ -462,10 +462,13 @@ def umat(params):
 
     Parameters
     ----------
-    nu : float
-      Poisson coefficient (-1, 0.5).
-    E : float
-      Young modulus (>0).
+    params : tuple
+        Material parameters in the following order:
+
+            E : float
+                Young modulus (>0).
+            nu : float
+                Poisson coefficient (-1, 0.5).
 
     Returns
     -------
