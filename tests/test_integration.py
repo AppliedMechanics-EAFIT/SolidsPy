@@ -106,4 +106,32 @@ def test_eigs_truss():
     vals, _ = eigsh(stiff, M=mass, which="SM")
     assert np.allclose(vals, np.linspace(1, 6, 6)**2, rtol=1e-2)
 
+
+def test_eigs_beam():
+    """Eigenvalues of a cantilever beam"""
+    
+    nnodes = 10
+
+    x = np.linspace(0, np.pi, nnodes)
+    nodes = np.zeros((nnodes, 6))
+    nodes[:, 0] = range(nnodes)
+    nodes[:, 1] = x
+    nodes[0, 3:] = -1
+    nodes[:, -3] = -1
+    mats = np.array([[1.0, 1.0, 1.0, 1.0]])
+    elements = np.zeros((nnodes - 1, 5 ), dtype=int)
+    elements[:, 0] = range(nnodes - 1)
+    elements[:, 1] = 7
+    elements[:, 3] = range(nnodes - 1)
+    elements[:, 4] = range(1, nnodes)
+    
+    assem_op, bc_array, neq = ass.DME(nodes[:, 3:], elements, ndof_node=3)
+    stiff, mass = ass.assembler(elements, mats, nodes, neq, assem_op, sparse=False)
+    
+    vals, _ = eigsh(stiff, M=mass, which="SM")
+    vals_analytic = np.array([0.596864162694467, 1.49417561427335,
+                              2.50024694616670,  3.49998931984744,
+                              4.50000046151508, 5.49999998005609])
+
+    assert np.allclose(vals**0.25, vals_analytic, rtol=1e-2)
     
