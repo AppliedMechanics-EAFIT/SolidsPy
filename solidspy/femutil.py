@@ -58,7 +58,8 @@ def eletype(eletype):
         3: (6, 3, 3),
         5: (4, 2, 3),
         6: (4, 2, 3),
-        7: (6, 2, 3)}
+        7: (6, 2, 3),
+        8: (6, 2, 3)}
     try:
         return elem_id[eletype]
     except:

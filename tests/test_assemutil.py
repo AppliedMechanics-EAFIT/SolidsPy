@@ -177,3 +177,5 @@ def test_dense_assem():
         [-np.sqrt(3), 1, -1],
         [np.sqrt(3), -1, 9]])
     assert np.allclose(stiff, stiff_exact)
+
+

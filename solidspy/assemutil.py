@@ -97,7 +97,8 @@ def ele_fun(eletype):
         3: ue.uel3ntrian,
         5: ue.uelspring,
         6: ue.ueltruss2D,
-        7: ue.uelbeam2DU}
+        7: ue.uelbeam2DU,
+        8: ue.uelbeam2D}
     try:
         return elem_id[eletype]
     except:

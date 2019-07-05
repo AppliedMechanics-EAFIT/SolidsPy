@@ -80,7 +80,26 @@ def test_2_elements():
             [364, -1144]])
     
     assert np.allclose(disp_complete, disp_analytic)
-    
+
+
+def test_beams():
+    nodes = np.array([
+        [0, 0, 0, -1, -1, -1],
+        [1, 0, 6, 0, 0, 0],
+        [2, 4, 6, -1, -1, -1],])
+    mats = np.array([[200e9, 1.33e-4, 0.04]])
+    elements = np.array([
+        [0, 8, 0, 0, 1],
+        [1, 8, 0, 1, 2]])
+    loads = np.array([
+        [1, -12000, -24000, -6000]])
+    assem_op, bc_array, neq = ass.DME(nodes[:, 3:], elements, ndof_node=3)
+    stiff, _ = ass.assembler(elements, mats, nodes, neq, assem_op, sparse=False)
+    load_vec = ass.loadasem(loads, bc_array, neq, ndof_node=3)
+    solution = sol.static_sol(stiff, load_vec)
+    solution_analytic = np.array([-6.29e-6, -1.695e-5, -0.13e-3])
+    assert np.allclose(solution, solution_analytic, rtol=1e-1)
+
 
 def test_eigs_truss():
     """Eigenvalues of a bar"""
@@ -126,7 +145,7 @@ def test_eigs_beam():
     elements[:, 4] = range(1, nnodes)
     
     assem_op, bc_array, neq = ass.DME(nodes[:, 3:], elements, ndof_node=3)
-    stiff, mass = ass.assembler(elements, mats, nodes, neq, assem_op, sparse=False)
+    stiff, mass = ass.assembler(elements, mats, nodes, neq, assem_op)
     
     vals, _ = eigsh(stiff, M=mass, which="SM")
     vals_analytic = np.array([0.596864162694467, 1.49417561427335,
