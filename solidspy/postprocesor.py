@@ -433,16 +433,16 @@ def stress_truss(nodes, elements, mats, disp):
     The following examples are taken from [1]_. In all the examples
     :math:`A=1`, :math:`E=1`.
 
-    >>> import assemutil as ass
+    >>> import solidspy.assemutil as ass
     >>> import solidspy.solutil as sol
 
     >>> def fem_sol(nodes, elements, mats, loads):
-    ...     DME , IBC , neq = ass.DME(nodes, elements)
-    ...     KG = ass.assembler(elements, mats, nodes, neq, DME)
-    ...     RHSG = ass.loadasem(loads, IBC, neq)
-    ...     UG = sol.static_sol(KG, RHSG)
-    ...     UC = complete_disp(IBC, nodes, UG)
-    ...     return UC
+    ...     assem_op, bc_array , neq = ass.DME(nodes[:, 3:], elements)
+    ...     stiff, _ = ass.assembler(elements, mats, nodes, neq, assem_op)
+    ...     rhs = ass.loadasem(loads, bc_array, neq)
+    ...     disp = sol.static_sol(stiff, rhs)
+    ...     disp_complete = complete_disp(bc_array, nodes, disp)
+    ...     return disp_complete
 
     **Exercise 3.3-18**
 
@@ -554,7 +554,7 @@ def stress_truss(nodes, elements, mats, disp):
         tan_vec = coords[1, :] - coords[0, :]
         length = np.linalg.norm(tan_vec)
         mat_id = elements[cont, 2]
-        local_stiff = uel.ueltruss2D(coords, * mats[mat_id, :])
+        local_stiff, _ = uel.ueltruss2D(coords, mats[mat_id, :])
         local_disp = np.hstack((disp[ini, :], disp[end, :]))
         local_forces = local_stiff.dot(local_disp)
         stress[cont] = local_forces[2:].dot(tan_vec)/(length*mats[mat_id, 1])
