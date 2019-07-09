@@ -315,26 +315,26 @@ def stdm3NT(r, s, coord):
     return det, B
 
 
-def jacoper(dhdx, coord):
+def jacoper(dNdr, coord):
     """
     Compute the Jacobian of the transformation evaluated at
     the Gauss point
 
     Parameters
     ----------
-    dhdx : ndarray
+    dNdr : ndarray
       Derivatives of the interpolation function with respect to the
       natural coordinates.
     coord : ndarray
-      Coordinates of the nodes of the element (nn, 2).
+      Coordinates of the nodes of the element (nnodes, ndim).
 
     Returns
     -------
-    jaco_inv : ndarray (2, 2)
-      Jacobian of the transformation evaluated at `(r, s)`.
+    jaco_inv : ndarray (ndim, ndim)
+      Jacobian of the transformation evaluated at a point.
 
     """
-    jaco = dhdx.dot(coord)
+    jaco = dNdr @ coord
     det = np.linalg.det(jaco)
     if np.isclose(np.abs(det), 0.0):
         msg = "Jacobian close to zero. Check the shape of your elements!"
