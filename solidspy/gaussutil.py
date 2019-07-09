@@ -14,10 +14,12 @@ References
    Pearson Education, 2006.
 """
 from __future__ import absolute_import, division, print_function
+from itertools import product
 import numpy as np
 
 
-def gauss1d(npts):
+#%% General
+def gauss_1d(npts):
     """Return Gauss points and weights for Gauss quadrature in 1D
 
     Parameters
@@ -25,6 +27,12 @@ def gauss1d(npts):
     npts : int
       Number of quadrature points.
 
+    Returns
+    -------
+    wts : ndarray
+      Weights for the Gauss-Legendre quadrature.
+    pts : ndarray
+      Points for the Gauss-Legendre quadrature.
     """
     if npts == 2:
         pts = [-0.577350269189625764, 0.577350269189625764]
@@ -96,6 +104,31 @@ def gauss1d(npts):
     return pts, wts
 
 
+def gauss_nd(npts, ndim=2):
+    """
+    Return Gauss points and weights for Gauss quadrature in
+    an ND hypercube.
+
+    Parameters
+    ----------
+    npts : int
+      Number of quadrature points.
+
+    Returns
+    -------
+    nd_wts : ndarray
+      Weights for the Gauss-Legendre quadrature.
+    nd_pts : ndarray
+      Points for the Gauss-Legendre quadrature.
+    """
+    pts, wts = gauss_1d(npts)
+    nd_pts = np.array(list(product(pts, repeat=ndim)))
+    nd_wts = product(wts, repeat=ndim)
+    nd_wts = [np.prod(nd_wt) for nd_wt in nd_wts]
+    return nd_pts, nd_wts
+
+
+#%% Fixed grids (old)
 def gpoints2x2():
     """Gauss points for a 2 by 2 grid
 
