@@ -323,7 +323,7 @@ def ueltruss2D(coord, params):
     Q = np.array([
         [nx, ny, 0, 0],
         [0, 0, nx, ny]])
-    area, young = params[:2]
+    young, area  = params[:2]
     stiff = area*young/length
     stiff_mat = stiff * np.array([
         [1, -1],

@@ -41,6 +41,7 @@ def eletype(eletype):
         5. 2 node spring.
         6. 2 node truss element.
         7. 2 node beam (3 DOF per node).
+        8. 2 node beam with axial force (3 DOF per node).
 
     Returns
     -------

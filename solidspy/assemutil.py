@@ -45,7 +45,7 @@ def eqcounter(cons, ndof_node=2):
     return neq, bc_array
 
 
-def DME(cons, elements, ndof_node=2):
+def DME(cons, elements, ndof_node=2, ndof_el_max=18, ndof_el=None):
     """Create assembly array operator
 
     Count active equations, create boundary conditions array ``bc_array``
@@ -69,11 +69,14 @@ def DME(cons, elements, ndof_node=2):
 
     """
     nels = elements.shape[0]
-    assem_op = np.zeros([nels, 18], dtype=np.integer)
+    assem_op = np.zeros([nels, ndof_el_max], dtype=np.integer)
     neq, bc_array = eqcounter(cons, ndof_node=ndof_node)
     for ele in range(nels):
         iet = elements[ele, 1]
-        ndof, _, _ = fem.eletype(iet)
+        if ndof_el is None:
+            ndof, _, _ = fem.eletype(iet)
+        else:
+            ndof = ndof_el
         assem_op[ele, :ndof] = bc_array[elements[ele, 3:]].flatten()
     return assem_op, bc_array, neq
 
@@ -129,7 +132,7 @@ def retriever(elements, mats, nodes, ele, uel=None):
     """
     elem_type = elements[ele, 1]
     params = mats[elements[ele, 2], :]
-    elcoor = nodes[elements[ele, 3:], 1:3]
+    elcoor = nodes[elements[ele, 3:], 1:]
     if uel is None:
         uel = ele_fun(elem_type)
     kloc, mloc = uel(elcoor, params)
@@ -186,9 +189,9 @@ def dense_assem(elements, mats, nodes, neq, assem_op, uel=None):
     ----------
     elements : ndarray (int)
       Array with the number for the nodes in each element.
-    mats    : ndarray (float)
+    mats : ndarray (float)
       Array with the material profiles.
-    nodes    : ndarray (float)
+    nodes : ndarray (float)
       Array with the nodal numbers and coordinates.
     assem_op : ndarray (int)
       Assembly operator.

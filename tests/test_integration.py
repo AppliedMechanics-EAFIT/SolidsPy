@@ -13,15 +13,25 @@ import solidspy.solutil as sol
 def test_4_elements():
     """2×2 mesh with uniaxial load"""
     nodes = np.array([
-            [0, 0, 0, 0, -1],
-            [1, 2, 0, 0, -1],
-            [2, 2, 2, 0, 0],
-            [3, 0, 2, 0, 0],
-            [4, 1, 0, -1, -1],
-            [5, 2, 1, 0, 0],
-            [6, 1, 2, 0, 0],
-            [7, 0, 1, 0, 0],
-            [8, 1, 1, 0, 0]])
+            [0, 0, 0],
+            [1, 2, 0],
+            [2, 2, 2],
+            [3, 0, 2],
+            [4, 1, 0],
+            [5, 2, 1],
+            [6, 1, 2],
+            [7, 0, 1],
+            [8, 1, 1]])
+    cons = np.array([
+            [0, -1],
+            [0, -1],
+            [0, 0],
+            [0, 0],
+            [-1, -1],
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [0, 0]])
     eles = np.array([
             [0, 1, 0, 0, 4, 8, 7],
             [1, 1, 0, 4, 1, 5, 8],
@@ -32,7 +42,7 @@ def test_4_elements():
             [6, 0, 2],
             [2, 0, 1]])
     mater = np.array([[1.0, 0.3]])
-    assem_op, bc_array, neq = ass.DME(nodes[:, -2:], eles)
+    assem_op, bc_array, neq = ass.DME(cons, eles)
     stiff, _ = ass.assembler(eles, mater, nodes, neq, assem_op)
     load_vec = ass.loadasem(loads, bc_array, neq)
     disp = sol.static_sol(stiff, load_vec)
@@ -53,12 +63,19 @@ def test_4_elements():
 def test_2_elements():
     """2x1 mesh cantilever beam"""
     nodes = np.array([
-            [0, 0, 0, -1, -1],
-            [1, 1, 0, 0, 0],
-            [2, 2, 0, 0, 0],
-            [3, 0, 1, -1, -1],
-            [4, 1, 1, 0, 0],
-            [5, 2, 1, 0, 0]])
+            [0, 0, 0],
+            [1, 1, 0],
+            [2, 2, 0],
+            [3, 0, 1],
+            [4, 1, 1],
+            [5, 2, 1]])
+    cons = np.array([
+            [-1, -1],
+            [0, 0],
+            [0, 0],
+            [-1, -1],
+            [0, 0],
+            [0, 0]])
     eles = np.array([
             [0, 1, 0, 0, 1, 4, 3],
             [1, 1, 0, 1, 2, 5, 4]])
@@ -66,7 +83,7 @@ def test_2_elements():
             [2, 0, -0.5],
             [5, 0, -0.5]])
     mater = np.array([[1.0, 0.3]])
-    assem_op, bc_array, neq = ass.DME(nodes[:, -2:], eles)
+    assem_op, bc_array, neq = ass.DME(cons, eles)
     stiff, _ = ass.assembler(eles, mater, nodes, neq, assem_op)
     load_vec = ass.loadasem(loads, bc_array, neq)
     disp = sol.static_sol(stiff, load_vec)
@@ -83,18 +100,26 @@ def test_2_elements():
 
 
 def test_beams():
+    """Beams with axial force"""
+    
+    # Analytic problem
     nodes = np.array([
-        [0, 0, 0, -1, -1, -1],
-        [1, 0, 6, 0, 0, 0],
-        [2, 4, 6, -1, -1, -1],])
+        [0, 0.0, 0.0],
+        [1, 0.0, 6.0],
+        [2, 4.0, 6.0]])
+    cons = np.array([
+            [-1, -1, -1],
+            [0, 0, 0],
+            [-1, -1, -1]])
     mats = np.array([[200e9, 1.33e-4, 0.04]])
     elements = np.array([
         [0, 8, 0, 0, 1],
         [1, 8, 0, 1, 2]])
     loads = np.array([
         [1, -12000, -24000, -6000]])
-    assem_op, bc_array, neq = ass.DME(nodes[:, 3:], elements, ndof_node=3)
-    stiff, _ = ass.assembler(elements, mats, nodes, neq, assem_op, sparse=False)
+    assem_op, bc_array, neq = ass.DME(cons, elements, ndof_node=3)
+    stiff, _ = ass.assembler(elements, mats, nodes, neq, assem_op,
+                             sparse=False)
     load_vec = ass.loadasem(loads, bc_array, neq, ndof_node=3)
     solution = sol.static_sol(stiff, load_vec)
     solution_analytic = np.array([-6.29e-6, -1.695e-5, -0.13e-3])
@@ -106,12 +131,13 @@ def test_eigs_truss():
     nnodes = 513
     
     x = np.linspace(0, np.pi, nnodes)
-    nodes = np.zeros((nnodes, 5))
+    nodes = np.zeros((nnodes, 3))
     nodes[:, 0] = range(nnodes)
     nodes[:, 1] = x
-    nodes[:, -1] = -1
-    nodes[0, -2] = -1 
-    nodes[-2, -2] = -1
+    cons = np.zeros((nnodes, 2))
+    cons[:, 1] = -1
+    cons[0, 0] = -1 
+    cons[-1, 0] = -1
     mats = np.array([[1.0, 1.0, 1.0]])
     elements = np.zeros((nnodes - 1, 5 ), dtype=int)
     elements[:, 0] = range(nnodes - 1)
@@ -119,7 +145,7 @@ def test_eigs_truss():
     elements[:, 3] = range(nnodes - 1)
     elements[:, 4] = range(1, nnodes)
     
-    assem_op, bc_array, neq = ass.DME(nodes[:, 3:], elements)
+    assem_op, bc_array, neq = ass.DME(cons, elements)
     stiff, mass = ass.assembler(elements, mats, nodes, neq, assem_op)
     
     vals, _ = eigsh(stiff, M=mass, which="SM")
@@ -132,11 +158,12 @@ def test_eigs_beam():
     nnodes = 10
 
     x = np.linspace(0, np.pi, nnodes)
-    nodes = np.zeros((nnodes, 6))
+    nodes = np.zeros((nnodes, 3))
     nodes[:, 0] = range(nnodes)
     nodes[:, 1] = x
-    nodes[0, 3:] = -1
-    nodes[:, -3] = -1
+    cons = np.zeros((nnodes, 3))
+    cons[0, :] = -1
+    cons[:, 0] = -1
     mats = np.array([[1.0, 1.0, 1.0, 1.0]])
     elements = np.zeros((nnodes - 1, 5 ), dtype=int)
     elements[:, 0] = range(nnodes - 1)
@@ -144,13 +171,12 @@ def test_eigs_beam():
     elements[:, 3] = range(nnodes - 1)
     elements[:, 4] = range(1, nnodes)
     
-    assem_op, bc_array, neq = ass.DME(nodes[:, 3:], elements, ndof_node=3)
+    assem_op, bc_array, neq = ass.DME(cons, elements, ndof_node=3)
     stiff, mass = ass.assembler(elements, mats, nodes, neq, assem_op)
     
     vals, _ = eigsh(stiff, M=mass, which="SM")
     vals_analytic = np.array([0.596864162694467, 1.49417561427335,
                               2.50024694616670,  3.49998931984744,
                               4.50000046151508, 5.49999998005609])
-
     assert np.allclose(vals**0.25, vals_analytic, rtol=1e-2)
     

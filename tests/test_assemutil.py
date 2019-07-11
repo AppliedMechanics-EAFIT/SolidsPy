@@ -112,7 +112,7 @@ def test_dense_assem():
         """Dummy UEL with all ones"""
         return np.ones((8, 8)), np.ones((8, 8))
 
-    nodes = np.zeros((9, 5))
+    nodes = np.zeros((9, 3))
     nodes[:, 0] = range(0, 9)
     nodes[:, 1:3] = np.array([
         [0, 0],
@@ -124,6 +124,7 @@ def test_dense_assem():
         [0, 2],
         [1, 2],
         [2, 2]])
+    cons = np.zeros((9, 2))
     elements = np.ones((4, 7), dtype=np.int)
     elements[:, 0] = range(0, 4)
     elements[:, 2] = 0
@@ -133,7 +134,7 @@ def test_dense_assem():
         [3, 4, 7, 6],
         [4, 5, 8, 7]])
     mats = np.array([[1, 0.3]])
-    assemp_op, bc_array, neq = ass.DME(nodes[:, -2:], elements)
+    assemp_op, bc_array, neq = ass.DME(cons, elements)
     stiff, _ = ass.assembler(elements, mats, nodes, neq, assem_op,
                              sparse=False, uel=uel_ones)
     stiff_exact = np.array([
@@ -161,15 +162,19 @@ def test_dense_assem():
     # Test assembly of a truss
     length = 10*np.cos(np.pi/6)
     nodes = np.array([
-        [0.0, length, 0.0, 0.0, 0.0],
-        [1.0, 0.0, 5.0, -1.0, 0.0],
-        [2.0, 0.0, 0.0, -1.0, -1.0]])
+        [0.0, length, 0.0],
+        [1.0, 0.0, 5.0],
+        [2.0, 0.0, 0.0]])
     mats = np.array([[1e6, 0.01]])
     elements = np.array([
         [0, 6, 0, 2, 0],
         [1, 6, 0, 1, 0],
         [2, 6, 0, 1, 2]])
-    assem_op, bc_array, neq = ass.DME(nodes[:, -2:], elements)
+    neq = 3
+    assem_op = np.array([
+            [-1, -1,  0,  1],
+            [ 0,  1, -1,  2],
+            [-1,  2, -1, -1]])
     stiff, _ = ass.assembler(elements, mats, nodes, neq, assem_op,
                              sparse=False)
     stiff_exact = 250*np.array([

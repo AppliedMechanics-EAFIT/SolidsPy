@@ -69,7 +69,7 @@ def solids_GUI(plot_contours=True, compute_strains=False, folder=None):
     print("Number of equations: {}".format(neq))
 
     # System assembly
-    stiff_mat = ass.assembler(elements, mats, nodes, neq, assem_op)
+    stiff_mat, _ = ass.assembler(elements, mats, nodes[:, :3], neq, assem_op)
     rhs_vec = ass.loadasem(loads, bc_array, neq)
 
     # System solution
