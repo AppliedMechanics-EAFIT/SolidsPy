@@ -323,7 +323,7 @@ def complete_disp(bc_array, nodes, sol, ndof_node=2):
     return sol_complete
 
 
-def strain_nodes(nodes, elements, mats, UC):
+def strain_nodes(nodes, elements, mats, sol_complete):
     """Compute averaged strains and stresses at nodes
 
     First, the variable is extrapolated from the Gauss
@@ -340,7 +340,7 @@ def strain_nodes(nodes, elements, mats, UC):
         to each element.
     mats : ndarray (float)
         Array with material profiles.
-    UC : ndarray (float)
+    sol_complete : ndarray (float)
         Array with the displacements. This one contains both, the
         computed and imposed values.
 
@@ -369,40 +369,36 @@ def strain_nodes(nodes, elements, mats, UC):
     ul = np.zeros([ndof])
     IELCON = elements[:, 3:]
 
-    for i in range(nelems):
-        young, poisson = mats[np.int(elements[i, 2]), :]
+    for el in range(nelems):
+        young, poisson = mats[np.int(elements[el, 2]), :]
         shear = young/(2*(1 + poisson))
         fact1 = young/(1 - poisson**2)
         fact2 = poisson*young/(1 - poisson**2)
-        for j in range(nnodes_elem):
-            elcoor[j, 0] = nodes[IELCON[i, j], 1]
-            elcoor[j, 1] = nodes[IELCON[i, j], 2]
-            ul[2*j] = UC[IELCON[i, j], 0]
-            ul[2*j + 1] = UC[IELCON[i, j], 1]
+        elcoor[:, 0] = nodes[IELCON[el, :], 1]
+        elcoor[:, 1] = nodes[IELCON[el, :], 2]
+        ul[0::2] = sol_complete[IELCON[el, :], 0]
+        ul[1::2] = sol_complete[IELCON[el, :], 1]
         if iet == 1:
             epsG, _ = fe.str_el4(elcoor, ul)
         elif iet == 2:
             epsG, _ = fe.str_el6(elcoor, ul)
         elif iet == 3:
             epsG, _ = fe.str_el3(elcoor, ul)
-
-        for cont, node in enumerate(IELCON[i, :]):
-            E_nodes[node, 0] = E_nodes[node, 0] + epsG[cont, 0]
-            E_nodes[node, 1] = E_nodes[node, 1] + epsG[cont, 1]
-            E_nodes[node, 2] = E_nodes[node, 2] + epsG[cont, 2]
-            S_nodes[node, 0] = S_nodes[node, 0] + fact1*epsG[cont, 0] \
-                        + fact2*epsG[cont, 1]
-            S_nodes[node, 1] = S_nodes[node, 1] + fact2*epsG[cont, 0] \
-                        + fact1*epsG[cont, 1]
-            S_nodes[node, 2] = S_nodes[node, 2] + shear*epsG[cont, 2]
+        for cont, node in enumerate(IELCON[el, :]):
+            E_nodes[node, 0] += epsG[cont, 0]
+            E_nodes[node, 1] += epsG[cont, 1]
+            E_nodes[node, 2] += epsG[cont, 2]
+            S_nodes[node, 0] += fact1*epsG[cont, 0]  + fact2*epsG[cont, 1]
+            S_nodes[node, 1] += fact2*epsG[cont, 0]  + fact1*epsG[cont, 1]
+            S_nodes[node, 2] += shear*epsG[cont, 2]
             el_nodes[node] = el_nodes[node] + 1
 
-    E_nodes[:, 0] = E_nodes[:, 0]/el_nodes
-    E_nodes[:, 1] = E_nodes[:, 1]/el_nodes
-    E_nodes[:, 2] = E_nodes[:, 2]/el_nodes
-    S_nodes[:, 0] = S_nodes[:, 0]/el_nodes
-    S_nodes[:, 1] = S_nodes[:, 1]/el_nodes
-    S_nodes[:, 2] = S_nodes[:, 2]/el_nodes
+    E_nodes[:, 0] /= el_nodes
+    E_nodes[:, 1] /= el_nodes
+    E_nodes[:, 2] /= el_nodes
+    S_nodes[:, 0] /= el_nodes
+    S_nodes[:, 1] /= el_nodes
+    S_nodes[:, 2] /= el_nodes
     return E_nodes, S_nodes
 
 

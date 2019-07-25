@@ -57,6 +57,14 @@ def DME(cons, elements, ndof_node=2, ndof_el_max=18, ndof_el=None):
       Array with constraints for each degree of freedom in each node.
     elements : ndarray
       Array with the number for the nodes in each element.
+    ndof_node : int, optional
+      Number of degrees of freedom per node. By default it is 2.
+    ndof_el_max : int, optional
+      Number of maximum degrees of freedom per element. By default it is
+      18.
+    ndof_el : callable, optional
+      Function that return number of degrees of freedom for elements. It
+      is needed for user elements.
 
     Returns
     -------
@@ -76,7 +84,7 @@ def DME(cons, elements, ndof_node=2, ndof_el_max=18, ndof_el=None):
         if ndof_el is None:
             ndof, _, _ = fem.eletype(iet)
         else:
-            ndof = ndof_el
+            ndof = ndof_el(iet)
         assem_op[ele, :ndof] = bc_array[elements[ele, 3:]].flatten()
     return assem_op, bc_array, neq
 
