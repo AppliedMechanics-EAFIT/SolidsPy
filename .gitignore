@@ -260,6 +260,8 @@ TSWLatexianTemp*
 # expex forward references with \gathertags
 *-tags.tex
 
+# VSCode
+.vscode/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
