@@ -7,10 +7,10 @@ values for triangles is presented in section 5.5 of Bathe book [2]_.
 
 References
 ----------
-.. [1] Wikipedia contributors. "Gaussian quadrature." Wikipedia,
+.. [WGAUSS] Wikipedia contributors. "Gaussian quadrature." Wikipedia,
   The Free Encyclopedia, 2 Nov.  2015. Web. 25 Dec. 2015.
   url: https://en.wikipedia.org/wiki/Gaussian_quadrature
-.. [2] Bathe, Klaus-Jürgen. Finite element procedures. Prentice Hall,
+.. [BATHE] Bathe, Klaus-Jürgen. Finite element procedures. Prentice Hall,
    Pearson Education, 2006.
 """
 from __future__ import absolute_import, division, print_function
@@ -141,8 +141,8 @@ def gauss_tri(order=2):
 
     References
     ----------
-    .. [BATHE] K.J. Bathe. Finite Element Procedures. 
-       Prentice Hall, Pearson Education Inc (2006).
+    .. [BATHE] Bathe, Klaus-Jürgen. Finite element procedures. Prentice Hall,
+       Pearson Education, 2006.
 
     """
     if order == 1:
