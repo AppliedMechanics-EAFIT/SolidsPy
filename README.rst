@@ -5,6 +5,21 @@ SolidsPy: 2D-Finite Element Analysis with Python
    :alt: Wrench under bending.
 
 
+
+.. image:: https://img.shields.io/pypi/v/solidspy.svg
+   :target: https://pypi.python.org/pypi/continuum_mechanics
+   :alt: PyPI download
+
+.. image:: https://readthedocs.org/projects/solidspy/badge/?version=latest
+   :target: https://solidspy.readthedocs.io/en/latest/
+   :alt: Documentation Status
+
+.. image:: https://img.shields.io/pypi/dm/solidspy
+   :target: https://pypistats.org/packages/solidspy
+   :alt: Downloads frequency
+
+
+
 A simple finite element analysis code for 2D elasticity problems.
 The code uses as input simple-to-create text files
 defining a model in terms of nodal, element, material and load data.
