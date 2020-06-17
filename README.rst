@@ -50,8 +50,8 @@ Features
 
 * It has been used to tech the following courses:
 
-  - IC0285 Computational Modeling (Universidad EAFIT).
-  - IC0602 Introduction to the Finite Element Methods (Universidad EAFIT).
+  - Computational Modeling.
+  - Introduction to the Finite Element Methods.
 
 
 Installation
