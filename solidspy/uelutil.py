@@ -8,7 +8,6 @@ finite element.
 New elements can be added by including additional subroutines.
 
 """
-from __future__ import absolute_import, division, print_function
 import numpy as np
 import solidspy.femutil as fem
 import solidspy.gaussutil as gau
@@ -76,9 +75,8 @@ def uel4nquad(coord, params):
         dens = 1
     else:
         dens = params[-1]
-    gwts, gpts = gau.gpoints2x2()
-    ngpts = 4
-    for i in range(0, ngpts):
+    gpts, gwts = gau.gauss_nd(2)
+    for i in range(gpts.shape[0]):
         ri = gpts[i, 0]
         si = gpts[i, 1]
         ddet, B = fem.stdm4NQ(ri, si, coord)
@@ -149,9 +147,8 @@ def uel6ntrian(coord, params):
         dens = 1
     else:
         dens = params[-1]
-    gwts, gpts = gau.gpoints7()
-    ngpts = 7
-    for i in range(ngpts):
+    gpts, gwts = gau.gauss_tri(order=3)
+    for i in range(gpts.shape[0]):
         ri = gpts[i, 0]
         si = gpts[i, 1]
         ddet, B = fem.stdm6NT(ri, si, coord)
@@ -213,9 +210,8 @@ def uel3ntrian(coord, params):
         dens = 1
     else:
         dens = params[-1]
-    gwts, gpts = gau.gpoints3()
-    ngpts = 3
-    for i in range(ngpts):
+    gpts, gwts = gau.gauss_tri(order=1)
+    for i in range(gpts.shape[0]):
         ri = gpts[i, 0]
         si = gpts[i, 1]
         ddet, B = fem.stdm3NT(ri, si, coord)

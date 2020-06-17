@@ -20,7 +20,6 @@ References
    Pearson Education, 2006.
 
 """
-from __future__ import absolute_import, division, print_function
 import numpy as np
 import solidspy.gaussutil as gau
 
@@ -113,7 +112,6 @@ def sha4(x, y):
          (1 - x)*(1 + y)])
     N[0, ::2] = H
     N[1, 1::2] = H
-
     return N
 
 

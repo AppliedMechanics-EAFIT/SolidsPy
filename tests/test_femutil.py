@@ -3,7 +3,6 @@
 Test cases for functions on ``femutil`` module
 
 """
-from __future__ import division, print_function
 import numpy as np
 import pytest
 import solidspy.femutil as fem
