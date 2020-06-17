@@ -9,16 +9,9 @@ text files containing element, nodal, materials and loads data.
 The input files are created out of a Gmsh (.msh) generated file
 using the Python module ``meshio``.
 
-Created by Juan Gomez and Nicolas Guarin-Zapata as part of the courses:
-
-- IC0283 Computational Modeling
-- IC0602 Introduction to the Finite Element Method
-
-Which are part of the Civil Engineering Department at Universidad
-EAFIT.
+Created by Juan Gomez and Nicolas Guarin-Zapata.
 
 """
-from __future__ import absolute_import, division, print_function
 from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np

@@ -6,7 +6,6 @@ Postprocessor subroutines
 This module contains functions to postprocess results.
 
 """
-from __future__ import absolute_import, division, print_function
 import numpy as np
 import solidspy.femutil as fe
 import solidspy.uelutil as uel

@@ -7,7 +7,6 @@ This module contains functions to preprocess the input files to compute
 a Finite Element Analysis.
 
 """
-from __future__ import absolute_import, division, print_function
 import sys
 import numpy as np
 

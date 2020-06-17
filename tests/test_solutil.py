@@ -3,7 +3,6 @@
 Test cases for functions on ``solutil`` module
 
 """
-from __future__ import division, print_function
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse import rand

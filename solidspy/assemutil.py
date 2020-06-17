@@ -7,7 +7,6 @@ Functions to assemble the system of equations for a finite element
 analysis.
 
 """
-from __future__ import absolute_import, division, print_function
 import numpy as np
 from scipy.sparse import coo_matrix
 import solidspy.uelutil as ue

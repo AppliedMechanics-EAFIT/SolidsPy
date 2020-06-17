@@ -13,7 +13,6 @@ References
 .. [BATHE] Bathe, Klaus-Jürgen. Finite element procedures. Prentice Hall,
    Pearson Education, 2006.
 """
-from __future__ import absolute_import, division, print_function
 from itertools import product
 import numpy as np
 
@@ -192,95 +191,3 @@ def gauss_tri(order=2):
         msg = "The order should be in [1, 7]"
         raise ValueError(msg)
     return pts, wts
-
-
-#%% Fixed grids (old)
-def gpoints2x2():
-    """Gauss points for a 2 by 2 grid
-
-    Returns
-    -------
-    wts : ndarray
-      Weights for the Gauss-Legendre quadrature.
-    pts : ndarray
-      Points for the Gauss-Legendre quadrature.
-
-    """
-    wts = np.ones([4])
-    pts = np.zeros([4, 2])
-    pts[0, 0] = -0.577350269189626
-    pts[1, 0] = 0.577350269189626
-    pts[2, 0] = -0.577350269189626
-    pts[3, 0] = 0.577350269189626
-
-    pts[0, 1] = 0.577350269189626
-    pts[1, 1] = 0.577350269189626
-    pts[2, 1] = -0.577350269189626
-    pts[3, 1] = -0.577350269189626
-
-    return wts, pts
-
-
-def gpoints7():
-    """Gauss points for a triangle (7 points)
-
-    Returns
-    -------
-    wts : ndarray
-      Weights for the Gauss-Legendre quadrature.
-    pts : ndarray
-      Points for the Gauss-Legendre quadrature.
-
-    """
-    wts = np.zeros([7])
-    pts = np.zeros([7, 2])
-    wts[0] = 0.1259391805448
-    wts[1] = 0.1259391805448
-    wts[2] = 0.1259391805448
-    wts[3] = 0.1323941527885
-    wts[4] = 0.1323941527885
-    wts[5] = 0.1323941527885
-    wts[6] = 0.225
-
-    pts[0, 0] = 0.1012865073235
-    pts[1, 0] = 0.7974269853531
-    pts[2, 0] = 0.1012865073235
-    pts[3, 0] = 0.4701420641051
-    pts[4, 0] = 0.4701420641051
-    pts[5, 0] = 0.0597158717898
-    pts[6, 0] = 0.3333333333333
-
-    pts[0, 1] = 0.1012865073235
-    pts[1, 1] = 0.1012865073235
-    pts[2, 1] = 0.7974269853531
-    pts[3, 1] = 0.0597158717898
-    pts[4, 1] = 0.4701420641051
-    pts[5, 1] = 0.4701420641051
-    pts[6, 1] = 0.3333333333333
-
-    return wts, pts
-
-
-def gpoints3():
-    """Gauss points for a triangle element (3 points)
-
-    Returns
-    -------
-    wts : ndarray
-      Weights for the Gauss-Legendre quadrature.
-    pts : ndarray
-      Points for the Gauss-Legendre quadrature.
-
-    """
-    wts = np.full([3], 0.333333333333)
-    pts = np.zeros([3, 2])
-
-    pts[0, 0] = 0.1666666666667
-    pts[1, 0] = 0.6666666666667
-    pts[2, 0] = 0.1666666666667
-
-    pts[0, 1] = 0.1666666666667
-    pts[1, 1] = 0.1666666666667
-    pts[2, 1] = 0.6666666666667
-
-    return wts, pts

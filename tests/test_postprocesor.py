@@ -3,7 +3,6 @@
 Test cases for functions on ``postprocesor`` module
 
 """
-from __future__ import division, print_function
 import numpy as np
 import solidspy.postprocesor as pos
 
