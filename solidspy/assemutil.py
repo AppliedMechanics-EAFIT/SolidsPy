@@ -3,8 +3,8 @@
 Assembly routines
 -----------------
 
-Functions to assemble the system of equations for the Finite Element
-Analysis.
+Functions to assemble the system of equations for a finite element
+analysis.
 
 """
 from __future__ import absolute_import, division, print_function
@@ -14,128 +14,140 @@ import solidspy.uelutil as ue
 import solidspy.femutil as fem
 
 
-def eqcounter(nodes):
-    """Counts active equations and creates BCs array IBC
+def eqcounter(cons, ndof_node=2):
+    """Count active equations
+
+    Creates boundary conditions array bc_array
 
     Parameters
     ----------
-    nodes : ndarray
-      Array with nodes coordinates and boundary conditions.
+    cons : ndarray.
+      Array with constraints for each node.
 
     Returns
     -------
     neq : int
       Number of equations in the system after removing the nodes
       with imposed displacements.
-    IBC : ndarray (int)
+    bc_array : ndarray (int)
       Array that maps the nodes with number of equations.
 
     """
-    nnodes = nodes.shape[0]
-    IBC = np.zeros([nnodes, 2], dtype=np.integer)
-    for i in range(nnodes):
-        for k in range(2):
-            IBC[i , k] = int(nodes[i , k+3])
+    nnodes = cons.shape[0]
+    bc_array = cons.copy().astype(int)
     neq = 0
     for i in range(nnodes):
-        for j in range(2):
-            if IBC[i, j] == 0:
-                IBC[i, j] = neq
-                neq = neq + 1
+        for j in range(ndof_node):
+            if bc_array[i, j] == 0:
+                bc_array[i, j] = neq
+                neq += 1
 
-    return neq, IBC
+    return neq, bc_array
 
 
-def DME(nodes, elements):
-    """Counts active equations, creates BCs array IBC[]
-    and the assembly operator DME[]
+def DME(cons, elements, ndof_node=2, ndof_el_max=18, ndof_el=None):
+    """Create assembly array operator
+
+    Count active equations, create boundary conditions array ``bc_array``
+    and the assembly operator ``assem_op``.
 
     Parameters
     ----------
-    nodes    : ndarray.
-      Array with the nodal numbers and coordinates.
+    cons : ndarray.
+      Array with constraints for each degree of freedom in each node.
     elements : ndarray
       Array with the number for the nodes in each element.
+    ndof_node : int, optional
+      Number of degrees of freedom per node. By default it is 2.
+    ndof_el_max : int, optional
+      Number of maximum degrees of freedom per element. By default it is
+      18.
+    ndof_el : callable, optional
+      Function that return number of degrees of freedom for elements. It
+      is needed for user elements.
 
     Returns
     -------
-    DME : ndarray (int)
+    assem_op : ndarray (int)
       Assembly operator.
-    IBC : ndarray (int)
+    bc_array : ndarray (int)
       Boundary conditions array.
     neq : int
       Number of active equations in the system.
 
     """
     nels = elements.shape[0]
-    IELCON = np.zeros([nels, 9], dtype=np.integer)
-    DME = np.zeros([nels, 18], dtype=np.integer)
-
-    neq, IBC = eqcounter(nodes)
-
-    for i in range(nels):
-        iet = elements[i, 1]
-        ndof, nnodes, ngpts = fem.eletype(iet)
-        for j in range(nnodes):
-            IELCON[i, j] = elements[i, j+3]
-            kk = IELCON[i, j]
-            for l in range(2):
-                DME[i, 2*j+l] = IBC[kk, l]
-
-    return DME , IBC , neq
+    assem_op = np.zeros([nels, ndof_el_max], dtype=np.integer)
+    neq, bc_array = eqcounter(cons, ndof_node=ndof_node)
+    for ele in range(nels):
+        iet = elements[ele, 1]
+        if ndof_el is None:
+            ndof, _, _ = fem.eletype(iet)
+        else:
+            ndof = ndof_el(iet)
+        assem_op[ele, :ndof] = bc_array[elements[ele, 3:]].flatten()
+    return assem_op, bc_array, neq
 
 
-def retriever(elements , mats , nodes , i, uel=None):
-    """Computes the elemental stiffness matrix of element i
+def ele_fun(eletype):
+    """Return the function for the element type given
+
+    Parameters
+    ----------
+    eletype : int
+      Type of element.
+
+    Returns
+    -------
+    ele_fun : callable
+      Function for the element type given.
+    """
+    elem_id = {
+        1: ue.uel4nquad,
+        2: ue.uel6ntrian,
+        3: ue.uel3ntrian,
+        5: ue.uelspring,
+        6: ue.ueltruss2D,
+        7: ue.uelbeam2DU,
+        8: ue.uelbeam2D}
+    try:
+        return elem_id[eletype]
+    except:
+        raise ValueError("You entered an invalid type of element.")
+
+
+
+def retriever(elements, mats, nodes, ele, uel=None):
+    """Computes the elemental stiffness matrix of element ``ele``
 
     Parameters
     ----------
     elements : ndarray
       Array with the number for the nodes in each element.
-    mats    : ndarray.
+    mats : ndarray.
       Array with the material profiles.
-    nodes    : ndarray.
+    nodes : ndarray.
       Array with the nodal numbers and coordinates.
-    i    : int.
+    ele : int.
       Identifier of the element to be assembled.
 
     Returns
     -------
     kloc : ndarray (float)
       Array with the local stiffness matrix.
-    ndof : int.
-      Number of degrees of fredom of the current element.
+    mloc : ndarray (float)
+      Array with the local mass matrix.
     """
-    IELCON = np.zeros([9], dtype=np.integer)
-    iet = elements[i, 1]
-    ndof, nnodes, ngpts = fem.eletype(iet)
-    elcoor = np.zeros([nnodes, 2])
-    im = np.int(elements[i, 2])
-    par0, par1 = mats[im, :]
-    for j in range(nnodes):
-        IELCON[j] = elements[i, j+3]
-        elcoor[j, 0] = nodes[IELCON[j], 1]
-        elcoor[j, 1] = nodes[IELCON[j], 2]
+    elem_type = elements[ele, 1]
+    params = mats[elements[ele, 2], :]
+    elcoor = nodes[elements[ele, 3:], 1:]
     if uel is None:
-        if iet == 1:
-            kloc = ue.uel4nquad(elcoor, par1, par0)
-        elif iet == 2:
-            kloc = ue.uel6ntrian(elcoor, par1, par0)
-        elif iet == 3:
-            kloc = ue.uel3ntrian(elcoor, par1, par0)
-        elif iet == 5:
-            kloc = ue.uelspring(elcoor, par1, par0)
-        elif iet == 6:
-            kloc = ue.ueltruss2D(elcoor, par1, par0)
-        elif iet == 7:
-            kloc = ue.uelbeam2DU(elcoor, par1, par0)
-    else:
-        kloc, ndof, iet = uel(elcoor, par1, par0)
-
-    return kloc, ndof, iet
+        uel = ele_fun(elem_type)
+    kloc, mloc = uel(elcoor, params)
+    return kloc, mloc
 
 
-def assembler(elements, mats, nodes, neq, DME, sparse=True, uel=None):
+def assembler(elements, mats, nodes, neq, assem_op, sparse=True, uel=None):
     """Assembles the global stiffness matrix
 
     Parameters
@@ -146,7 +158,7 @@ def assembler(elements, mats, nodes, neq, DME, sparse=True, uel=None):
       Array with the material profiles.
     nodes    : ndarray (float)
       Array with the nodal numbers and coordinates.
-    DME  : ndarray (int)
+    assem_op : ndarray (int)
       Assembly operator.
     neq : int
       Number of active equations in the system.
@@ -158,33 +170,38 @@ def assembler(elements, mats, nodes, neq, DME, sparse=True, uel=None):
 
     Returns
     -------
-    KG : ndarray (float)
+    kglob : ndarray (float)
       Array with the global stiffness matrix. It might be
+      dense or sparse, depending on the value of _sparse_
+    mglob : ndarray (float)
+      Array with the global mass matrix. It might be
       dense or sparse, depending on the value of _sparse_
 
     """
     if sparse:
-        KG = sparse_assem(elements, mats, nodes, neq, DME, uel=uel)
+        kglob, mglob = sparse_assem(elements, mats, nodes, neq, assem_op,
+                                    uel=uel)
     else:
-        KG = dense_assem(elements, mats, nodes, neq, DME, uel=uel)
+        kglob, mglob = dense_assem(elements, mats, nodes, neq, assem_op,
+                                   uel=uel)
 
-    return KG
+    return kglob, mglob
 
 
-def dense_assem(elements, mats, nodes, neq, DME, uel=None):
+def dense_assem(elements, mats, nodes, neq, assem_op, uel=None):
     """
-    Assembles the global stiffness matrix _KG_
+    Assembles the global stiffness matrix
     using a dense storing scheme
 
     Parameters
     ----------
     elements : ndarray (int)
       Array with the number for the nodes in each element.
-    mats    : ndarray (float)
+    mats : ndarray (float)
       Array with the material profiles.
-    nodes    : ndarray (float)
+    nodes : ndarray (float)
       Array with the nodal numbers and coordinates.
-    DME  : ndarray (int)
+    assem_op : ndarray (int)
       Assembly operator.
     neq : int
       Number of active equations in the system.
@@ -193,31 +210,33 @@ def dense_assem(elements, mats, nodes, neq, DME, uel=None):
 
     Returns
     -------
-    KG : ndarray (float)
+    kglob : ndarray (float)
       Array with the global stiffness matrix in a dense numpy
       array.
 
     """
-    KG = np.zeros((neq, neq))
+    kglob = np.zeros((neq, neq))
+    mglob = np.zeros((neq, neq))
     nels = elements.shape[0]
-    for el in range(nels):
-        kloc, ndof, iet  = retriever(elements, mats, nodes, el, uel=uel)
-        dme = DME[el, :ndof]
+    for ele in range(nels):
+        kloc, mloc = retriever(elements, mats, nodes, ele, uel=uel)
+        ndof = kloc.shape[0]
+        dme = assem_op[ele, :ndof]
         for row in range(ndof):
             glob_row = dme[row]
             if glob_row != -1:
                 for col in range(ndof):
                     glob_col = dme[col]
                     if glob_col != -1:
-                        KG[glob_row, glob_col] = KG[glob_row, glob_col] +\
-                                                 kloc[row, col]
+                        kglob[glob_row, glob_col] += kloc[row, col]
+                        mglob[glob_row, glob_col] += mloc[row, col]
 
-    return KG
+    return kglob, mglob
 
 
-def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
+def sparse_assem(elements, mats, nodes, neq, assem_op, uel=None):
     """
-    Assembles the global stiffness matrix _KG_
+    Assembles the global stiffness matrix
     using a sparse storing scheme
 
     The scheme used to assemble is COOrdinate list (COO), and
@@ -232,7 +251,7 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
       Array with the material profiles.
     nodes    : ndarray (float)
       Array with the nodal numbers and coordinates.
-    DME  : ndarray (int)
+    assem_op : ndarray (int)
       Assembly operator.
     neq : int
       Number of active equations in the system.
@@ -241,7 +260,7 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
 
     Returns
     -------
-    KG : ndarray (float)
+    kglob : sparse matrix (float)
       Array with the global stiffness matrix in a sparse
       Compressed Sparse Row (CSR) format.
 
@@ -254,12 +273,13 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
     """
     rows = []
     cols = []
-    vals = []
+    stiff_vals = []
+    mass_vals = []
     nels = elements.shape[0]
-    for el in range(nels):
-        kloc, ndof, iet  = retriever(elements , mats  , nodes , el, uel=uel)
-        dme = DME[el, :ndof]
-
+    for ele in range(nels):
+        kloc, mloc = retriever(elements, mats, nodes, ele, uel=uel)
+        ndof = kloc.shape[0]
+        dme = assem_op[ele, :ndof]
         for row in range(ndof):
             glob_row = dme[row]
             if glob_row != -1:
@@ -268,19 +288,22 @@ def sparse_assem(elements, mats, nodes, neq, DME, uel=None):
                     if glob_col != -1:
                         rows.append(glob_row)
                         cols.append(glob_col)
-                        vals.append(kloc[row, col])
+                        stiff_vals.append(kloc[row, col])
+                        mass_vals.append(mloc[row, col])
 
-    return coo_matrix((vals, (rows, cols)), shape=(neq, neq)).tocsr()
+    stiff = coo_matrix((stiff_vals, (rows, cols)), shape=(neq, neq)).tocsr()
+    mass = coo_matrix((mass_vals, (rows, cols)), shape=(neq, neq)).tocsr()
+    return stiff, mass
 
 
-def loadasem(loads, IBC, neq):
-    """Assembles the global Right Hand Side Vector RHSG
+def loadasem(loads, bc_array, neq, ndof_node=2):
+    """Assembles the global Right Hand Side Vector
 
     Parameters
     ----------
     loads : ndarray
       Array with the loads imposed in the system.
-    IBC : ndarray (int)
+    bc_array : ndarray (int)
       Array that maps the nodes with number of equations.
     neq : int
       Number of equations in the system after removing the nodes
@@ -288,22 +311,20 @@ def loadasem(loads, IBC, neq):
 
     Returns
     -------
-    RHSG : ndarray
+    rhs_vec : ndarray
       Array with the right hand side vector.
 
     """
     nloads = loads.shape[0]
-    RHSG = np.zeros([neq])
-    for i in range(nloads):
-        il = int(loads[i, 0])
-        ilx = IBC[il, 0]
-        ily = IBC[il, 1]
-        if ilx != -1:
-            RHSG[ilx] = loads[i, 1]
-        if ily != -1:
-            RHSG[ily] = loads[i, 2]
+    rhs_vec = np.zeros([neq])
+    for cont in range(nloads):
+        node = int(loads[cont, 0])
+        for dof in range(ndof_node):
+            dof_id = bc_array[node, dof]
+            if dof_id != -1:
+                rhs_vec[dof_id] = loads[cont, dof + 1]
+    return rhs_vec
 
-    return RHSG
 
 if __name__ == "__main__":
     import doctest

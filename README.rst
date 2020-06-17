@@ -90,53 +90,64 @@ Let's suppose that we have a simple model represented by the following
 files (see `tutorials/square example <http://solidspy.readthedocs.io/en/latest/tutorials/square_example.html>`__
 for further explanation).
 
-- ``nodes.txt``
-
-::
-
-    0  0.00  0.00   0  -1
-    1  2.00  0.00   0  -1
-    2  2.00  2.00   0   0
-    3  0.00  2.00   0   0
-    4  1.00  0.00  -1  -1
-    5  2.00  1.00   0   0
-    6  1.00  2.00   0   0
-    7  0.00  1.00   0   0
-    8  1.00  1.00   0   0
-
-- ``eles.txt``
-
-::
-
-    0   1   0   0   4   8   7
-    1   1   0   4   1   5   8
-    2   1   0   7   8   6   3
-    3   1   0   8   5   2   6
-
-- ``mater.txt``
-
-::
-
-    1.0  0.3
-
-- ``loads.txt``
-
-::
-
-    3  0.0  1.0
-    6  0.0  2.0
-    2  0.0  1.0
-
-Run it in Python as follows:
-
 .. code:: python
 
-    import matplotlib.pyplot as plt  # load matplotlib
-    from solidspy import solids_GUI  # import our package
-    disp = solids_GUI()  # run the Finite Element Analysis
-    plt.show()    # plot contours
+    import numpy as np
+    from solidspy.solids_GUI import solids_auto
 
-For Mac users it is suggested to use an IPython console to run the example.
+    ### Define the data
+    nodes = np.array([
+        [0, 0.00, 0.00],
+        [1, 2.00, 0.00],
+        [2, 2.00, 2.00],
+        [3, 0.00, 2.00],
+        [4, 1.00, 0.00],
+        [5, 2.00, 1.00],
+        [6, 1.00, 2.00],
+        [7, 0.00, 1.00],
+        [8, 1.00, 1.00]])
+
+    cons = np.array([
+        [0, -1],
+        [0, -1],
+        [0,  0],
+        [0,  0],
+        [-1, -1],
+        [0,  0],
+        [0,  0],
+        [0,  0],
+        [0,  0]])
+
+    elements = np.array([
+        [0, 1, 0, 0, 4, 8, 7],
+        [1, 1, 0, 4, 1, 5, 8],
+        [2, 1, 0, 7, 8, 6, 3],
+        [3, 1, 0, 8, 5, 2, 6]])
+
+    mats = np.array([[1.0, 0.3]])
+
+    loads = np.array([
+        [2, 0.0, 1.0],
+        [3, 0.0, 1.0],
+        [6, 0.0, 2.0]])
+
+    data = {"nodes": nodes,
+            "cons": cons,
+            "elements": elements,
+            "mats": mats,
+            "loads": loads}
+
+    ### Run the simulation
+    disp = solids_auto(data)
+    plt.show()
+
+
+Save it as ``example_solidspy.py`` and run it in your terminal:
+
+.. code:: bash
+
+    python example_solidspy.py
+
 
 License
 -------

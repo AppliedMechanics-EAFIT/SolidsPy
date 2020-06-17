@@ -21,11 +21,11 @@ References
 
 """
 from __future__ import absolute_import, division, print_function
-import solidspy.gaussutil as gau
 import numpy as np
+import solidspy.gaussutil as gau
 
 
-def eletype(iet):
+def eletype(eletype):
     """Assigns number to degrees of freedom
 
     According to iet assigns number of degrees of freedom, number of
@@ -33,7 +33,7 @@ def eletype(iet):
 
     Parameters
     ----------
-    iet :  int
+    eletype :  int
       Type of element. These are:
         1. 4 node bilinear quadrilateral.
         2. 6 node quadratic triangle.
@@ -41,6 +41,7 @@ def eletype(iet):
         5. 2 node spring.
         6. 2 node truss element.
         7. 2 node beam (3 DOF per node).
+        8. 2 node beam with axial force (3 DOF per node).
 
     Returns
     -------
@@ -52,32 +53,18 @@ def eletype(iet):
       Number of Gauss points for the selected element.
 
     """
-    if iet == 1:
-        ndof = 8
-        nnodes = 4
-        ngpts = 4
-    if iet == 2:
-        ndof = 12
-        nnodes = 6
-        ngpts = 7
-    if iet == 3:
-        ndof = 6
-        nnodes = 3
-        ngpts = 3
-    if iet == 5:
-        ndof = 4
-        nnodes = 2
-        ngpts = 3
-    if iet == 6:
-        ndof = 4
-        nnodes = 2
-        ngpts = 3
-    if iet == 7:
-        ndof = 6
-        nnodes = 2
-        ngpts = 3
-
-    return ndof, nnodes, ngpts
+    elem_id = {
+        1: (8, 4, 4),
+        2: (12, 6, 7),
+        3: (6, 3, 3),
+        5: (4, 2, 3),
+        6: (4, 2, 3),
+        7: (6, 2, 3),
+        8: (6, 2, 3)}
+    try:
+        return elem_id[eletype]
+    except:
+        raise ValueError("You entered an invalid type of element.")
 
 
 #%% Shape functions and derivatives
@@ -219,10 +206,7 @@ def sha3(x, y):
 
     """
     N = np.zeros((2, 6))
-    H = np.array([
-        (1 - x - y),
-         x,
-         y])
+    H = np.array([(1 - x - y), x, y])
     N[0, ::2] = H
     N[1, 1::2] = H
 
@@ -253,8 +237,8 @@ def stdm4NQ(r, s, coord):
     nn = 4
     B = np.zeros((3, 2*nn))
     dhdx = 0.25*np.array([
-            [s - 1, -s + 1, s + 1, -s - 1],
-            [r - 1, -r - 1, r + 1, -r + 1]])
+        [s - 1, -s + 1, s + 1, -s - 1],
+        [r - 1, -r - 1, r + 1, -r + 1]])
     det, jaco_inv = jacoper(dhdx, coord)
     dhdx = np.dot(jaco_inv, dhdx)
     B[0, ::2] = dhdx[0, :]
@@ -287,8 +271,8 @@ def stdm6NT(r, s, coord):
     nn = 6
     B = np.zeros((3, 2*nn))
     dhdx = np.array([
-        [4*r + 4*s - 3, 4*r - 1, 0, -8*r - 4*s + 4, 4*s,  -4*s],
-        [4*r + 4*s - 3, 0, 4*s - 1,  -4*r, 4*r, -4*r - 8*s + 4]])
+        [4*r + 4*s - 3, 4*r - 1, 0, -8*r - 4*s + 4, 4*s, -4*s],
+        [4*r + 4*s - 3, 0, 4*s - 1, -4*r, 4*r, -4*r - 8*s + 4]])
     det, jaco_inv = jacoper(dhdx, coord)
     dhdx = np.dot(jaco_inv, dhdx)
     B[0, ::2] = dhdx[0, :]
@@ -321,8 +305,8 @@ def stdm3NT(r, s, coord):
     nn = 3
     B = np.zeros((3, 2*nn))
     dhdx = np.array([
-            [-1, 1, 0],
-            [-1, 0, 1]])
+        [-1, 1, 0],
+        [-1, 0, 1]])
     det, jaco_inv = jacoper(dhdx, coord)
     dhdx = np.dot(jaco_inv, dhdx)
     B[0, ::2] = dhdx[0, :]
@@ -332,26 +316,26 @@ def stdm3NT(r, s, coord):
     return det, B
 
 
-def jacoper(dhdx, coord):
+def jacoper(dNdr, coord):
     """
     Compute the Jacobian of the transformation evaluated at
     the Gauss point
 
     Parameters
     ----------
-    dhdx : ndarray
+    dNdr : ndarray
       Derivatives of the interpolation function with respect to the
       natural coordinates.
     coord : ndarray
-      Coordinates of the nodes of the element (nn, 2).
+      Coordinates of the nodes of the element (nnodes, ndim).
 
     Returns
     -------
-    jaco_inv : ndarray (2, 2)
-      Jacobian of the transformation evaluated at `(r, s)`.
+    jaco_inv : ndarray (ndim, ndim)
+      Jacobian of the transformation evaluated at a point.
 
     """
-    jaco = dhdx.dot(coord)
+    jaco = dNdr @ coord
     det = np.linalg.det(jaco)
     if np.isclose(np.abs(det), 0.0):
         msg = "Jacobian close to zero. Check the shape of your elements!"
@@ -362,46 +346,6 @@ def jacoper(dhdx, coord):
         raise ValueError(msg)
     return det, jaco_inv
 
-#%% Material routines
-def umat(nu, E):
-    """2D Elasticity consitutive matrix in plane stress
-
-    For plane strain use effective properties.
-
-    Parameters
-    ----------
-    nu : float
-      Poisson coefficient (-1, 0.5).
-    E : float
-      Young modulus (>0).
-
-    Returns
-    -------
-    C : ndarray
-      Constitutive tensor in Voigt notation.
-
-    Examples
-    --------
-
-    >>> C = umat(1/3, 8/3)
-    >>> C_ex = np.array([
-    ...    [3, 1, 0],
-    ...    [1, 3, 0],
-    ...    [0, 0, 1]])
-    >>> np.allclose(C, C_ex)
-    True
-
-    """
-    C = np.zeros((3, 3))
-    enu = E/(1 - nu**2)
-    mnu = (1 - nu)/2
-    C[0, 0] = enu
-    C[0, 1] = nu*enu
-    C[1, 0] = C[0, 1]
-    C[1, 1] = enu
-    C[2, 2] = enu*mnu
-
-    return C
 
 #%% Elemental strains
 def str_el4(coord, ul):
@@ -510,6 +454,53 @@ def str_el3(coord, ul):
         xl[i, 0] = sum(N[0, 2*i]*coord[i, 0] for i in range(3))
         xl[i, 1] = sum(N[0, 2*i]*coord[i, 1] for i in range(3))
     return epsG.T, xl
+
+
+#%% Material routines
+def umat(params):
+    """2D Elasticity consitutive matrix in plane stress
+
+    For plane strain use effective properties.
+
+    Parameters
+    ----------
+    params : tuple
+        Material parameters in the following order:
+
+            E : float
+                Young modulus (>0).
+            nu : float
+                Poisson coefficient (-1, 0.5).
+
+    Returns
+    -------
+    C : ndarray
+      Constitutive tensor in Voigt notation.
+
+    Examples
+    --------
+
+    >>> params = 8/3, 1/3
+    >>> C = umat(params)
+    >>> C_ex = np.array([
+    ...    [3, 1, 0],
+    ...    [1, 3, 0],
+    ...    [0, 0, 1]])
+    >>> np.allclose(C, C_ex)
+    True
+
+    """
+    E, nu = params
+    C = np.zeros((3, 3))
+    enu = E/(1 - nu**2)
+    mnu = (1 - nu)/2
+    C[0, 0] = enu
+    C[0, 1] = nu*enu
+    C[1, 0] = C[0, 1]
+    C[1, 1] = enu
+    C[2, 2] = enu*mnu
+
+    return C
 
 
 if __name__ == "__main__":

@@ -9,9 +9,10 @@ import solidspy.uelutil as uel
 
 
 def test_uel4nquad():
-    """Tests for 4-nodes quad uel"""
+    """Tests for 4-noded quad uel"""
     coord = np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]])
-    stiff = uel.uel4nquad(coord, 1/3, 8/3)
+    params = 8/3, 1/3
+    stiff, mass = uel.uel4nquad(coord, params)
     stiff_ex = 1/6 * np.array([
          [ 8,  3, -5,  0, -4, -3,  1,  0],
          [ 3,  8,  0,  1, -3, -4,  0, -5],
@@ -25,7 +26,7 @@ def test_uel4nquad():
 
     
 def test_uel6ntrian():
-    """Tests for 6-nodes tri uel"""
+    """Tests for 6-noded tri uel"""
     coord = np.array([
         [0, 0],
         [1, 0],
@@ -33,7 +34,8 @@ def test_uel6ntrian():
         [0.5, 0],
         [0.5, 0.5],
         [0, 0.5]])
-    stiff = uel.uel6ntrian(coord,1/3, 8/3)
+    params = 8/3, 1/3
+    stiff, mass = uel.uel6ntrian(coord, params)
     stiff_ex = 1/6 * np.array([
         [12, 6, 3, 1, 1, 1, -12, -4, 0, 0, -4, -4],
         [6, 12, 1, 1, 1, 3, -4, -4, 0, 0, -4, -12],
@@ -51,12 +53,13 @@ def test_uel6ntrian():
 
 
 def test_uel3ntrian():
-    """Tests for 3-nodes tri uel"""
+    """Tests for 3-noded tri uel"""
     coord = np.array([
         [0, 0],
         [1, 0],
         [0, 1]])
-    stiff = uel.uel3ntrian(coord, 1/3, 8/3)
+    params = 8/3, 1/3
+    stiff, mass = uel.uel3ntrian(coord, params)
     stiff_ex = 1/2 * np.array([
        [4, 2, -3, -1, -1, -1],
        [2, 4, -1, -1, -1, -3],
@@ -68,11 +71,12 @@ def test_uel3ntrian():
 
 
 def test_uelspring():
-    """Tests for 2-nodes springs uel"""
+    """Tests for 2-noded springs uel"""
     coord = np.array([
         [0, 0],
         [1, 0]])
-    stiff = uel.uelspring(coord, 1/3, 1)
+    params = 1
+    stiff, mass = uel.uelspring(coord, params)
     stiff_ex = np.array([
         [1, 0, -1, 0],
         [0, 0, 0, 0],
@@ -82,14 +86,32 @@ def test_uelspring():
 
 
 def test_ueltruss2D():
-    
+    """Tests for 2-noded 2D truss uel"""
     coord = np.array([
         [0, 0],
         [1, 0]])
-    stiff = uel.ueltruss2D(coord, 1.0 , 1.0)
+    params = 1.0, 1.0
+    stiff, mass = uel.ueltruss2D(coord, params)
     stiff_ex =  np.array([
-    [1, 0, -1, 0],
-    [0, 0, 0, 0],
-    [-1, 0, 1, 0],
-    [0, 0, 0, 0]])
-    np.allclose(stiff, stiff_ex)
+        [1, 0, -1, 0],
+        [0, 0, 0, 0],
+        [-1, 0, 1, 0],
+        [0, 0, 0, 0]])
+    assert np.allclose(stiff, stiff_ex)
+
+
+def test_uelbeam2DU():
+    """Tests for 2-noded 2D beam uel"""
+    coord = np.array([
+        [0, 0],
+        [1, 0]])
+    params = 1.0, 1.0
+    stiff, mass = uel.uelbeam2DU(coord, params)
+    stiff_ex =  np.array([
+        [0, 0, 0, 0, 0, 0],
+        [0, 12, 6, 0, -12, 6],
+        [0, 6, 4, 0, -6, 2],
+        [0, 0, 0, 0, 0, 0],
+        [0, -12, -6, 0, 12, -6],
+        [0, 6, 2, 0, -6, 4]])
+    assert np.allclose(stiff, stiff_ex)

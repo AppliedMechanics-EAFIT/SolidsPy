@@ -276,44 +276,54 @@ def mesh2tri(nodes, elements):
             triangs.append(elem[[7, 5, 8]])
         if elem[1] == 3:
             triangs.append(elem[3:])
+        if elem[1] == 4:
+            triangs.append(elem[[3, 7, 11]])
+            triangs.append(elem[[7, 4, 8]])
+            triangs.append(elem[[3, 11, 10]])
+            triangs.append(elem[[7, 8, 11]])
+            triangs.append(elem[[10, 11, 9]])
+            triangs.append(elem[[11, 8, 5]])
+            triangs.append(elem[[10, 9, 6]])
+            triangs.append(elem[[11, 5, 9]])
 
     tri = Triangulation(coord_x, coord_y, np.array(triangs))
     return tri
 
 
 #%% Auxiliar variables computation
-def complete_disp(IBC, nodes, UG):
+def complete_disp(bc_array, nodes, sol, ndof_node=2):
     """
     Fill the displacement vectors with imposed and computed values.
 
-    IBC : ndarray (int)
-        IBC (Indicator of Boundary Conditions) indicates if the
-        nodes has any type of boundary conditions applied to it.
-    UG : ndarray (float)
+    bc_array : ndarray (int)
+        Indicates if the nodes has any type of boundary conditions
+        applied to it.
+    sol : ndarray (float)
         Array with the computed displacements.
     nodes : ndarray (float)
         Array with number and nodes coordinates
+    ndof_node : int
+        Number of degrees of freedom per node.
 
     Returns
     -------
-    UC : (nnodes, 2) ndarray (float)
+    sol_complete : (nnodes, ndof_node) ndarray (float)
       Array with the displacements.
 
     """
     nnodes = nodes.shape[0]
-    UC = np.zeros([nnodes, 2], dtype=np.float)
+    sol_complete = np.zeros([nnodes, ndof_node], dtype=np.float)
     for row in range(nnodes):
-        for col in range(2):
-            cons = IBC[row, col]
+        for col in range(ndof_node):
+            cons = bc_array[row, col]
             if cons == -1:
-                UC[row, col] = 0.0
+                sol_complete[row, col] = 0.0
             else:
-                UC[row, col] = UG[cons]
+                sol_complete[row, col] = sol[cons]
+    return sol_complete
 
-    return UC
 
-
-def strain_nodes(nodes, elements, mats, UC):
+def strain_nodes(nodes, elements, mats, sol_complete):
     """Compute averaged strains and stresses at nodes
 
     First, the variable is extrapolated from the Gauss
@@ -330,7 +340,7 @@ def strain_nodes(nodes, elements, mats, UC):
         to each element.
     mats : ndarray (float)
         Array with material profiles.
-    UC : ndarray (float)
+    sol_complete : ndarray (float)
         Array with the displacements. This one contains both, the
         computed and imposed values.
 
@@ -359,40 +369,36 @@ def strain_nodes(nodes, elements, mats, UC):
     ul = np.zeros([ndof])
     IELCON = elements[:, 3:]
 
-    for i in range(nelems):
-        young, poisson = mats[np.int(elements[i, 2]), :]
+    for el in range(nelems):
+        young, poisson = mats[np.int(elements[el, 2]), :]
         shear = young/(2*(1 + poisson))
         fact1 = young/(1 - poisson**2)
         fact2 = poisson*young/(1 - poisson**2)
-        for j in range(nnodes_elem):
-            elcoor[j, 0] = nodes[IELCON[i, j], 1]
-            elcoor[j, 1] = nodes[IELCON[i, j], 2]
-            ul[2*j] = UC[IELCON[i, j], 0]
-            ul[2*j + 1] = UC[IELCON[i, j], 1]
+        elcoor[:, 0] = nodes[IELCON[el, :], 1]
+        elcoor[:, 1] = nodes[IELCON[el, :], 2]
+        ul[0::2] = sol_complete[IELCON[el, :], 0]
+        ul[1::2] = sol_complete[IELCON[el, :], 1]
         if iet == 1:
             epsG, _ = fe.str_el4(elcoor, ul)
         elif iet == 2:
             epsG, _ = fe.str_el6(elcoor, ul)
         elif iet == 3:
             epsG, _ = fe.str_el3(elcoor, ul)
-
-        for cont, node in enumerate(IELCON[i, :]):
-            E_nodes[node, 0] = E_nodes[node, 0] + epsG[cont, 0]
-            E_nodes[node, 1] = E_nodes[node, 1] + epsG[cont, 1]
-            E_nodes[node, 2] = E_nodes[node, 2] + epsG[cont, 2]
-            S_nodes[node, 0] = S_nodes[node, 0] + fact1*epsG[cont, 0] \
-                        + fact2*epsG[cont, 1]
-            S_nodes[node, 1] = S_nodes[node, 1] + fact2*epsG[cont, 0] \
-                        + fact1*epsG[cont, 1]
-            S_nodes[node, 2] = S_nodes[node, 2] + shear*epsG[cont, 2]
+        for cont, node in enumerate(IELCON[el, :]):
+            E_nodes[node, 0] += epsG[cont, 0]
+            E_nodes[node, 1] += epsG[cont, 1]
+            E_nodes[node, 2] += epsG[cont, 2]
+            S_nodes[node, 0] += fact1*epsG[cont, 0]  + fact2*epsG[cont, 1]
+            S_nodes[node, 1] += fact2*epsG[cont, 0]  + fact1*epsG[cont, 1]
+            S_nodes[node, 2] += shear*epsG[cont, 2]
             el_nodes[node] = el_nodes[node] + 1
 
-    E_nodes[:, 0] = E_nodes[:, 0]/el_nodes
-    E_nodes[:, 1] = E_nodes[:, 1]/el_nodes
-    E_nodes[:, 2] = E_nodes[:, 2]/el_nodes
-    S_nodes[:, 0] = S_nodes[:, 0]/el_nodes
-    S_nodes[:, 1] = S_nodes[:, 1]/el_nodes
-    S_nodes[:, 2] = S_nodes[:, 2]/el_nodes
+    E_nodes[:, 0] /= el_nodes
+    E_nodes[:, 1] /= el_nodes
+    E_nodes[:, 2] /= el_nodes
+    S_nodes[:, 0] /= el_nodes
+    S_nodes[:, 1] /= el_nodes
+    S_nodes[:, 2] /= el_nodes
     return E_nodes, S_nodes
 
 
@@ -423,16 +429,16 @@ def stress_truss(nodes, elements, mats, disp):
     The following examples are taken from [1]_. In all the examples
     :math:`A=1`, :math:`E=1`.
 
-    >>> import assemutil as ass
+    >>> import solidspy.assemutil as ass
     >>> import solidspy.solutil as sol
 
     >>> def fem_sol(nodes, elements, mats, loads):
-    ...     DME , IBC , neq = ass.DME(nodes, elements)
-    ...     KG = ass.assembler(elements, mats, nodes, neq, DME)
-    ...     RHSG = ass.loadasem(loads, IBC, neq)
-    ...     UG = sol.static_sol(KG, RHSG)
-    ...     UC = complete_disp(IBC, nodes, UG)
-    ...     return UC
+    ...     assem_op, bc_array , neq = ass.DME(nodes[:, 3:], elements)
+    ...     stiff, _ = ass.assembler(elements, mats, nodes, neq, assem_op)
+    ...     rhs = ass.loadasem(loads, bc_array, neq)
+    ...     disp = sol.static_sol(stiff, rhs)
+    ...     disp_complete = complete_disp(bc_array, nodes, disp)
+    ...     return disp_complete
 
     **Exercise 3.3-18**
 
@@ -544,7 +550,7 @@ def stress_truss(nodes, elements, mats, disp):
         tan_vec = coords[1, :] - coords[0, :]
         length = np.linalg.norm(tan_vec)
         mat_id = elements[cont, 2]
-        local_stiff = uel.ueltruss2D(coords, * mats[mat_id, :])
+        local_stiff, _ = uel.ueltruss2D(coords, mats[mat_id, :])
         local_disp = np.hstack((disp[ini, :], disp[end, :]))
         local_forces = local_stiff.dot(local_disp)
         stress[cont] = local_forces[2:].dot(tan_vec)/(length*mats[mat_id, 1])

@@ -2,7 +2,7 @@ Creation of a simple geometry using Gmsh
 ========================================
 
 :Author: Juan Gómez
-:Date: October, 2017
+:Date: October 2017
 
 We want to create a mesh for the following geometry
 
