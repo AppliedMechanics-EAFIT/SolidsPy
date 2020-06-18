@@ -56,6 +56,7 @@ def eletype(eletype):
         1: (8, 4, 4),
         2: (12, 6, 7),
         3: (6, 3, 3),
+        4: (18, 9, 9),
         5: (4, 2, 3),
         6: (4, 2, 3),
         7: (6, 2, 3),
@@ -67,126 +68,33 @@ def eletype(eletype):
 
 
 #%% Shape functions and derivatives
-def sha4(x, y):
-    """Shape functions for a 4-noded quad element
 
-    Parameters
-    ----------
-    x : float
-      x coordinate for a point within the element.
-    y : float
-      y coordinate for a point within the element.
-
-    Returns
-    -------
-    N : Numpy array
-      Array of interpolation functions.
-
-    Examples
-    --------
-    We can check evaluating at two different points, namely (0, 0) and
-    (1, 1). Thus
-
-    >>> N = sha4(0, 0)
-    >>> N_ex = np.array([
-    ...    [1/4, 0, 1/4, 0, 1/4, 0, 1/4, 0],
-    ...    [0, 1/4, 0, 1/4, 0, 1/4, 0, 1/4]])
-    >>> np.allclose(N, N_ex)
-    True
-
-    and
-
-    >>> N = sha4(1, 1)
-    >>> N_ex = np.array([
-    ...    [0, 0, 0, 0, 1, 0, 0, 0],
-    ...    [0, 0, 0, 0, 0, 1, 0, 0]])
-    >>> np.allclose(N, N_ex)
-    True
-
+# Triangles
+def shape_tri3(r, s):
     """
-    N = np.zeros((2, 8))
-    H = 0.25*np.array(
-        [(1 - x)*(1 - y),
-         (1 + x)*(1 - y),
-         (1 + x)*(1 + y),
-         (1 - x)*(1 + y)])
-    N[0, ::2] = H
-    N[1, 1::2] = H
-    return N
-
-
-def sha6(x, y):
-    """Shape functions for a 6-noded triangular element
+    Shape functions and derivatives for a linear element
 
     Parameters
     ----------
-    x : float
-      x coordinate for a point within the element.
-    y : float
-      y coordinate for a point within the element.
+    r : float
+        Horizontal coordinate of the evaluation point.
+    s : float
+        Vertical coordinate of the evaluation point.
 
     Returns
     -------
-    N : Numpy array
-      Array of interpolation functions.
-
-    Examples
-    --------
-    We can check evaluating at two different points, namely (0, 0) and
-    (0.5, 0.5). Thus
-
-    >>> N = sha6(0, 0)
-    >>> N_ex = np.array([
-    ...    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ...    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-    >>> np.allclose(N, N_ex)
-    True
-
-    and
-
-    >>> N = sha6(1/2, 1/2)
-    >>> N_ex = np.array([
-    ...     [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-    ...     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]])
-    >>> np.allclose(N, N_ex)
-    True
-
-    """
-    N = np.zeros((2, 12))
-    H = np.array(
-        [(1 - x - y) - 2*x*(1 - x - y) - 2*y*(1 - x - y),
-         x - 2*x*(1 - x - y) - 2*x*y,
-         y - 2*x*y - 2*y*(1-x-y),
-         4*x*(1 - x - y),
-         4*x*y,
-         4*y*(1 - x - y)])
-    N[0, ::2] = H
-    N[1, 1::2] = H
-
-    return N
-
-
-def sha3(x, y):
-    """Shape functions for a 3-noded triangular element
-
-    Parameters
-    ----------
-    x : float
-      x coordinate for a point within the element.
-    y : float
-      y coordinate for a point within the element.
-
-    Returns
-    -------
-    N : Numpy array
-      Array of interpolation functions.
+    N : ndarray (float)
+        Array with the shape functions evaluated at the point (r, s).
+    dNdr : ndarray (float)
+        Array with the derivative of the shape functions evaluated at
+        the point (r, s).
 
     Examples
     --------
     We can check evaluating at two different points, namely (0, 0) and
     (0, 0.5). Thus
 
-    >>> N = sha3(0, 0)
+    >>> N, _ = shape_tri3(0, 0)
     >>> N_ex = np.array([
     ...    [1, 0, 0, 0, 0, 0],
     ...    [0, 1, 0, 0, 0, 0]])
@@ -195,7 +103,7 @@ def sha3(x, y):
 
     and
 
-    >>> N = sha3(1/2, 1/2)
+    >>> N, _ = shape_tri3(1/2, 1/2)
     >>> N_ex = np.array([
     ...    [0, 0, 1/2, 0, 1/2, 0],
     ...    [0, 0, 0, 1/2, 0, 1/2]])
@@ -203,117 +111,231 @@ def sha3(x, y):
     True
 
     """
-    N = np.zeros((2, 6))
-    H = np.array([(1 - x - y), x, y])
-    N[0, ::2] = H
-    N[1, 1::2] = H
-
-    return N
-
+    N = np.array([1 - r - s, r, s])
+    dNdr = np.array([
+      [-1, 1, 0],
+      [-1, 0, 1]])
+    return N, dNdr
 
 
-def stdm4NQ(r, s, coord):
-    """Strain-displacement interpolator B for a 4-noded quad element
+def shape_tri6(r, s):
+    """
+    Shape functions and derivatives for a quadratic element
 
     Parameters
     ----------
     r : float
-      r component in the natural space.
+        Horizontal coordinate of the evaluation point.
     s : float
-      s component in the natural space.
-    coord : ndarray
-      Coordinates of the nodes of the element (4, 2).
+        Vertical coordinate of the evaluation point.
 
     Returns
     -------
-    ddet : float
-      Determinant evaluated at `(r, s)`.
-    B : ndarray
-      Strain-displacement interpolator evaluated at `(r, s)`.
-
+    N : ndarray (float)
+        Array with the shape functions evaluated at the point (r, s).
+    dNdr : ndarray (float)
+        Array with the derivative of the shape functions evaluated at
+        the point (r, s).
     """
-    nn = 4
-    B = np.zeros((3, 2*nn))
-    dhdx = 0.25*np.array([
-        [s - 1, -s + 1, s + 1, -s - 1],
-        [r - 1, -r - 1, r + 1, -r + 1]])
-    det, jaco_inv = jacoper(dhdx, coord)
-    dhdx = np.dot(jaco_inv, dhdx)
-    B[0, ::2] = dhdx[0, :]
-    B[1, 1::2] = dhdx[1, :]
-    B[2, ::2] = dhdx[1, :]
-    B[2, 1::2] = dhdx[0, :]
-    return det, B
-
-
-def stdm6NT(r, s, coord):
-    """Strain-displacement interpolator B for a 6-noded triang element
-
-    Parameters
-    ----------
-    r : float
-      r component in the natural space.
-    s : float
-      s component in the natural space.
-    coord : ndarray
-      Coordinates of the nodes of the element (6, 2).
-
-    Returns
-    -------
-    ddet : float
-      Determinant evaluated at `(r, s)`.
-    B : ndarray
-      Strain-displacement interpolator evaluated at `(r, s)`.
-
-    """
-    nn = 6
-    B = np.zeros((3, 2*nn))
-    dhdx = np.array([
+    N = np.array(
+        [(1 - r - s) - 2*r*(1 - r - s) - 2*s*(1 - r - s),
+         r - 2*r*(1 - r - s) - 2*r*s,
+         s - 2*r*s - 2*s*(1-r-s),
+         4*r*(1 - r - s),
+         4*r*s,
+         4*s*(1 - r - s)])
+    dNdr = np.array([
         [4*r + 4*s - 3, 4*r - 1, 0, -8*r - 4*s + 4, 4*s, -4*s],
         [4*r + 4*s - 3, 0, 4*s - 1, -4*r, 4*r, -4*r - 8*s + 4]])
-    det, jaco_inv = jacoper(dhdx, coord)
-    dhdx = np.dot(jaco_inv, dhdx)
-    B[0, ::2] = dhdx[0, :]
-    B[1, 1::2] = dhdx[1, :]
-    B[2, ::2] = dhdx[1, :]
-    B[2, 1::2] = dhdx[0, :]
-    return det, B
+    return N, dNdr
 
-
-def stdm3NT(r, s, coord):
-    """Strain-displacement interpolator B for a 3-noded triang element
+# Quadrilaterals
+def shape_quad4(r, s):
+    """
+    Shape functions and derivatives for a bilinear element
 
     Parameters
     ----------
     r : float
-      r component in the natural space.
+        Horizontal coordinate of the evaluation point.
     s : float
-      s component in the natural space.
-    coord : ndarray
-      Coordinates of the nodes of the element (3, 2).
+        Vertical coordinate of the evaluation point.
 
     Returns
     -------
-    det : float
-      Determinant evaluated at `(r, s)`.
-    B : ndarray
-      Strain-displacement interpolator evaluated at `(r, s)`.
+    N : ndarray (float)
+        Array with the shape functions evaluated at the point (r, s).
+    dNdr : ndarray (float)
+        Array with the derivative of the shape functions evaluated at
+        the point (r, s).
+
+    Examples
+    --------
+    We can check evaluating at two different points, namely (0, 0) and
+    (1, 1). Thus
+
+    >>> N, _ = shape_quad4(0, 0)
+    >>> N_ex = np.array([
+    ...    [1/4, 0, 1/4, 0, 1/4, 0, 1/4, 0],
+    ...    [0, 1/4, 0, 1/4, 0, 1/4, 0, 1/4]])
+    >>> np.allclose(N, N_ex)
+    True
+
+    and
+
+    >>> N, _ = shape_quad4(1, 1)
+    >>> N_ex = np.array([
+    ...    [0, 0, 0, 0, 1, 0, 0, 0],
+    ...    [0, 0, 0, 0, 0, 1, 0, 0]])
+    >>> np.allclose(N, N_ex)
+    True
 
     """
-    nn = 3
-    B = np.zeros((3, 2*nn))
-    dhdx = np.array([
-        [-1, 1, 0],
-        [-1, 0, 1]])
-    det, jaco_inv = jacoper(dhdx, coord)
-    dhdx = np.dot(jaco_inv, dhdx)
-    B[0, ::2] = dhdx[0, :]
-    B[1, 1::2] = dhdx[1, :]
-    B[2, ::2] = dhdx[1, :]
-    B[2, 1::2] = dhdx[0, :]
-    return det, B
+    N = 0.25*np.array(
+        [(1 - r)*(1 - s),
+         (1 + r)*(1 - s),
+         (1 + r)*(1 + s),
+         (1 - r)*(1 + s)])
+    dNdr = 0.25*np.array([
+        [s - 1, -s + 1, s + 1, -s - 1],
+        [r - 1, -r - 1, r + 1, -r + 1]])
+    return N, dNdr
 
 
+def shape_quad9(r, s):
+    """
+    Shape functions and derivatives for a biquadratic element
+
+    Parameters
+    ----------
+    r : float
+        Horizontal coordinate of the evaluation point.
+    s : float
+        Vertical coordinate of the evaluation point.
+
+    Returns
+    -------
+    N : ndarray (float)
+        Array with the shape functions evaluated at the point (r, s).
+    dNdr : ndarray (float)
+        Array with the derivative of the shape functions evaluated at
+        the point (r, s).
+    """
+    N = np.array(
+        [0.25*r*s*(r - 1.0)*(s - 1.0),
+         0.25*r*s*(r + 1.0)*(s - 1.0),
+         0.25*r*s*(r + 1.0)*(s + 1.0),
+         0.25*r*s*(r - 1.0)*(s + 1.0),
+         0.5*s*(-r**2 + 1.0)*(s - 1.0),
+         0.5*r*(r + 1.0)*(-s**2 + 1.0),
+         0.5*s*(-r**2 + 1.0)*(s + 1.0),
+         0.5*r*(r - 1.0)*(-s**2 + 1.0),
+         (-r**2 + 1.0)*(-s**2 + 1.0)])
+    dNdr = np.array([
+        [0.25*s*(2.0*r - 1.0)*(s - 1.0),
+         0.25*s*(2.0*r + 1.0)*(s - 1.0),
+         0.25*s*(2.0*r + 1.0)*(s + 1.0),
+         0.25*s*(2.0*r - 1.0)*(s + 1.0),
+         r*s*(-s + 1.0),
+         -0.5*(2.0*r + 1.0)*(s**2 - 1.0),
+         -r*s*(s + 1.0),
+         0.5*(-2.0*r + 1.0)*(s**2 - 1.0),
+         2.0*r*(s**2 - 1.0)],
+        [0.25*r*(r - 1.0)*(2.0*s - 1.0),
+         0.25*r*(r + 1.0)*(2.0*s - 1.0),
+         0.25*r*(r + 1.0)*(2.0*s + 1.0),
+         0.25*r*(r - 1.0)*(2.0*s + 1.0),
+         0.5*(r**2 - 1.0)*(-2.0*s + 1.0),
+         -r*s*(r + 1.0),
+         -0.5*(r**2 - 1.0)*(2.0*s + 1.0),
+         r*s*(-r + 1.0),
+         2.0*s*(r**2 - 1.0)]])
+    return N, dNdr
+
+
+#%% Derivative matrices
+def elast_mat_2d(r, s, coord, element):
+    """
+    Interpolation matrices for elements for plane elasticity
+
+    Parameters
+    ----------
+    r : float
+        Horizontal coordinate of the evaluation point.
+    s : float
+        Vertical coordinate of the evaluation point.
+    coord : ndarray (float)
+        Coordinates of the element.
+
+    Returns
+    -------
+    H : ndarray (float)
+        Array with the shape functions evaluated at the point (r, s)
+        for each degree of freedom.
+    B : ndarray (float)
+        Array with the displacement to strain matrix evaluated
+        at the point (r, s).
+    det : float
+        Determinant of the Jacobian.
+    """
+    N, dNdr = element(r, s)
+    det, jaco_inv = jacoper(dNdr, coord)
+    dNdx = jaco_inv @ dNdr
+    H = np.zeros((2, 2*N.shape[0]))
+    B = np.zeros((3, 2*N.shape[0]))
+    H[0, 0::2] = N
+    H[1, 1::2] = N
+    B[0, 0::2] = dNdx[0, :]
+    B[1, 1::2] = dNdx[1, :]
+    B[2, 0::2] = dNdx[1, :]
+    B[2, 1::2] = dNdx[0, :]
+    return H, B, det
+
+
+def elast_mat_axi(r, s, coord, element):
+    """
+    Interpolation matrices for elements for axisymetric elasticity
+
+    Parameters
+    ----------
+    r : float
+        Horizontal coordinate of the evaluation point.
+    s : float
+        Vertical coordinate of the evaluation point.
+    coord : ndarray (float)
+        Coordinates of the element.
+
+    Returns
+    -------
+    H : ndarray (float)
+        Array with the shape functions evaluated at the point (r, s)
+        for each degree of freedom.
+    B : ndarray (float)
+        Array with the displacement to strain matrix evaluated
+        at the point (r, s).
+    det : float
+        Determinant of the Jacobian.
+    """
+    N, dNdr = element(r, s)
+    x = N.dot(coord[:, 0])
+    if x < 0:
+        raise ValueError("Horizontal coordinates should be non-negative.")
+    det, jaco_inv = jacoper(dNdr, coord)
+    dNdx = jaco_inv @ dNdr
+    H = np.zeros((2, 2*N.shape[0]))
+    B = np.zeros((4, 2*N.shape[0]))
+    H[0, 0::2] = N
+    H[1, 1::2] = N
+    B[0, 0::2] = dNdx[0, :]
+    B[1, 1::2] = dNdx[1, :]
+    B[2, 0::2] = dNdx[1, :]
+    B[2, 1::2] = dNdx[0, :]
+    B[2, 1::2] = dNdx[0, :]
+    B[3, 0::2] = N/x
+    return H, B, det
+
+
+#%%
 def jacoper(dNdr, coord):
     """
     Compute the Jacobian of the transformation evaluated at
@@ -346,15 +368,15 @@ def jacoper(dNdr, coord):
 
 
 #%% Elemental strains
-def str_el4(coord, ul):
+def str_el3(coord, ul):
     """Compute the strains at each element integration point
 
-    This one is used for 4-noded quadrilateral elements.
+    This one is used for 3-noded triangular elements.
 
     Parameters
     ----------
     coord : ndarray
-      Coordinates of the nodes of the element (4, 2).
+      Coordinates of the nodes of the element (nn, 2).
     ul : ndarray
       Array with displacements for the element.
 
@@ -366,19 +388,15 @@ def str_el4(coord, ul):
       Configuration of the Gauss points after deformation.
 
     """
-    epsl = np.zeros([3])
-    epsG = np.zeros([3, 4])
-    xl = np.zeros([4, 2])
-    XW, XP = gau.gpoints2x2()
-    for i in range(4):
-        ri = XP[i, 0]
-        si = XP[i, 1]
-        ddet, B = stdm4NQ(ri, si, coord)
-        epsl = np.dot(B, ul)
-        epsG[:, i] = epsl[:]
-        N = sha4(ri, si)
-        xl[i, 0] = sum(N[0, 2*i]*coord[i, 0] for i in range(4))
-        xl[i, 1] = sum(N[0, 2*i]*coord[i, 1] for i in range(4))
+    epsG = np.zeros([3, 3])
+    xl = np.zeros([3, 2])
+    gpts, _ = gau.gauss_tri(order=1)
+    for i in range(gpts.shape[0]):
+        ri, si =  gpts[i, :]
+        H, B, _ = elast_mat_2d(ri, si, coord, shape_tri3)
+        epsG[:, i] = B @ ul
+        xl[i, 0] = np.dot(H[0, ::2], coord[:, 0])
+        xl[i, 1] = np.dot(H[0, ::2], coord[:, 0])
     return epsG.T, xl
 
 
@@ -402,31 +420,27 @@ def str_el6(coord, ul):
       Configuration of the Gauss points after deformation.
 
     """
-    epsl = np.zeros([3])
     epsG = np.zeros([3, 7])
     xl = np.zeros([7, 2])
-    XW, XP = gau.gpoints7()
+    gpts, _ = gau.gauss_tri(order=3)
     for i in range(7):
-        ri = XP[i, 0]
-        si = XP[i, 1]
-        ddet, B = stdm6NT(ri, si, coord)
-        epsl = np.dot(B, ul)
-        epsG[:, i] = epsl[:]
-        N = sha6(ri, si)
-        xl[i, 0] = sum(N[0, 2*i]*coord[i, 0] for i in range(6))
-        xl[i, 1] = sum(N[0, 2*i]*coord[i, 1] for i in range(6))
+        ri, si = gpts[i, :]
+        H, B, _ = elast_mat_2d(ri, si, coord, shape_tri6)
+        epsG[:, i] = B @ ul
+        xl[i, 0] = np.dot(H[0, ::2], coord[:, 0])
+        xl[i, 1] = np.dot(H[0, ::2], coord[:, 0])
     return epsG.T, xl
 
 
-def str_el3(coord, ul):
+def str_el4(coord, ul):
     """Compute the strains at each element integration point
 
-    This one is used for 3-noded triangular elements.
+    This one is used for 4-noded quadrilateral elements.
 
     Parameters
     ----------
     coord : ndarray
-      Coordinates of the nodes of the element (nn, 2).
+      Coordinates of the nodes of the element (4, 2).
     ul : ndarray
       Array with displacements for the element.
 
@@ -438,19 +452,15 @@ def str_el3(coord, ul):
       Configuration of the Gauss points after deformation.
 
     """
-    epsl = np.zeros([3])
-    epsG = np.zeros([3, 3])
-    xl = np.zeros([3, 2])
-    XW, XP = gau.gpoints3()
-    for i in range(3):
-        ri = XP[i, 0]
-        si = XP[i, 1]
-        ddet, B = stdm3NT(ri, si, coord)
-        epsl = np.dot(B, ul)
-        epsG[:, i] = epsl
-        N = sha3(ri, si)
-        xl[i, 0] = sum(N[0, 2*i]*coord[i, 0] for i in range(3))
-        xl[i, 1] = sum(N[0, 2*i]*coord[i, 1] for i in range(3))
+    epsG = np.zeros([3, 4])
+    xl = np.zeros([4, 2])
+    gpts, _ = gau.gauss_nd(2)
+    for i in range(gpts.shape[0]):
+        ri, si = gpts[i, :]
+        H, B, _= elast_mat_2d(ri, si, coord, shape_quad4)
+        epsG[:, i] = B @ ul
+        xl[i, 0] = np.dot(H[0, ::2], coord[:, 0])
+        xl[i, 1] = np.dot(H[0, ::2], coord[:, 0])
     return epsG.T, xl
 
 

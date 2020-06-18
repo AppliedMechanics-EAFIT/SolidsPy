@@ -549,7 +549,7 @@ def stress_truss(nodes, elements, mats, disp):
         tan_vec = coords[1, :] - coords[0, :]
         length = np.linalg.norm(tan_vec)
         mat_id = elements[cont, 2]
-        local_stiff, _ = uel.ueltruss2D(coords, mats[mat_id, :])
+        local_stiff, _ = uel.truss2D(coords, mats[mat_id, :])
         local_disp = np.hstack((disp[ini, :], disp[end, :]))
         local_forces = local_stiff.dot(local_disp)
         stress[cont] = local_forces[2:].dot(tan_vec)/(length*mats[mat_id, 1])
@@ -614,7 +614,6 @@ def eigvals(mat, tol=1e-6):
     if abs(eig2) > abs(eig1):
         eig2, eig1 = eig1, eig2
         vec2, vec1 = vec1, vec2
-
     return eig1, eig2, vec1, vec2
 
 
@@ -654,7 +653,6 @@ def principal_dirs(field):
         eigs2[cont] = eig2
         vecs1[cont, :] = vec1
         vecs2[cont, :] = vec2
-
     return eigs1, eigs2, vecs1, vecs2
 
 
@@ -677,7 +675,6 @@ def energy(disp, stiff):
     """
     force = stiff.dot(disp)
     el_energy = -0.5*force.dot(disp)
-
     return el_energy
 
 

@@ -102,18 +102,18 @@ def ele_fun(eletype):
       Function for the element type given.
     """
     elem_id = {
-        1: ue.uel4nquad,
-        2: ue.uel6ntrian,
-        3: ue.uel3ntrian,
-        5: ue.uelspring,
-        6: ue.ueltruss2D,
-        7: ue.uelbeam2DU,
-        8: ue.uelbeam2D}
+        1: ue.elast_quad4,
+        2: ue.elast_tri6,
+        3: ue.elast_tri3,
+        4: ue.elast_quad9,
+        5: ue.spring,
+        6: ue.truss2D,
+        7: ue.beam2DU,
+        8: ue.beam2D}
     try:
         return elem_id[eletype]
     except:
         raise ValueError("You entered an invalid type of element.")
-
 
 
 def retriever(elements, mats, nodes, ele, uel=None):
