@@ -9,83 +9,90 @@ import solidspy.femutil as fem
 
 
 #%% Tests for Shape functions and derivatives
-def test_sha4():
-    """Tests for 4-nodes quad shape functions"""
+def test_shape_tri3():
+    # Interpolation condition check
+    coords = np.array([
+        [0.0, 0.0],
+        [1.0, 0.0],
+        [0.0, 1.0]])
+    N, _ = fem.shape_tri3(coords[:, 0], coords[:, 1])
+    assert np.allclose(N, np.eye(3))
+
+
+def test_shape_tri6():
+    # Interpolation condition check
+    coords = np.array([
+        [0.0, 0.0],
+        [1.0, 0.0],
+        [0.0, 1.0],
+        [0.5, 0.0],
+        [0.5, 0.5],
+        [0.0, 0.5]])
+    N, _ = fem.shape_tri6(coords[:, 0], coords[:, 1])
+    assert np.allclose(N, np.eye(6))
+
+    # Evaluation at (1/3, 1/3)
+    N, dNdr = fem.shape_tri6(1/3, 1/3)
+    N_exp = np.array([-1., -1., -1., 4., 4., 4.])/9
+    dNdr_exp = np.array([
+                [-1.,  1.,  0.,  0.,  4., -4.],
+                [-1.,  0.,  1., -4.,  4.,  0.]])/3
+    assert np.allclose(N, N_exp)
+    assert np.allclose(dNdr, dNdr_exp)
+
+
+def test_shape_quad4():
+    # Interpolation condition check
+    coords = np.array([
+        [-1.0, -1.0],
+        [1.0, -1.0],
+        [1.0, 1.0],
+        [-1.0, 1.0]])
+    N, _ = fem.shape_quad4(coords[:, 0], coords[:, 1])
+    assert np.allclose(N, np.eye(4))
 
     # For point (0, 0)
-    N = fem.sha4(0, 0)
-    N_ex = 0.25 * np.array([
-        [1, 0, 1, 0, 1, 0, 1, 0],
-        [0, 1, 0, 1, 0, 1, 0, 1]])
+    N, _ = fem.shape_quad4(0, 0)
+    N_ex = 0.25 * np.array([[1, 1, 1, 1]])
     assert np.allclose(N, N_ex)
 
 
-def test_sha6():
-    """Tests for 6-nodes tri shape functions"""
+def test_shape_quad9():
+    # Interpolation condition check
+    coords = np.array([
+        [-1.0, -1.0],
+        [ 1.0, -1.0],
+        [ 1.0,  1.0],
+        [-1.0,  1.0],
+        [ 0.0, -1.0],
+        [ 1.0,  0.0],
+        [ 0.0,  1.0],
+        [-1.0,  0.0],
+        [ 0.0,  0.0]])
+    N, _ = fem.shape_quad9(coords[:, 0], coords[:, 1])
+    assert np.allclose(N, np.eye(9))
 
-    # For point (0, 0)
-    N = fem.sha6(0, 0)
-    N_ex = np.array([
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-    assert np.allclose(N, N_ex)
+    # Evaluation at (1/4, 1/4)
+    N, dNdr = fem.shape_quad9(0.25, 0.25)
+    N_exp = np.array(
+        [0.00878906, -0.01464844, 0.02441406, -0.01464844,
+        -0.08789062, 0.14648438, 0.14648438, -0.08789062,
+        0.87890625])
 
-
-def test_stdm4NQ():
-    """Tests for 4-nodes quad shape functions derivatives"""
-
-    # For point (1, 1)
-    coord = np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]])
-    det, B = fem.stdm4NQ(1, 1, coord)
-    B_ex = 0.5 * np.array([
-        [0, 0, 0, 0, 1, 0, -1, 0],
-        [0, 0, 0, -1, 0, 1, 0, 0],
-        [0, 0, -1, 0, 1, 1, 0, -1]])
-    assert np.isclose(det, 1)
-    assert np.allclose(B, B_ex)
-
-
-def test_stdm6NT():
-    """Tests for 6-nodes tri shape functions derivatives"""
-
-    # For point (1, 0)
-    coord = np.array([
-          [0, 0],
-          [1, 0],
-          [0, 1],
-          [0.5, 0],
-          [0.5, 0.5],
-          [0, 0.5]])
-    det, B = fem.stdm6NT(1, 0, coord)
-    B_ex = np.array([
-        [1, 0, 3, 0, 0, 0, -4, 0, 0, 0, 0, 0],
-        [0, 1, 0, 0, 0, -1, 0, -4, 0, 4, 0, 0],
-        [1, 1, 0, 3, -1, 0, -4, -4, 4, 0, 0, 0]])
-    assert np.isclose(det, 1)
-    assert np.allclose(B, B_ex)
+    dNdr_exp = np.array([
+        [0.0234375, -0.0703125, 0.1171875, -0.0390625, 0.046875,
+            0.703125, -0.078125, -0.234375, -0.46875],
+        [0.0234375, -0.0390625, 0.1171875, -0.0703125, -0.234375,
+            -0.078125, 0.703125, 0.046875, -0.46875]])
+    assert np.allclose(N, N_exp)
+    assert np.allclose(dNdr, dNdr_exp)
 
 
-def test_stdm3NT():
-    """Tests for 3-nodes tri shape functions derivatives"""
-
-    # For point (0, 1)
-    coord = np.array([
-          [0, 0],
-          [1, 0],
-          [0, 1]])
-    det, B = fem.stdm3NT(0, 1, coord)
-    B_ex = np.array([
-            [-1, 0, 1, 0, 0, 0],
-            [0, -1, 0, 0, 0, 1],
-            [-1, -1, 0, 1, 1, 0]])
-    assert np.isclose(det, 1)
-    assert np.allclose(B, B_ex)
-
-
+#%% Jacobian
 def test_jacoper():
     """Tests for jacobian of the elemental transformation"""
 
-    ## Perfect element at (0, 0)
+    # Perfect element at (0, 0)
     dhdx = 0.25*np.array([
             [-1, 1, 1, -1],
             [-1, -1, 1, 1]])
@@ -99,7 +106,7 @@ def test_jacoper():
     assert np.isclose(det, 1)
     assert np.allclose(jaco_inv, jaco_inv_ex)
 
-    ## Shear element at (0, 0)
+    # Shear element at (0, 0)
     dhdx = 0.25*np.array([
             [-1, 1, 1, -1],
             [-1, -1, 1, 1]])
@@ -114,13 +121,12 @@ def test_jacoper():
     assert np.isclose(det, 1)
     assert np.allclose(jaco_inv, jaco_inv_ex)
 
+    # Wrong triangles
 
-    ## Wrong triangles
-    
     # Repeated node
     dhdx = np.array([
             [-1, 1, 0],
-            [-1, 0, 1]])        
+            [-1, 0, 1]])    
     coord = np.array([
             [0, 0],
             [0, 0],
@@ -139,8 +145,8 @@ def test_jacoper():
         det, jaco_inv = fem.jacoper(dhdx, coord)
 
 
-    ## Wrong quads
-    
+    # Wrong quads
+
     # Opposite orientation
     dhdx = 0.25*np.array([
             [-1, 1, 1, -1],
@@ -152,7 +158,7 @@ def test_jacoper():
             [-1, -1]])
     with pytest.raises(ValueError):
         det, jaco_inv = fem.jacoper(dhdx, coord)
-    
+
     # Repeated nodes
     dhdx = 0.25*np.array([
             [-1, 1, 1, -1],
@@ -163,4 +169,4 @@ def test_jacoper():
             [1, -1],
             [-1, 1]])
     with pytest.raises(ValueError):
-        det, jaco_inv = fem.jacoper(dhdx, coord)   
+        det, jaco_inv = fem.jacoper(dhdx, coord)
