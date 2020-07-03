@@ -253,8 +253,130 @@ def shape_quad9(r, s):
     return N, dNdr
 
 
+
+def shape_quad8(r, s):
+    """
+    Shape functions and derivatives for a 8-noded serendipity element
+
+    Parameters
+    ----------
+    r : float
+        Horizontal coordinate of the evaluation point.
+    s : float
+        Vertical coordinate of the evaluation point.
+
+    Returns
+    -------
+    N : ndarray (float)
+        Array with the shape functions evaluated at the point (r, s).
+    dNdr : ndarray (float)
+        Array with the derivative of the shape functions evaluated at
+        the point (r, s).
+    """
+    N = 0.25*np.array(
+        [(1.0 - r)*(1.0 - s) - (1.0 - r)*(1.0 - s**2) - (1.0 - s)*(1.0 - r**2),
+         (1.0 + r)*(1.0 - s) - (1.0 + r)*(1.0 - s**2) - (1.0 - s)*(1.0 - r**2),
+         (1.0 + r)*(1.0 + s) - (1.0 + r)*(1.0 - s**2) - (1.0 + s)*(1.0 - r**2),
+         (1.0 - r)*(1.0 + s) - (1.0 - r)*(1.0 - s**2) - (1.0 + s)*(1.0 - r**2),
+         2.0*(1.0 - s)*(1.0 - r**2),
+         2.0*(1.0 + r)*(1.0 - s**2),
+         2.0*(1.0 + s)*(1.0 - r**2),
+         2.0*(1.0 - r)*(1.0 - s**2)])
+    dNdr = 0.25*np.array([
+        [-2.0*r*(s - 1.0) - s**2 + s,
+         -2.0*r*(s - 1.0) + s**2 - s,
+         -2.0*r*(-s - 1.0) + s**2 + s,
+         -2.0*r*(-s - 1.0) - s**2 - s,
+         -2.0*r*(2.0 - 2.0*s),
+         2.0 - 2.0*s**2,
+         -2.0*r*(2.0*s + 2.0),
+         2.0*s**2 - 2.0],
+        [-r**2 + r - 2.0*s*(r - 1.0),
+         -r**2 - r - 2.0*s*(-r - 1.0),
+         r**2 + r - 2.0*s*(-r - 1.0),
+         r**2 - r - 2.0*s*(r - 1.0),
+         2.0*r**2 - 2.0,
+         -2.0*s*(2.0*r + 2.0),
+         2.0 - 2.0*r**2,
+         -2.0*s*(2.0 - 2.0*r)]])
+    return N, dNdr
+
+
+## 3D elements
+def shape_tet4(r, s, t):
+    """
+    Shape functions and derivatives for a linear tetrahedron
+
+    Parameters
+    ----------
+    r : float
+        Horizontal coordinate of the evaluation point.
+    s : float
+        Horizontal coordinate of the evaluation point.
+    t : float
+        Vertical coordinate of the evaluation point.
+
+    Returns
+    -------
+    N : ndarray (float)
+        Array with the shape functions evaluated at the point (r, s, t).
+    dNdr : ndarray (float)
+        Array with the derivative of the shape functions evaluated at
+        the point (r, s, t).
+    """
+    N = np.array([1 - r - s - t, r, s, t])
+    dNdr = np.array([
+            [-1, -1, -1],
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]])
+    return N, dNdr
+
+
+def shape_hex8(r, s, t):
+    """
+    Shape functions and derivatives for a trilinear element
+
+    Parameters
+    ----------
+    r : float
+        Horizontal coordinate of the evaluation point.
+    s : float
+        Horizontal coordinate of the evaluation point.
+    t : float
+        Vertical coordinate of the evaluation point.
+
+    Returns
+    -------
+    N : ndarray (float)
+        Array with the shape functions evaluated at the point (r, s, t).
+    dNdr : ndarray (float)
+        Array with the derivative of the shape functions evaluated at
+        the point (r, s, t).
+    """
+    N = np.array([
+        (1 - r)*(1 - s)*(1 - t), (1 - s)*(1 - t)*(r + 1),
+        (1 - t)*(r + 1)*(s + 1), (1 - r)*(1 - t)*(s + 1),
+        (1 - r)*(1 - s)*(t + 1), (1 - s)*(r + 1)*(t + 1),
+        (r + 1)*(s + 1)*(t + 1), (1 - r)*(s + 1)*(t + 1)])
+    dNdr = np.array([
+        [(1 - t)*(s - 1), (1 - s)*(1 - t),
+         (1 - t)*(s + 1), (1 - t)*(-s - 1),
+         (1 - s)*(-t - 1), (1 - s)*(t + 1),
+         (s + 1)*(t + 1), -(s + 1)*(t + 1)],
+        [(1 - t)*(r - 1), (1 - t)*(-r - 1),
+         (1 - t)*(r + 1), (1 - r)*(1 - t),
+         -(1 - r)*(t + 1), -(r + 1)*(t + 1),
+         (r + 1)*(t + 1), (1 - r)*(t + 1)],
+        [-(1 - r)*(1 - s), -(1 - s)*(r + 1),
+         -(r + 1)*(s + 1), -(1 - r)*(s + 1),
+         (1 - r)*(1 - s), (1 - s)*(r + 1),
+         (r + 1)*(s + 1), (1 - r)*(s + 1)]])
+    return 0.125*N, 0.125*dNdr
+
+
 #%% Derivative matrices
-def elast_mat_2d(r, s, coord, element):
+def elast_diff_2d(r, s, coord, element):
     """
     Interpolation matrices for elements for plane elasticity
 
@@ -292,7 +414,7 @@ def elast_mat_2d(r, s, coord, element):
     return H, B, det
 
 
-def elast_mat_axi(r, s, coord, element):
+def elast_diff_axi(r, s, coord, element):
     """
     Interpolation matrices for elements for axisymetric elasticity
 
@@ -335,6 +457,54 @@ def elast_mat_axi(r, s, coord, element):
     return H, B, det
 
 
+## 3D elements
+def elast_diff_3d(r, s, t, coord, interp=shape_hex8):
+    """
+    Interpolation matrices for a trilinear element for
+    elasticity
+
+    Parameters
+    ----------
+    r : float
+        Horizontal coordinate of the evaluation point.
+    s : float
+        Horizontal coordinate of the evaluation point.
+    t : float
+        Vertical coordinate of the evaluation point.
+    coord : ndarray (float)
+        Coordinates of the element.
+
+    Returns
+    -------
+    H : ndarray (float)
+        Array with the shape functions evaluated at the point (r, s, t)
+        for each degree of freedom.
+    B : ndarray (float)
+        Array with the displacement to strain matrix evaluated
+        at the point (r, s, t).
+    det : float
+        Determinant of the Jacobian.
+    """
+    N, dNdr = interp(r, s, t)
+    det, jaco_inv = jacoper(dNdr, coord)
+    dNdx = jaco_inv @ dNdr
+    H = np.zeros((3, 24))
+    B = np.zeros((6, 24))
+    H[0, 0::3] = N
+    H[1, 1::3] = N
+    H[2, 2::3] = N
+    B[0, 0::3] = dNdx[0, :]
+    B[1, 1::3] = dNdx[1, :]
+    B[2, 2::3] = dNdx[2, :]
+    B[3, 1::3] = dNdx[2, :]
+    B[3, 2::3] = dNdx[1, :]
+    B[4, 0::3] = dNdx[2, :]
+    B[4, 2::3] = dNdx[0, :]
+    B[5, 0::3] = dNdx[1, :]
+    B[5, 1::3] = dNdx[0, :]
+    return H, B, det
+
+
 #%%
 def jacoper(dNdr, coord):
     """
@@ -365,103 +535,6 @@ def jacoper(dNdr, coord):
         msg = "Jacobian is negative. Check your elements orientation!"
         raise ValueError(msg)
     return det, jaco_inv
-
-
-#%% Elemental strains
-def str_el3(coord, ul):
-    """Compute the strains at each element integration point
-
-    This one is used for 3-noded triangular elements.
-
-    Parameters
-    ----------
-    coord : ndarray
-      Coordinates of the nodes of the element (nn, 2).
-    ul : ndarray
-      Array with displacements for the element.
-
-    Returns
-    -------
-    epsGT : ndarray
-      Strain components for the Gauss points.
-    xl : ndarray
-      Configuration of the Gauss points after deformation.
-
-    """
-    epsG = np.zeros([3, 3])
-    xl = np.zeros([3, 2])
-    gpts, _ = gau.gauss_tri(order=1)
-    for i in range(gpts.shape[0]):
-        ri, si =  gpts[i, :]
-        H, B, _ = elast_mat_2d(ri, si, coord, shape_tri3)
-        epsG[:, i] = B @ ul
-        xl[i, 0] = np.dot(H[0, ::2], coord[:, 0])
-        xl[i, 1] = np.dot(H[0, ::2], coord[:, 0])
-    return epsG.T, xl
-
-
-def str_el6(coord, ul):
-    """Compute the strains at each element integration point
-
-    This one is used for 6-noded triangular elements.
-
-    Parameters
-    ----------
-    coord : ndarray
-      Coordinates of the nodes of the element (6, 2).
-    ul : ndarray
-      Array with displacements for the element.
-
-    Returns
-    -------
-    epsGT : ndarray
-      Strain components for the Gauss points.
-    xl : ndarray
-      Configuration of the Gauss points after deformation.
-
-    """
-    epsG = np.zeros([3, 7])
-    xl = np.zeros([7, 2])
-    gpts, _ = gau.gauss_tri(order=3)
-    for i in range(7):
-        ri, si = gpts[i, :]
-        H, B, _ = elast_mat_2d(ri, si, coord, shape_tri6)
-        epsG[:, i] = B @ ul
-        xl[i, 0] = np.dot(H[0, ::2], coord[:, 0])
-        xl[i, 1] = np.dot(H[0, ::2], coord[:, 0])
-    return epsG.T, xl
-
-
-def str_el4(coord, ul):
-    """Compute the strains at each element integration point
-
-    This one is used for 4-noded quadrilateral elements.
-
-    Parameters
-    ----------
-    coord : ndarray
-      Coordinates of the nodes of the element (4, 2).
-    ul : ndarray
-      Array with displacements for the element.
-
-    Returns
-    -------
-    epsGT : ndarray
-      Strain components for the Gauss points.
-    xl : ndarray
-      Configuration of the Gauss points after deformation.
-
-    """
-    epsG = np.zeros([3, 4])
-    xl = np.zeros([4, 2])
-    gpts, _ = gau.gauss_nd(2)
-    for i in range(gpts.shape[0]):
-        ri, si = gpts[i, :]
-        H, B, _= elast_mat_2d(ri, si, coord, shape_quad4)
-        epsG[:, i] = B @ ul
-        xl[i, 0] = np.dot(H[0, ::2], coord[:, 0])
-        xl[i, 1] = np.dot(H[0, ::2], coord[:, 0])
-    return epsG.T, xl
 
 
 #%% Material routines
@@ -509,6 +582,198 @@ def umat(params):
     C[2, 2] = enu*mnu
 
     return C
+
+
+def elast_mat_2d(params):
+    """2D Elasticity consitutive matrix in plain stress
+
+    For plane stress use effective properties.
+
+    Parameters
+    ----------
+    params : tuple
+        Material parameters in the following order:
+
+            E : float
+                Young modulus (>0).
+            nu : float
+                Poisson coefficient (-1, 0.5).
+
+    Returns
+    -------
+    C : ndarray
+      Constitutive tensor in Voigt notation.
+
+    """
+    E, nu = params
+    lamda = E*nu/(1 + nu)/(1 - 2*nu)
+    mu = 0.5*E/(1 + nu)
+    C = np.array([
+    [2*mu + lamda, lamda, 0, 0],
+    [lamda, 2*mu + lamda, 0, 0],
+    [0, 0, mu, 0],
+    [0, 0, 0, 2*mu + lamda]])
+    return C
+
+
+def elast_mat_axi(params):
+    """Elasticity consitutive matrix for axisymmetric problems.
+
+    Parameters
+    ----------
+    params : tuple
+        Material parameters in the following order:
+
+            E : float
+                Young modulus (>0).
+            nu : float
+                Poisson coefficient (-1, 0.5).
+
+    Returns
+    -------
+    C : ndarray
+      Constitutive tensor in Voigt notation.
+
+    """
+    E, nu = params
+    lamda = E*nu/(1 + nu)/(1 - 2*nu)
+    mu = 0.5*E/(1 + nu)
+    C = np.array([
+        [2*mu + lamda, lamda, 0, 0],
+        [lamda, 2*mu + lamda, 0, 0],
+        [0, 0, mu, 0],
+        [0, 0, 0, 2*mu + lamda]])
+    return C
+
+
+def elast_mat(params):
+    """3D Elasticity consitutive matrix.
+
+    Parameters
+    ----------
+    params : tuple
+        Material parameters in the following order:
+
+            E : float
+                Young modulus (>0).
+            nu : float
+                Poisson coefficient (-1, 0.5).
+
+    Returns
+    -------
+    C : ndarray
+        Constitutive tensor in Voigt notation.
+
+    """
+    E, nu = params
+    lamda = E*nu/(1 + nu)/(1 - 2*nu)
+    mu = 0.5*E/(1 + nu)
+    C = np.array([
+    [2*mu + lamda, lamda, lamda, 0, 0, 0],
+    [lamda, 2*mu + lamda, lamda, 0, 0, 0],
+    [lamda, lamda, 2*mu + lamda, 0, 0, 0],
+    [0, 0, 0, mu, 0, 0],
+    [0, 0, 0, 0, mu, 0],
+    [0, 0, 0, 0, 0, mu]])
+    return C
+
+
+
+#%% Elemental strains
+def str_el3(coord, ul):
+    """Compute the strains at each element integration point
+
+    This one is used for 3-noded triangular elements.
+
+    Parameters
+    ----------
+    coord : ndarray
+      Coordinates of the nodes of the element (nn, 2).
+    ul : ndarray
+      Array with displacements for the element.
+
+    Returns
+    -------
+    epsGT : ndarray
+      Strain components for the Gauss points.
+    xl : ndarray
+      Configuration of the Gauss points after deformation.
+
+    """
+    epsG = np.zeros([3, 3])
+    xl = np.zeros([3, 2])
+    gpts, _ = gau.gauss_tri(order=1)
+    for i in range(gpts.shape[0]):
+        ri, si =  gpts[i, :]
+        H, B, _ = elast_diff_2d(ri, si, coord, shape_tri3)
+        epsG[:, i] = B @ ul
+        xl[i, 0] = np.dot(H[0, ::2], coord[:, 0])
+        xl[i, 1] = np.dot(H[0, ::2], coord[:, 0])
+    return epsG.T, xl
+
+
+def str_el6(coord, ul):
+    """Compute the strains at each element integration point
+
+    This one is used for 6-noded triangular elements.
+
+    Parameters
+    ----------
+    coord : ndarray
+      Coordinates of the nodes of the element (6, 2).
+    ul : ndarray
+      Array with displacements for the element.
+
+    Returns
+    -------
+    epsGT : ndarray
+      Strain components for the Gauss points.
+    xl : ndarray
+      Configuration of the Gauss points after deformation.
+
+    """
+    epsG = np.zeros([3, 7])
+    xl = np.zeros([7, 2])
+    gpts, _ = gau.gauss_tri(order=3)
+    for i in range(7):
+        ri, si = gpts[i, :]
+        H, B, _ = elast_diff_2d(ri, si, coord, shape_tri6)
+        epsG[:, i] = B @ ul
+        xl[i, 0] = np.dot(H[0, ::2], coord[:, 0])
+        xl[i, 1] = np.dot(H[0, ::2], coord[:, 0])
+    return epsG.T, xl
+
+
+def str_el4(coord, ul):
+    """Compute the strains at each element integration point
+
+    This one is used for 4-noded quadrilateral elements.
+
+    Parameters
+    ----------
+    coord : ndarray
+      Coordinates of the nodes of the element (4, 2).
+    ul : ndarray
+      Array with displacements for the element.
+
+    Returns
+    -------
+    epsGT : ndarray
+      Strain components for the Gauss points.
+    xl : ndarray
+      Configuration of the Gauss points after deformation.
+
+    """
+    epsG = np.zeros([3, 4])
+    xl = np.zeros([4, 2])
+    gpts, _ = gau.gauss_nd(2)
+    for i in range(gpts.shape[0]):
+        ri, si = gpts[i, :]
+        H, B, _= elast_diff_2d(ri, si, coord, shape_quad4)
+        epsG[:, i] = B @ ul
+        xl[i, 0] = np.dot(H[0, ::2], coord[:, 0])
+        xl[i, 1] = np.dot(H[0, ::2], coord[:, 0])
+    return epsG.T, xl
 
 
 if __name__ == "__main__":

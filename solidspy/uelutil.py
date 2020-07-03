@@ -70,7 +70,7 @@ def elast_tri3(coord, params):
     gpts, gwts = gau.gauss_tri(order=2)
     for cont in range(gpts.shape[0]):
         r, s = gpts[cont, :]
-        H, B, det = fem.elast_mat_2d(r, s, coord, fem.shape_tri3)
+        H, B, det = fem.elast_diff_2d(r, s, coord, fem.shape_tri3)
         factor = det * gwts[cont]
         stiff_mat += 0.5 * factor * (B.T @ C @ B)
         mass_mat += 0.5 * dens * factor * (H.T @ H)
@@ -140,7 +140,7 @@ def elast_tri6(coord, params):
     gpts, gwts = gau.gauss_tri(order=3)
     for cont in range(gpts.shape[0]):
         r, s = gpts[cont, :]
-        H, B, det = fem.elast_mat_2d(r, s, coord, fem.shape_tri6)
+        H, B, det = fem.elast_diff_2d(r, s, coord, fem.shape_tri6)
         factor = gwts[cont] * det
         stiff_mat += 0.5 * factor * (B.T @ C @ B)
         mass_mat += 0.5 * dens * factor * (H.T @ H)
@@ -212,7 +212,7 @@ def elast_quad4(coord, params):
     gpts, gwts = gau.gauss_nd(2)
     for cont in range(gpts.shape[0]): # pylint: disable=E1136  # pylint/issues/3139
         r, s = gpts[cont, :]
-        H, B, det = fem.elast_mat_2d(r, s, coord, fem.shape_quad4)
+        H, B, det = fem.elast_diff_2d(r, s, coord, fem.shape_quad4)
         factor = det * gwts[cont]
         stiff_mat += factor * (B.T @ C @ B)
         mass_mat += dens*factor* (H.T @ H)
@@ -249,10 +249,150 @@ def elast_quad9(coord, params):
     gpts, gwts = gau.gauss_nd(3, ndim=2)
     for cont in range(gpts.shape[0]): # pylint: disable=E1136  # pylint/issues/3139
         r, s = gpts[cont, :]
-        H, B, det = fem.elast_mat_2d(r, s, coord, fem.shape_quad9)
+        H, B, det = fem.elast_diff_2d(r, s, coord, fem.shape_quad9)
         factor = det * gwts[cont]
         stiff_mat += factor * (B.T @ C @ B)
         mass_mat += dens * factor * (H.T @ H)
+    return stiff_mat, mass_mat
+
+
+def elast_quad8(coord, params):
+    """
+    Quadrilateral element with 9 nodes for classic elasticity
+    under plane-strain
+
+    Parameters
+    ----------
+    coord : coord
+        Coordinates of the element.
+    params : list
+        List with material parameters in the following order:
+        [Young modulus, Poisson coefficient, density].
+
+    Returns
+    -------
+    stiff_mat : ndarray (float)
+        Local stifness matrix.
+    mass_mat : ndarray (float)
+        Local mass matrix.
+    """
+    E, nu, rho = params
+    C = fem.umat((E, nu))
+    stiff_mat = np.zeros((16, 16))
+    mass_mat = np.zeros((16, 16))
+    gpts, gwts = gau.gauss_nd(3, ndim=2)
+    for cont in range(gpts.shape[0]):
+        r = gpts[cont, 0]
+        s = gpts[cont, 1]
+        H, B, det = fem.elast_diff_2d(r, s, coord, fem.shape_quad8)
+        factor = det * gwts[cont]
+        stiff_mat += factor * (B.T @ C @ B)
+        mass_mat += rho*factor * (H.T @ H)
+    return stiff_mat, mass_mat
+
+
+## Axisymmetric
+def elast_axi_quad9(coord, params):
+    """
+    Quadrilateral element with 9 nodes for classic elasticity
+    under plane-strain
+
+    Parameters
+    ----------
+    coord : coord
+        Coordinates of the element.
+    params : list
+        List with material parameters in the following order:
+        [Young modulus, Poisson coefficient, density].
+
+    Returns
+    -------
+    stiff_mat : ndarray (float)
+        Local stifness matrix.
+    mass_mat : ndarray (float)
+        Local mass matrix.
+    """
+    
+    E, nu, rho = params
+    C = fem.elast_mat_axi((E, nu))
+    stiff_mat = np.zeros((18, 18))
+    mass_mat = np.zeros((18, 18))
+    gpts, gwts = gau.gauss_nd(3, ndim=2)
+    for cont in range(gpts.shape[0]):
+        r = gpts[cont, 0]
+        s = gpts[cont, 1]
+        H, B, det = fem.elast_diff_axi(r, s, coord, fem.shape_quad9)
+        factor = det * gwts[cont]
+        stiff_mat += factor * (B.T @ C @ B)
+        mass_mat += rho*factor * (H.T @ H)
+    return stiff_mat, mass_mat
+
+## 3D elements
+def elast_tet4(coord, params):
+    """Tetraedral element with 4 nodes for classic elasticity
+
+    Parameters
+    ----------
+    coord : coord
+        Coordinates of the element.
+    params : list
+        List with material parameters in the following order:
+        [Young modulus, Poisson coefficient, density].
+
+    Returns
+    -------
+    stiff_mat : ndarray (float)
+        Local stifness matrix.
+    mass_mat : ndarray (float)
+        Local mass matrix.
+    """
+    E, nu, rho = params
+    C = fem.elast_mat((E, nu))
+    stiff_mat = np.zeros((12, 12))
+    mass_mat = np.zeros((12, 12))
+    gpts, gwts = gau.gauss_tet(3)
+    for cont in range(gpts.shape[0]):
+        r = gpts[cont, 0]
+        s = gpts[cont, 1]
+        t = gpts[cont, 2]
+        H, B, det = fem.elast_diff_3d(r, s, t, coord, fem.shape_tet4)
+        factor = det * gwts[cont] / 6
+        stiff_mat += factor * (B.T @ C @ B)
+        mass_mat += rho*factor * (H.T @ H)
+    return stiff_mat, mass_mat
+
+
+def elast_hex8(coord, params):
+    """Hexaedral element with 8 nodes for classic elasticity
+
+    Parameters
+    ----------
+    coord : coord
+        Coordinates of the element.
+    params : list
+        List with material parameters in the following order:
+        [Young modulus, Poisson coefficient, density].
+
+    Returns
+    -------
+    stiff_mat : ndarray (float)
+        Local stifness matrix.
+    mass_mat : ndarray (float)
+        Local mass matrix.
+    """
+    E, nu, rho = params
+    C = fem.elast_mat((E, nu))
+    stiff_mat = np.zeros((24, 24))
+    mass_mat = np.zeros((24, 24))
+    gpts, gwts = gau.gauss_nd(2, ndim=3)
+    for cont in range(gpts.shape[0]):
+        r = gpts[cont, 0]
+        s = gpts[cont, 1]
+        t = gpts[cont, 2]
+        H, B, det = fem.elast_diff_3d(r, s, t, coord)
+        factor = det * gwts[cont]
+        stiff_mat += factor * (B.T @ C @ B)
+        mass_mat += rho*factor * (H.T @ H)
     return stiff_mat, mass_mat
 
 
