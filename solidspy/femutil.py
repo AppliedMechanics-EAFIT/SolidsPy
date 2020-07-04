@@ -326,10 +326,9 @@ def shape_tet4(r, s, t):
     """
     N = np.array([1 - r - s - t, r, s, t])
     dNdr = np.array([
-            [-1, -1, -1],
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1]])
+        [-1, 1, 0, 0],
+        [-1, 0, 1, 0],
+        [-1, 0, 0, 1]])
     return N, dNdr
 
 
@@ -488,8 +487,8 @@ def elast_diff_3d(r, s, t, coord, interp=shape_hex8):
     N, dNdr = interp(r, s, t)
     det, jaco_inv = jacoper(dNdr, coord)
     dNdx = jaco_inv @ dNdr
-    H = np.zeros((3, 24))
-    B = np.zeros((6, 24))
+    H = np.zeros((3, 3*N.shape[0]))
+    B = np.zeros((6, 3*N.shape[0]))
     H[0, 0::3] = N
     H[1, 1::3] = N
     H[2, 2::3] = N
