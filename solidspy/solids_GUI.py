@@ -93,7 +93,8 @@ def solids_GUI(plot_contours=True, compute_strains=False, folder=None):
 
 
 
-def solids_auto(data, plot_contours=True, compute_strains=False):
+def solids_auto(data, plot_contours=True, compute_strains=False,
+                verbose=True):
     """
     Run a complete workflow for a Finite Element Analysis
 
@@ -129,9 +130,10 @@ def solids_auto(data, plot_contours=True, compute_strains=False):
 
     # Pre-processing
     assem_op, bc_array, neq = ass.DME(cons, elements)
-    print("Number of nodes: {}".format(nodes.shape[0]))
-    print("Number of elements: {}".format(elements.shape[0]))
-    print("Number of equations: {}".format(neq))
+    if verbose:
+        print("Number of nodes: {}".format(nodes.shape[0]))
+        print("Number of elements: {}".format(elements.shape[0]))
+        print("Number of equations: {}".format(neq))
 
     # System assembly
     stiff_mat, _ = ass.assembler(elements, mats, nodes, neq, assem_op)
@@ -144,7 +146,8 @@ def solids_auto(data, plot_contours=True, compute_strains=False):
                        rhs_vec/stiff_mat.max()):
         print("The system is not in equilibrium!")
     end_time = datetime.now()
-    print('Duration for system solution: {}'.format(end_time - start_time))
+    if verbose: 
+        print('Duration for system solution: {}'.format(end_time - start_time))
 
     # Post-processing
     start_time = datetime.now()
@@ -157,8 +160,9 @@ def solids_auto(data, plot_contours=True, compute_strains=False):
         pos.fields_plot(elements, nodes, disp_complete, E_nodes=strain_nodes,
                         S_nodes=stress_nodes)
     end_time = datetime.now()
-    print('Duration for post processing: {}'.format(end_time - start_time))
-    print('Analysis terminated successfully!')
+    if verbose:
+        print('Duration for post processing: {}'.format(end_time - start_time))
+        print('Analysis terminated successfully!')
     if compute_strains:
         return (disp_complete, strain_nodes, stress_nodes)
     else:
