@@ -295,7 +295,7 @@ def elast_quad8(coord, params):
 def elast_axi_quad9(coord, params):
     """
     Quadrilateral element with 9 nodes for classic elasticity
-    under plane-strain
+    under axisymmetric conditions
 
     Parameters
     ----------
