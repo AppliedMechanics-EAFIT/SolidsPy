@@ -88,6 +88,48 @@ def test_shape_quad9():
     assert np.allclose(dNdr, dNdr_exp)
 
 
+def test_shape_quad8():
+    # Interpolation condition check
+    coords = np.array([
+        [-1.0, -1.0],
+        [ 1.0, -1.0],
+        [ 1.0,  1.0],
+        [-1.0,  1.0],
+        [ 0.0, -1.0],
+        [ 1.0,  0.0],
+        [ 0.0,  1.0],
+        [-1.0,  0.0]])
+    N, _ = fem.shape_quad8(coords[:, 0], coords[:, 1])
+    assert np.allclose(N, np.eye(8))
+
+
+# 3D elements
+def test_shape_tet4():
+    # Interpolation condition check
+    coords = np.array([
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0]])
+    N, _ = fem.shape_tet4(coords[:, 0], coords[:, 1], coords[:, 2])
+    assert np.allclose(N, np.eye(4))
+
+
+def test_shape_hex():
+    # Interpolation condition check
+    coords = np.array([
+        [-1.0, -1.0, -1.0],
+        [ 1.0, -1.0, -1.0],
+        [ 1.0,  1.0, -1.0],
+        [-1.0,  1.0, -1.0],
+        [-1.0, -1.0,  1.0],
+        [ 1.0, -1.0,  1.0],
+        [ 1.0,  1.0,  1.0],
+        [-1.0,  1.0,  1.0]])
+    N, _ = fem.shape_hex8(coords[:, 0], coords[:, 1], coords[:, 2])
+    assert np.allclose(N, np.eye(8))
+
+
 #%% Jacobian
 def test_jacoper():
     """Tests for jacobian of the elemental transformation"""
