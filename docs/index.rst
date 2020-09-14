@@ -14,6 +14,7 @@ Welcome to SolidsPy's documentation!
    tutorial
    installation
    usage
+   advanced
    contributing
    authors
    modules
