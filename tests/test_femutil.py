@@ -9,28 +9,31 @@ import solidspy.femutil as fem
 
 
 #%% Tests for Shape functions and derivatives
-def test_shape_tri3():
+result = np.eye(3)
+@pytest.mark.parametrize("r, s, res",[
+    [0.0, 0.0,result[0]],
+    [1.0, 0.0,result[1]],
+    [0.0, 1.0,result[2]]
+])
+def test_shape_tri3(r,s,res):
     # Interpolation condition check
-    coords = np.array([
-        [0.0, 0.0],
-        [1.0, 0.0],
-        [0.0, 1.0]])
-    N, _ = fem.shape_tri3(coords[:, 0], coords[:, 1])
-    assert np.allclose(N, np.eye(3))
+    N, _ = fem.shape_tri3(r,s)
+    assert np.allclose(N,res)
 
-
-def test_shape_tri6():
+result = np.eye(6)
+@pytest.mark.parametrize("r, s, res",[
+        [0.0, 0.0,result[0]],
+        [1.0, 0.0,result[1]],
+        [0.0, 1.0,result[2]],
+        [0.5, 0.0,result[3]],
+        [0.5, 0.5,result[4]],
+        [0.0, 0.5,result[5]]])
+def test_shape_tri6_N(r,s,res):
     # Interpolation condition check
-    coords = np.array([
-        [0.0, 0.0],
-        [1.0, 0.0],
-        [0.0, 1.0],
-        [0.5, 0.0],
-        [0.5, 0.5],
-        [0.0, 0.5]])
-    N, _ = fem.shape_tri6(coords[:, 0], coords[:, 1])
-    assert np.allclose(N, np.eye(6))
+    N, _ = fem.shape_tri6(r,s)
+    assert np.allclose(N, res)
 
+def test_shape_tri6_dNdr():
     # Evaluation at (1/3, 1/3)
     N, dNdr = fem.shape_tri6(1/3, 1/3)
     N_exp = np.array([-1., -1., -1., 4., 4., 4.])/9
@@ -40,38 +43,41 @@ def test_shape_tri6():
     assert np.allclose(N, N_exp)
     assert np.allclose(dNdr, dNdr_exp)
 
-
-def test_shape_quad4():
+result = np.eye(4)
+@pytest.mark.parametrize("r, s, res",[
+        [-1.0, -1.0,result[0]],
+        [1.0, -1.0,result[1]],
+        [1.0, 1.0,result[2]],
+        [-1.0, 1.0,result[3]]])
+def test_shape_quad4_N(r,s,res):
     # Interpolation condition check
-    coords = np.array([
-        [-1.0, -1.0],
-        [1.0, -1.0],
-        [1.0, 1.0],
-        [-1.0, 1.0]])
-    N, _ = fem.shape_quad4(coords[:, 0], coords[:, 1])
-    assert np.allclose(N, np.eye(4))
+    N, _ = fem.shape_quad4(r,s)
+    assert np.allclose(N, res)
 
+def test_shape_quad4_dNdr():
     # For point (0, 0)
     N, _ = fem.shape_quad4(0, 0)
     N_ex = 0.25 * np.array([[1, 1, 1, 1]])
     assert np.allclose(N, N_ex)
 
 
-def test_shape_quad9():
+result = np.eye(9)
+@pytest.mark.parametrize("r, s, res",[
+        [-1.0, -1.0,result[0]],
+        [ 1.0, -1.0,result[1]],
+        [ 1.0,  1.0,result[2]],
+        [-1.0,  1.0,result[3]],
+        [ 0.0, -1.0,result[4]],
+        [ 1.0,  0.0,result[5]],
+        [ 0.0,  1.0,result[6]],
+        [-1.0,  0.0,result[7]],
+        [ 0.0,  0.0,result[8]]])    
+def test_shape_quad9_N(r,s,res):
     # Interpolation condition check
-    coords = np.array([
-        [-1.0, -1.0],
-        [ 1.0, -1.0],
-        [ 1.0,  1.0],
-        [-1.0,  1.0],
-        [ 0.0, -1.0],
-        [ 1.0,  0.0],
-        [ 0.0,  1.0],
-        [-1.0,  0.0],
-        [ 0.0,  0.0]])
-    N, _ = fem.shape_quad9(coords[:, 0], coords[:, 1])
-    assert np.allclose(N, np.eye(9))
+    N, _ = fem.shape_quad9(r, s)
+    assert np.allclose(N, res)
 
+def test_shape_quad9_dNdr():
     # Evaluation at (1/4, 1/4)
     N, dNdr = fem.shape_quad9(0.25, 0.25)
     N_exp = np.array(
@@ -87,47 +93,49 @@ def test_shape_quad9():
     assert np.allclose(N, N_exp)
     assert np.allclose(dNdr, dNdr_exp)
 
-
-def test_shape_quad8():
+result = np.eye(8)
+@pytest.mark.parametrize("r, s, res",[
+        [-1.0, -1.0,result[0]],
+        [ 1.0, -1.0,result[1]],
+        [ 1.0,  1.0,result[2]],
+        [-1.0,  1.0,result[3]],
+        [ 0.0, -1.0,result[4]],
+        [ 1.0,  0.0,result[5]],
+        [ 0.0,  1.0,result[6]],
+        [-1.0,  0.0,result[7]]])    
+def test_shape_quad8(r,s,res):
     # Interpolation condition check
-    coords = np.array([
-        [-1.0, -1.0],
-        [ 1.0, -1.0],
-        [ 1.0,  1.0],
-        [-1.0,  1.0],
-        [ 0.0, -1.0],
-        [ 1.0,  0.0],
-        [ 0.0,  1.0],
-        [-1.0,  0.0]])
-    N, _ = fem.shape_quad8(coords[:, 0], coords[:, 1])
-    assert np.allclose(N, np.eye(8))
+    N, _ = fem.shape_quad8(r,s)
+    assert np.allclose(N, res)
 
 
 # 3D elements
-def test_shape_tet4():
+result = np.eye(4)
+@pytest.mark.parametrize("r, s, t, res",[
+        [0.0, 0.0, 0.0,result[0]],
+        [1.0, 0.0, 0.0,result[1]],
+        [0.0, 1.0, 0.0,result[2]],
+        [0.0, 0.0, 1.0,result[3]]    
+])
+def test_shape_tet4(r,s,t,res):
     # Interpolation condition check
-    coords = np.array([
-        [0.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 0.0, 1.0]])
-    N, _ = fem.shape_tet4(coords[:, 0], coords[:, 1], coords[:, 2])
-    assert np.allclose(N, np.eye(4))
+    N, _ = fem.shape_tet4(r, s, t)
+    assert np.allclose(N, res)
 
-
-def test_shape_hex():
+result = np.eye(8)
+@pytest.mark.parametrize("r, s, t, res",[
+        [-1.0, -1.0, -1.0,result[0]],
+        [ 1.0, -1.0, -1.0,result[1]],
+        [ 1.0,  1.0, -1.0,result[2]],
+        [-1.0,  1.0, -1.0,result[3]],
+        [-1.0, -1.0,  1.0,result[4]],
+        [ 1.0, -1.0,  1.0,result[5]],
+        [ 1.0,  1.0,  1.0,result[6]],
+        [-1.0,  1.0,  1.0,result[7]]])
+def test_shape_hex(r,s,t,res):
     # Interpolation condition check
-    coords = np.array([
-        [-1.0, -1.0, -1.0],
-        [ 1.0, -1.0, -1.0],
-        [ 1.0,  1.0, -1.0],
-        [-1.0,  1.0, -1.0],
-        [-1.0, -1.0,  1.0],
-        [ 1.0, -1.0,  1.0],
-        [ 1.0,  1.0,  1.0],
-        [-1.0,  1.0,  1.0]])
-    N, _ = fem.shape_hex8(coords[:, 0], coords[:, 1], coords[:, 2])
-    assert np.allclose(N, np.eye(8))
+    N, _ = fem.shape_hex8(r, s, t)
+    assert np.allclose(N, res)
 
 
 #%% Jacobian
