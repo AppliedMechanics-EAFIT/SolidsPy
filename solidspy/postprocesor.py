@@ -311,7 +311,7 @@ def complete_disp(bc_array, nodes, sol, ndof_node=2):
 
     """
     nnodes = nodes.shape[0]
-    sol_complete = np.zeros([nnodes, ndof_node], dtype=np.float)
+    sol_complete = np.zeros([nnodes, ndof_node], dtype=float)
     for row in range(nnodes):
         for col in range(ndof_node):
             cons = bc_array[row, col]
@@ -369,7 +369,7 @@ def strain_nodes(nodes, elements, mats, sol_complete):
     IELCON = elements[:, 3:]
 
     for el in range(nelems):
-        young, poisson = mats[np.int(elements[el, 2]), :]
+        young, poisson = mats[int(elements[el, 2]), :]
         shear = young/(2*(1 + poisson))
         fact1 = young/(1 - poisson**2)
         fact2 = poisson*young/(1 - poisson**2)

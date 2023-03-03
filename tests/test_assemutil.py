@@ -30,7 +30,7 @@ def test_sparse_assem():
         [0, 1, 2, 3, 8, 9, 6, 7],
         [2, 3, 4, 5, 10, 11, 8, 9],
         [6, 7, 8, 9, 14, 15, 12, 13],
-        [8, 9, 10, 11, 16, 17, 14, 15]], dtype=np.int)
+        [8, 9, 10, 11, 16, 17, 14, 15]], dtype=int)
 
     neq = 18
     K_ass, _ = ass.sparse_assem(elements, mats, nodes, neq, assem_op)
@@ -80,7 +80,7 @@ def test_dense_assem():
         [0, 1, 2, 3, 8, 9, 6, 7],
         [2, 3, 4, 5, 10, 11, 8, 9],
         [6, 7, 8, 9, 14, 15, 12, 13],
-        [8, 9, 10, 11, 16, 17, 14, 15]], dtype=np.int)
+        [8, 9, 10, 11, 16, 17, 14, 15]], dtype=int)
 
     neq = 18
     K_ass, _ = ass.dense_assem(elements, mats, nodes, neq, assem_op)
@@ -124,7 +124,7 @@ def test_dense_assem():
         [1, 2],
         [2, 2]])
     cons = np.zeros((9, 2))
-    elements = np.ones((4, 7), dtype=np.int)
+    elements = np.ones((4, 7), dtype=int)
     elements[:, 0] = range(0, 4)
     elements[:, 2] = 0
     elements[:, 3:] = np.array([
