@@ -26,7 +26,7 @@ requirements = ['numpy',
 setup(
     name='solidspy',
 
-    version='1.0.16',
+    version='1.2.0',
 
     description='A simple Finite Element program',
     long_description=long_description,
@@ -37,8 +37,8 @@ setup(
 
 
     # Author details
-    author='Juan Gomez <jgomezc1@eafit.edu.co>, Nicolas Guarin-Zapata <nicoguarin@gmail.com>',
-    author_email='jgomezc1@eafit.edu.co',
+    author='Nicolas Guarin-Zapata <nguarinz@eafit.edu.co>, Juan Gomez <jgomezc1@eafit.edu.co>',
+    author_email='nguarinz@eafit.edu.co',
 
     license='MIT',
 

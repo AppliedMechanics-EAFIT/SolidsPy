@@ -10,7 +10,8 @@ type: software
 authors:
   - given-names: Nicolás
     family-names: Guarín-Zapata
-    email: nicoguarin@gmail.com
+    email: nguarinz@eafit.edu.co
+    affiliation: Universidad EAFIT
     orcid: 'https://orcid.org/0000-0002-9435-1914'
   - given-names: Juan David
     family-names: Gómez
