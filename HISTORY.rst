@@ -1,7 +1,7 @@
 History
 -------
 
-1.2.0 (2023-03-02)
+1.1.0 (2023-03-02)
 ~~~~~~~~~~~~~~~~~~
 
 * Remove NumPy types in the code that were removed since NumPy 1.24

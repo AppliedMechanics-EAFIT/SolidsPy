@@ -30,8 +30,6 @@ def static_sol(mat, rhs):
     Raises
     ------
     
-        
-
     """
     if type(mat) is csr_matrix:
         u_sol = spsolve(mat, rhs)
