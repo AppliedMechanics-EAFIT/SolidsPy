@@ -3,7 +3,8 @@
 ![](https://raw.githubusercontent.com/AppliedMechanics-EAFIT/SolidsPy/master/docs/img/wrench.png)
 [![PyPI download](https://img.shields.io/pypi/v/solidspy.svg)](https://pypi.python.org/pypi/continuum_mechanics)
 [![Documentation Status](https://readthedocs.org/projects/solidspy/badge/?version=latest)](https://solidspy.readthedocs.io/en/latest/)
-[![Downloads frequency](https://img.shields.io/pypi/dm/solidspy)](https://pypistats.org/packages/solidspy)  [![image](https://zenodo.org/badge/48294591.svg)](https://zenodo.org/badge/latestdoi/48294591)
+[![Downloads frequency](https://img.shields.io/pypi/dm/solidspy)](https://pypistats.org/packages/solidspy) 
+[![image](https://zenodo.org/badge/48294591.svg)](https://zenodo.org/badge/latestdoi/48294591)
 
 A simple finite element analysis code for 2D elasticity problems. The
 code uses as input simple-to-create text files defining a model in terms
@@ -126,23 +127,23 @@ License](http://creativecommons.org/licenses/by/4.0/).
 
 To cite SolidsPy in publications use
 
-> Nicolás Guarín-Zapata, Juan Gomez (2020). SolidsPy: Version 1.0.16
-> (Version v1.0.16). Zenodo. <http://doi.org/10.5281/zenodo.4029270>
+> Nicolás Guarín-Zapata, Juan Gomez (2023). SolidsPy: Version 1.1.0
+> (Version v1.1.0). Zenodo. <https://doi.org/10.5281/zenodo.7694030>
 
 A BibTeX entry for LaTeX users is
 
 ``` bibtex
 @software{solidspy,
  title = {SolidsPy: 2D-Finite Element Analysis with Python},
- version = {1.0.16},
+ version = {1.1.0},
  author = {Guarín-Zapata, Nicolás and Gómez, Juan},
- year = 2020,
+ year = 2023,
  keywords = {Python, Finite elements, Scientific computing, Computational mechanics},
  abstract = {SolidsPy is a simple finite element analysis code for
    2D elasticity problems. The code uses as input simple-to-create text
    files defining a model in terms of nodal, element, material and
    load data.},
  url = {https://github.com/AppliedMechanics-EAFIT/SolidsPy},
- doi = {http://doi.org/10.5281/zenodo.4029270}
+ doi = {https://doi.org/10.5281/zenodo.7694030}
 }
 ```

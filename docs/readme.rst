@@ -153,8 +153,8 @@ Citation
 
 To cite SolidsPy in publications use
 
-    Nicolás Guarín-Zapata, Juan Gomez (2020). SolidsPy: Version 1.0.16
-    (Version v1.0.16). Zenodo. http://doi.org/10.5281/zenodo.4029270
+    Nicolás Guarín-Zapata, Juan Gomez (2023). SolidsPy: Version 1.1.0
+    (Version v1.1.0). Zenodo. <https://doi.org/10.5281/zenodo.7694030>
 
 A BibTeX entry for LaTeX users is
 
@@ -162,9 +162,9 @@ A BibTeX entry for LaTeX users is
 
     @software{solidspy,
      title = {SolidsPy: 2D-Finite Element Analysis with Python},
-     version = {1.0.16},
+     version = {1.1.0},
      author = {Guarín-Zapata, Nicolás and Gómez, Juan},
-     year = 2020,
+     year = 2023,
      keywords = {Python, Finite elements, Scientific computing, Computational mechanics},
      abstract = {SolidsPy is a simple finite element analysis code for
        2D elasticity problems. The code uses as input simple-to-create text
