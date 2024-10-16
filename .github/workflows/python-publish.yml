@@ -12,13 +12,13 @@ on:
   push:
     branches:
       - main
-      - develop
+      - develop_v2.0
     tags:
       - 'v*.*.*'  # Triggers on version tags like v1.2.3
   pull_request:
     branches:
       - main
-      - develop
+      - develop_v2.0
 
 concurrency:
   group: ci-${{ github.ref }}
