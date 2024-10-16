@@ -120,34 +120,74 @@ def shape_tri3(r, s):
 
 def shape_tri6(r, s):
     """
-    Shape functions and derivatives for a quadratic element
+    Shape functions and derivatives for a quadratic triangular element.
 
     Parameters
     ----------
-    r : float
-        Horizontal coordinate of the evaluation point.
-    s : float
-        Vertical coordinate of the evaluation point.
+    r : float or ndarray
+        Horizontal coordinate(s) of the evaluation point(s).
+    s : float or ndarray
+        Vertical coordinate(s) of the evaluation point(s).
 
     Returns
     -------
-    N : ndarray (float)
-        Array with the shape functions evaluated at the point (r, s).
-    dNdr : ndarray (float)
-        Array with the derivative of the shape functions evaluated at
-        the point (r, s).
+    N : ndarray
+        Shape functions evaluated at the point(s) (r, s).
+        - Shape: (6,) for scalar inputs.
+        - Shape: (n_points, 6) for array inputs.
+    dNdrds : ndarray
+        Derivatives of the shape functions with respect to r and s.
+        - Shape: (2, 6) for scalar inputs.
+        - Shape: (n_points, 2, 6) for array inputs.
     """
-    N = np.array(
-        [(1 - r - s) - 2*r*(1 - r - s) - 2*s*(1 - r - s),
-         r - 2*r*(1 - r - s) - 2*r*s,
-         s - 2*r*s - 2*s*(1-r-s),
-         4*r*(1 - r - s),
-         4*r*s,
-         4*s*(1 - r - s)])
-    dNdr = np.array([
-        [4*r + 4*s - 3, 4*r - 1, 0, -8*r - 4*s + 4, 4*s, -4*s],
-        [4*r + 4*s - 3, 0, 4*s - 1, -4*r, 4*r, -4*r - 8*s + 4]])
-    return N, dNdr
+    # Convert inputs to NumPy arrays
+    r = np.asarray(r)
+    s = np.asarray(s)
+    
+    # Check if inputs are scalar
+    scalar_input = False
+    if r.ndim == 0 and s.ndim == 0:
+        r = r.reshape(1)
+        s = s.reshape(1)
+        scalar_input = True
+
+    # Compute shape functions N1 to N6
+    N = np.vstack((
+        (1 - r - s) - 2 * r * (1 - r - s) - 2 * s * (1 - r - s),
+        r - 2 * r * (1 - r - s) - 2 * r * s,
+        s - 2 * r * s - 2 * s * (1 - r - s),
+        4 * r * (1 - r - s),
+        4 * r * s,
+        4 * s * (1 - r - s)
+    )).T  # Shape: (n_points, 6)
+
+    # Compute derivatives with respect to r
+    dNdr = np.vstack((
+        4 * r + 4 * s - 3,
+        4 * r - 1,
+        np.zeros_like(r),
+        -8 * r - 4 * s + 4,
+        4 * s,
+        -4 * s
+    )).T  # Shape: (n_points, 6)
+
+    # Compute derivatives with respect to s
+    dNds = np.vstack((
+        4 * r + 4 * s - 3,
+        np.zeros_like(r),
+        4 * s - 1,
+        -4 * r,
+        4 * r,
+        -4 * r - 8 * s + 4
+    )).T  # Shape: (n_points, 6)
+
+    # Stack derivatives into a single array
+    dNdrds = np.stack((dNdr, dNds), axis=1)  # Shape: (n_points, 2, 6)
+
+    if scalar_input:
+        return N[0], dNdrds[0]
+    else:
+        return N, dNdrds
 
 # Quadrilaterals
 def shape_quad4(r, s):

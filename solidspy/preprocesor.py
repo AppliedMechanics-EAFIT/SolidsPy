@@ -15,7 +15,7 @@ def readin(folder=""):
     """Read the input files"""
     nodes = np.loadtxt(folder + 'nodes.txt', ndmin=2)
     mats = np.loadtxt(folder + 'mater.txt', ndmin=2)
-    elements = np.loadtxt(folder + 'eles.txt', ndmin=2, dtype=np.int)
+    elements = np.loadtxt(folder + 'eles.txt', ndmin=2, dtype=int)
     loads = np.loadtxt(folder + 'loads.txt', ndmin=2)
 
     return nodes, mats, elements, loads

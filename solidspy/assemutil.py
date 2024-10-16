@@ -76,7 +76,7 @@ def DME(cons, elements, ndof_node=2, ndof_el_max=18, ndof_el=None):
 
     """
     nels = elements.shape[0]
-    assem_op = np.zeros([nels, ndof_el_max], dtype=np.integer)
+    assem_op = np.zeros([nels, ndof_el_max], dtype=int)
     neq, bc_array = eqcounter(cons, ndof_node=ndof_node)
     for ele in range(nels):
         iet = elements[ele, 1]
