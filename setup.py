@@ -24,7 +24,7 @@ requirements = ['numpy',
                 'meshio==3.0']
 
 setup(
-    name='solidspy',
+    name='SolidsPyKevin',
 
     version='1.0.16',
 
