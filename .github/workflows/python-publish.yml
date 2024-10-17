@@ -103,7 +103,7 @@ jobs:
         run: conda install -y conda-build anaconda-client
 
       - name: Build Conda package
-        run: conda build conda-recipe --output-folder dist
+        run: conda build conda-recipe --output-folder dist -c conda-forge
 
       - name: Upload Conda package
         env:
