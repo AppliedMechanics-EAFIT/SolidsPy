@@ -128,7 +128,7 @@ jobs:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
           ANACONDA_USERNAME: ${{ secrets.ANACONDA_USERNAME }}
         run: |
-          anaconda login --token "$ANACONDA_API_TOKEN"
+          export ANACONDA_API_TOKEN=${{ secrets.ANACONDA_API_TOKEN }}
           for pkg in dist/*/*.tar.bz2; do
             anaconda upload "$pkg" --user "$ANACONDA_USERNAME" --force
           done
