@@ -4,7 +4,7 @@ Using the old format format for SolidsPy
 :Author: Nicolás Guarín-Zapata
 :Date: September 2019
 
-Until version 1.1.6 the data for a simulation was stored in 4 files
+Until version 1.1.7 the data for a simulation was stored in 4 files
 
 - ``nodes.txt``
 
