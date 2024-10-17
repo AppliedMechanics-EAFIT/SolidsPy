@@ -99,7 +99,7 @@ jobs:
           auto-update-conda: true
           python-version: '3.10'
           channels: conda-forge
-          activate-environment: base
+          use-mamba: false
 
       - name: Install conda-build and anaconda-client via conda
         run: |
@@ -115,5 +115,5 @@ jobs:
           ANACONDA_USERNAME: ${{ secrets.ANACONDA_USERNAME }}
         run: |
           for pkg in dist/*/*.tar.bz2; do
-            conda run -n base anaconda upload "$pkg" -t "$ANACONDA_API_TOKEN" --force
+            anaconda upload "$pkg" -t "$ANACONDA_API_TOKEN" --force
           done
