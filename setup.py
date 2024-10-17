@@ -26,7 +26,7 @@ requirements = ['numpy',
 setup(
     name='SolidsPyKevin',
 
-    version='1.2.0',
+    version='1.2.1',
 
     description='A simple Finite Element program',
     long_description=long_description,
