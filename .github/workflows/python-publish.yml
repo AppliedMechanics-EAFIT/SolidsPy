@@ -100,22 +100,14 @@ jobs:
           python-version: '3.10'
           channels: conda-forge
 
-      - name: Install conda-build and anaconda-client via conda
+      - name: Install conda-build
         run: |
-          conda install -y conda-build anaconda-client
-          conda list anaconda-client
+          conda install -y conda-build
 
-      - name: Locate anaconda executable
+      - name: Install anaconda-client via Pip
         run: |
-          which anaconda || echo "anaconda not found"
-
-      - name: Add Conda bin to PATH
-        run: echo "$HOME/miniconda/bin" >> $GITHUB_PATH
-
-      - name: Install anaconda-client via pip (if not found via conda)
-        run: |
-          pip install --upgrade pip
-          pip install anaconda-client
+          python -m pip install --upgrade pip
+          pip install --upgrade anaconda-client
 
       - name: Verify anaconda-client installation
         run: which anaconda
