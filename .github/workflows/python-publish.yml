@@ -125,10 +125,9 @@ jobs:
 
       - name: Upload Conda package
         env:
-          ANACONDA_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+          ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
           ANACONDA_USERNAME: ${{ secrets.ANACONDA_USERNAME }}
         run: |
-          export ANACONDA_API_TOKEN=${{ secrets.ANACONDA_API_TOKEN }}
           for pkg in dist/*/*.tar.bz2; do
-            anaconda upload "$pkg" --user "$ANACONDA_USERNAME" --force
+            anaconda upload -t "$ANACONDA_API_TOKEN" --force
           done
