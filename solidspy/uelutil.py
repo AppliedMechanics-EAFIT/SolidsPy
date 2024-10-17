@@ -11,19 +11,24 @@ New elements can be added by including additional subroutines.
 import numpy as np
 import solidspy.femutil as fem
 import solidspy.gaussutil as gau
+from numpy import ndarray
+from typing import Tuple, Sequence
 
 
 #%% Continuum elements
 
 # Triangles
-def elast_tri3(coord, params):
+def elast_tri3(
+    coord: ndarray, 
+    params: Sequence[float]
+) -> Tuple[ndarray, ndarray]:
     """Triangular element with 3 nodes
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (3, 2).
-    params : tuple
+    params : Sequence[float]
       Material parameters in the following order:
 
           young : float
@@ -48,7 +53,7 @@ def elast_tri3(coord, params):
     ...         [1, 0],
     ...         [0, 1]])
     >>> params = [8/3, 1/3]
-    >>> stiff, mass = uel3ntrian(coord, params)
+    >>> stiff, mass = elast_tri3(coord, params)
     >>> stiff_ex = 1/2 * np.array([
     ...            [4, 2, -3, -1, -1, -1],
     ...            [2, 4, -1, -1, -1, -3],
@@ -77,14 +82,17 @@ def elast_tri3(coord, params):
     return stiff_mat, mass_mat
 
 
-def elast_tri6(coord, params):
+def elast_tri6(
+    coord: ndarray, 
+    params: Sequence[float]
+) -> Tuple[ndarray, ndarray]:
     """Triangular element with 6 nodes
 
     Parameters
     ----------
     coord : ndarray
         Coordinates for the nodes of the element (6, 2).
-    params : tuple
+    params : Sequence[float]
         Material parameters in the following order:
 
             young : float
@@ -112,7 +120,7 @@ def elast_tri6(coord, params):
     ...         [0.5, 0.5],
     ...         [0, 0.5]])
     >>> params = [8/3, 1/3]
-    >>> stiff, mass = uel6ntrian(coord, params)
+    >>> stiff, mass = elast_tri6(coord, params)
     >>> stiff_ex = 1/6 * np.array([
     ...            [12, 6, 3, 1, 1, 1, -12, -4, 0, 0, -4, -4],
     ...            [6, 12, 1, 1, 1, 3, -4, -4, 0, 0, -4, -12],
@@ -148,14 +156,17 @@ def elast_tri6(coord, params):
 
 
 # Quadrilaterals
-def elast_quad4(coord, params):
+def elast_quad4(
+    coord: ndarray, 
+    params: Sequence[float]
+) -> Tuple[ndarray, ndarray]:
     """Quadrilateral element with 4 nodes
 
     Parameters
     ----------
     coord : ndarray
         Coordinates for the nodes of the element (4, 2).
-    params : tuple
+    params : Sequence[float]
         Material parameters in the following order:
 
             young : float
@@ -177,7 +188,7 @@ def elast_quad4(coord, params):
 
     >>> coord = np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]])
     >>> params = [8/3, 1/3, 1]
-    >>> stiff, mass = uel4nquad(coord, params)
+    >>> stiff, mass = elast_quad4(coord, params)
     >>> stiff_ex = 1/6 * np.array([
     ...             [ 8,  3, -5,  0, -4, -3,  1,  0],
     ...             [ 3,  8,  0,  1, -3, -4,  0, -5],
@@ -215,27 +226,30 @@ def elast_quad4(coord, params):
         H, B, det = fem.elast_diff_2d(r, s, coord, fem.shape_quad4)
         factor = det * gwts[cont]
         stiff_mat += factor * (B.T @ C @ B)
-        mass_mat += dens*factor* (H.T @ H)
+        mass_mat += dens * factor * (H.T @ H)
     return stiff_mat, mass_mat
 
 
-def elast_quad9(coord, params):
+def elast_quad9(
+    coord: ndarray, 
+    params: Sequence[float]
+) -> Tuple[ndarray, ndarray]:
     """
     Quadrilateral element with 9 nodes for classic elasticity
     under plane-strain
 
     Parameters
     ----------
-    coord : coord
+    coord : ndarray
         Coordinates of the element.
-    params : list
+    params : Sequence[float]
         List with material parameters in the following order:
         [Young modulus, Poisson coefficient, density].
 
     Returns
     -------
     stiff_mat : ndarray (float)
-        Local stifness matrix.
+        Local stiffness matrix.
     mass_mat : ndarray (float)
         Local mass matrix.
     """
@@ -256,26 +270,30 @@ def elast_quad9(coord, params):
     return stiff_mat, mass_mat
 
 
-def elast_quad8(coord, params):
+def elast_quad8(
+    coord: ndarray, 
+    params: Sequence[float]
+) -> Tuple[ndarray, ndarray]:
     """
-    Quadrilateral element with 9 nodes for classic elasticity
+    Quadrilateral element with 8 nodes for classic elasticity
     under plane-strain
 
     Parameters
     ----------
-    coord : coord
+    coord : ndarray
         Coordinates of the element.
-    params : list
+    params : Sequence[float]
         List with material parameters in the following order:
         [Young modulus, Poisson coefficient, density].
 
     Returns
     -------
     stiff_mat : ndarray (float)
-        Local stifness matrix.
+        Local stiffness matrix.
     mass_mat : ndarray (float)
         Local mass matrix.
     """
+    
     E, nu, rho = params
     C = fem.umat((E, nu))
     stiff_mat = np.zeros((16, 16))
@@ -287,28 +305,31 @@ def elast_quad8(coord, params):
         H, B, det = fem.elast_diff_2d(r, s, coord, fem.shape_quad8)
         factor = det * gwts[cont]
         stiff_mat += factor * (B.T @ C @ B)
-        mass_mat += rho*factor * (H.T @ H)
+        mass_mat += rho * factor * (H.T @ H)
     return stiff_mat, mass_mat
 
 
 ## Axisymmetric
-def elast_axi_quad9(coord, params):
+def elast_axi_quad9(
+    coord: ndarray, 
+    params: Sequence[float]
+) -> Tuple[ndarray, ndarray]:
     """
     Quadrilateral element with 9 nodes for classic elasticity
     under axisymmetric conditions
 
     Parameters
     ----------
-    coord : coord
+    coord : ndarray
         Coordinates of the element.
-    params : list
+    params : Sequence[float]
         List with material parameters in the following order:
         [Young modulus, Poisson coefficient, density].
 
     Returns
     -------
     stiff_mat : ndarray (float)
-        Local stifness matrix.
+        Local stiffness matrix.
     mass_mat : ndarray (float)
         Local mass matrix.
     """
@@ -324,25 +345,29 @@ def elast_axi_quad9(coord, params):
         H, B, det = fem.elast_diff_axi(r, s, coord, fem.shape_quad9)
         factor = det * gwts[cont]
         stiff_mat += factor * (B.T @ C @ B)
-        mass_mat += rho*factor * (H.T @ H)
+        mass_mat += rho * factor * (H.T @ H)
     return stiff_mat, mass_mat
 
+
 ## 3D elements
-def elast_tet4(coord, params):
+def elast_tet4(
+    coord: ndarray, 
+    params: Sequence[float]
+) -> Tuple[ndarray, ndarray]:
     """Tetraedral element with 4 nodes for classic elasticity
 
     Parameters
     ----------
-    coord : coord
+    coord : ndarray
         Coordinates of the element.
-    params : list
+    params : Sequence[float]
         List with material parameters in the following order:
         [Young modulus, Poisson coefficient, density].
 
     Returns
     -------
     stiff_mat : ndarray (float)
-        Local stifness matrix.
+        Local stiffness matrix.
     mass_mat : ndarray (float)
         Local mass matrix.
     """
@@ -358,25 +383,28 @@ def elast_tet4(coord, params):
         H, B, det = fem.elast_diff_3d(r, s, t, coord, fem.shape_tet4)
         factor = det * gwts[cont] / 6
         stiff_mat += factor * (B.T @ C @ B)
-        mass_mat += rho*factor * (H.T @ H)
+        mass_mat += rho * factor * (H.T @ H)
     return stiff_mat, mass_mat
 
 
-def elast_hex8(coord, params):
+def elast_hex8(
+    coord: ndarray, 
+    params: Sequence[float]
+) -> Tuple[ndarray, ndarray]:
     """Hexaedral element with 8 nodes for classic elasticity
 
     Parameters
     ----------
-    coord : coord
+    coord : ndarray
         Coordinates of the element.
-    params : list
+    params : Sequence[float]
         List with material parameters in the following order:
         [Young modulus, Poisson coefficient, density].
 
     Returns
     -------
     stiff_mat : ndarray (float)
-        Local stifness matrix.
+        Local stiffness matrix.
     mass_mat : ndarray (float)
         Local mass matrix.
     """
@@ -392,12 +420,15 @@ def elast_hex8(coord, params):
         H, B, det = fem.elast_diff_3d(r, s, t, coord)
         factor = det * gwts[cont]
         stiff_mat += factor * (B.T @ C @ B)
-        mass_mat += rho*factor * (H.T @ H)
+        mass_mat += rho * factor * (H.T @ H)
     return stiff_mat, mass_mat
 
 
 #%% Structural elements
-def spring(coord, stiff):
+def spring(
+    coord: ndarray, 
+    stiff: float
+) -> Tuple[ndarray, ndarray]:
     """1D 2-noded Spring element
 
     Parameters
@@ -422,7 +453,8 @@ def spring(coord, stiff):
     >>> coord = np.array([
     ...         [0, 0],
     ...         [1, 0]])
-    >>> stiff, mass = uelspring(coord, 8/3)
+    >>> stiff = 8/3
+    >>> stiff, mass = spring(coord, stiff)
     >>> stiff_ex = 8/3 * np.array([
     ...    [1, 0, -1, 0],
     ...    [0, 0, 0, 0],
@@ -445,14 +477,17 @@ def spring(coord, stiff):
     return stiff_mat, np.zeros(4)
 
 
-def truss2D(coord, params):
+def truss2D(
+    coord: ndarray, 
+    params: Sequence[float]
+) -> Tuple[ndarray, ndarray]:
     """2D 2-noded truss element
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (2, 2).
-    params : tuple
+    params : Sequence[float]
       Element parameters in the following order:
 
           young : float
@@ -476,7 +511,7 @@ def truss2D(coord, params):
     ...         [0, 0],
     ...         [1, 0]])
     >>> params = [1.0 , 1.0]
-    >>> stiff, mass = ueltruss2D(coord, params)
+    >>> stiff, mass = truss2D(coord, params)
     >>> stiff_ex =  np.array([
     ...    [1, 0, -1, 0],
     ...    [0, 0, 0, 0],
@@ -494,7 +529,7 @@ def truss2D(coord, params):
         [nx, ny, 0, 0],
         [0, 0, nx, ny]])
     young, area  = params[:2]
-    stiff = area*young/length
+    stiff = area * young / length
     stiff_mat = stiff * np.array([
         [1, -1],
         [-1, 1]])
@@ -504,7 +539,7 @@ def truss2D(coord, params):
     else:
         dens = params[-1]
     mass = area * length * dens
-    mass_mat = mass/6*np.array([
+    mass_mat = mass / 6 * np.array([
             [2, 0, 1, 0],
             [0, 2, 0, 1],
             [1, 0, 2, 0],
@@ -512,14 +547,17 @@ def truss2D(coord, params):
     return stiff_mat, mass_mat
 
 
-def beam2DU(coord, params):
+def beam2DU(
+    coord: ndarray, 
+    params: Sequence[float]
+) -> Tuple[ndarray, ndarray]:
     """2D 2-noded beam element without axial deformation
 
     Parameters
     ----------
     coord : ndarray
         Coordinates for the nodes of the element (2, 2).
-    params : tuple
+    params : Sequence[float]
         Element parameters in the following order:
     
             young : float
@@ -548,7 +586,7 @@ def beam2DU(coord, params):
         [0, 0, 0, ny, nx, 0],
         [0, 0, 0, 0, 0, 1]])
     young, area_moment = params[:2]
-    bending_stiff = area_moment*young/L**3
+    bending_stiff = area_moment * young / L**3
     stiff_mat = bending_stiff * np.array([
         [12, 6*L, -12, 6*L],
         [6*L, 4*L**2, -6*L, 2*L**2],
@@ -560,7 +598,7 @@ def beam2DU(coord, params):
     else:
         dens, area = params[2:]
     mass = area * L * dens
-    mass_mat = mass/420*np.array([
+    mass_mat = mass / 420 * np.array([
             [156, 22*L, 54, -13*L],
             [22*L, 4*L**2, 13*L, -3*L**2],
             [54, 13*L, 156, -22*L],
@@ -570,14 +608,17 @@ def beam2DU(coord, params):
     return stiff_mat, mass_mat
 
 
-def beam2D(coord, params):
+def beam2D(
+    coord: ndarray, 
+    params: Sequence[float]
+) -> Tuple[ndarray, ndarray]:
     """2D 2-noded beam element with axial deformation
 
     Parameters
     ----------
     coord : ndarray
       Coordinates for the nodes of the element (2, 2).
-    params : tuple
+    params : Sequence[float]
         Element parameters in the following order:
     
             young : float
@@ -609,8 +650,8 @@ def beam2D(coord, params):
         [0, 0, 0, 0, 0, 1]])
     young, area_moment, area = params[:3]
     bending_stiff = area_moment * young
-    ratio = area/area_moment
-    stiff_mat = bending_stiff/L**3 * np.array([
+    ratio = area / area_moment
+    stiff_mat = bending_stiff / L**3 * np.array([
         [ratio*L**2, 0, 0, -ratio*L**2, 0, 0],
         [0, 12, 6*L, 0, -12, 6*L],
         [0, 6*L, 4*L**2, 0, -6*L, 2*L**2],
@@ -623,7 +664,7 @@ def beam2D(coord, params):
     else:
         dens = params[3:]
     mass = area * L * dens
-    mass_mat = mass/420*np.array([
+    mass_mat = mass / 420 * np.array([
             [140, 0, 0, 70, 0, 0],
             [0, 156, 22*L, 0, 54, -13*L],
             [0, 22*L, 4*L**2, 0, 13*L, -3*L**2],

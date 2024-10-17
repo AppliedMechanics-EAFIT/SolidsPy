@@ -9,9 +9,9 @@ a Finite Element Analysis.
 """
 import sys
 import numpy as np
+from typing import Tuple, Dict, Any, Optional
 
-
-def readin(folder=""):
+def readin(folder: str = "") -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Read the input files"""
     nodes = np.loadtxt(folder + 'nodes.txt', ndmin=2)
     mats = np.loadtxt(folder + 'mater.txt', ndmin=2)
@@ -21,7 +21,13 @@ def readin(folder=""):
     return nodes, mats, elements, loads
 
 
-def echomod(nodes, mats, elements, loads, folder=""):
+def echomod(
+    nodes: np.ndarray,
+    mats: np.ndarray,
+    elements: np.ndarray,
+    loads: np.ndarray,
+    folder: str = ""
+) -> None:
     """Create echoes of the model input files"""
     np.savetxt(folder + "KNODES.txt", nodes, fmt='%5.2f', delimiter=' ')
     np.savetxt(folder + "KMATES.txt", mats, fmt='%5.2f', delimiter=' ')
@@ -29,7 +35,7 @@ def echomod(nodes, mats, elements, loads, folder=""):
     np.savetxt(folder + "KLOADS.txt", loads, fmt='%5.2f', delimiter=' ')
 
 
-def initial_params():
+def initial_params() -> str:
     """Read initial parameters for the simulation
 
     The parameters to be read are:
@@ -58,7 +64,15 @@ def initial_params():
     return folder
 
 
-def ele_writer(cells, cell_data, ele_tag, phy_sur,  ele_type, mat_tag, nini):
+def ele_writer(
+    cells: Dict[str, np.ndarray],
+    cell_data: Dict[str, Dict[str, Any]],
+    ele_tag: str,
+    phy_sur: int,
+    ele_type: int,
+    mat_tag: int,
+    nini: int
+) -> Tuple[int, np.ndarray]:
     """
     Extracts a subset of elements from a complete mesh according to the
     physical surface  phy_sur and writes down the proper fields into an
@@ -102,16 +116,16 @@ def ele_writer(cells, cell_data, ele_tag, phy_sur,  ele_type, mat_tag, nini):
     phy_surface = cell_data[ele_tag]['gmsh:physical']
     ele_id = [cont for cont, _ in enumerate(phy_surface[:])
               if phy_surface[cont] == phy_sur]
-    els_array = np.zeros([len(ele_id) , 3 + nnode], dtype=int)
-    els_array[: , 0] = range(nini , len(ele_id) + nini )
-    els_array[: , 1] = ele_type
-    els_array[: , 2] = mat_tag
-    els_array[: , 3::] = eles[ele_id, :]
+    els_array = np.zeros([len(ele_id), 3 + nnode], dtype=int)
+    els_array[:, 0] = range(nini, len(ele_id) + nini)
+    els_array[:, 1] = ele_type
+    els_array[:, 2] = mat_tag
+    els_array[:, 3::] = eles[ele_id, :]
     nf = nini + len(ele_id)
-    return nf , els_array
+    return nf, els_array
 
 
-def node_writer(points , point_data):
+def node_writer(points: np.ndarray, point_data: Dict[str, Any]) -> np.ndarray:
     """Write nodal data as required by SolidsPy
 
     Parameters
@@ -133,7 +147,14 @@ def node_writer(points , point_data):
     return nodes_array
 
 
-def boundary_conditions(cells, cell_data, phy_lin, nodes_array, bc_x, bc_y):
+def boundary_conditions(
+    cells: Dict[str, np.ndarray],
+    cell_data: Dict[str, Dict[str, Any]],
+    phy_lin: int,
+    nodes_array: np.ndarray,
+    bc_x: int,
+    bc_y: int
+) -> np.ndarray:
     """Impose nodal point boundary conditions as required by SolidsPy
 
     Parameters
@@ -171,7 +192,13 @@ def boundary_conditions(cells, cell_data, phy_lin, nodes_array, bc_x, bc_y):
     return nodes_array
 
 
-def loading(cells, cell_data, phy_lin, P_x, P_y):
+def loading(
+    cells: Dict[str, np.ndarray],
+    cell_data: Dict[str, Dict[str, Any]],
+    phy_lin: int,
+    P_x: float,
+    P_y: float
+) -> np.ndarray:
     """Impose nodal boundary conditions as required by SolidsPy
 
     Parameters
@@ -205,12 +232,18 @@ def loading(cells, cell_data, phy_lin, P_x, P_y):
     ncargas = len(nodes_carga)
     cargas = np.zeros((ncargas, 3))
     cargas[:, 0] = nodes_carga
-    cargas[:, 1] = P_x/ncargas
-    cargas[:, 2] = P_y/ncargas
+    cargas[:, 1] = P_x / ncargas
+    cargas[:, 2] = P_y / ncargas
     return cargas
 
 
-def rect_grid(length, height, nx, ny, eletype=None):
+def rect_grid(
+    length: float,
+    height: float,
+    nx: int,
+    ny: int,
+    eletype: Optional[Any] = None
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Generate a structured mesh for a rectangle
 
     The coordinates of the nodes will be defined in the
@@ -253,13 +286,13 @@ def rect_grid(length, height, nx, ny, eletype=None):
            [3, 1, 0, 4, 5, 8, 7]])
 
     """
-    y, x = np.mgrid[-height/2:height/2:(ny + 1)*1j,
-                    -length/2:length/2:(nx + 1)*1j]
-    els = np.zeros((nx*ny, 7), dtype=int)
+    y, x = np.mgrid[-height / 2:height / 2:(ny + 1) * 1j,
+                    -length / 2:length / 2:(nx + 1) * 1j]
+    els = np.zeros((nx * ny, 7), dtype=int)
     els[:, 1] = 1
     for row in range(ny):
         for col in range(nx):
-            cont = row*nx + col
+            cont = row * nx + col
             els[cont, 0] = cont
             els[cont, 3:7] = [cont + row, cont + row + 1,
                               cont + row + nx + 2, cont + row + nx + 1]
