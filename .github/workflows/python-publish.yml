@@ -6,7 +6,7 @@ on:
       - main
       - develop_v2.0
     tags:
-      - 'v*.*.*'  # Triggers on version tags like v1.2.3
+      - 'v*.*.*'  # Triggers on version tags like v1.2.4
   pull_request:
     branches:
       - main
@@ -112,8 +112,7 @@ jobs:
       - name: Upload Conda package
         env:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
-          ANACONDA_USERNAME: ${{ secrets.ANACONDA_USERNAME }}
         run: |
           for pkg in dist/*/*.tar.bz2; do
-            conda run -n base anaconda upload "$pkg" -t "$ANACONDA_API_TOKEN" --force
+            conda run -n base anaconda upload "$pkg" --force
           done
