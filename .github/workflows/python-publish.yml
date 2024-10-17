@@ -76,12 +76,12 @@ jobs:
       - name: Build Python package
         run: python -m build
 
-      - name: Publish package to PyPI
+      - name: Publish package to TestPyPI
         env:
           TWINE_USERNAME: '__token__'
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
         run: |
-          python -m twine upload dist/* --verbose
+          python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
 
   build-and-publish-conda:
     name: Build and Publish Conda Package
