@@ -98,9 +98,27 @@ jobs:
         with:
           auto-update-conda: true
           python-version: '3.10'
+          channels: conda-forge
 
-      - name: Install conda-build and anaconda-client
-        run: conda install -y conda-build anaconda-client
+      - name: Install conda-build and anaconda-client via conda
+        run: |
+          conda install -y conda-build anaconda-client
+          conda list anaconda-client
+
+      - name: Locate anaconda executable
+        run: |
+          which anaconda || echo "anaconda not found"
+
+      - name: Add Conda bin to PATH
+        run: echo "$HOME/miniconda/bin" >> $GITHUB_PATH
+
+      - name: Install anaconda-client via pip (if not found via conda)
+        run: |
+          pip install --upgrade pip
+          pip install anaconda-client
+
+      - name: Verify anaconda-client installation
+        run: which anaconda
 
       - name: Build Conda package
         run: conda build conda-recipe --output-folder dist -c conda-forge
@@ -108,8 +126,9 @@ jobs:
       - name: Upload Conda package
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+          ANACONDA_USERNAME: ${{ secrets.ANACONDA_USERNAME }}
         run: |
           anaconda login --token "$ANACONDA_API_TOKEN"
           for pkg in dist/*/*.tar.bz2; do
-            anaconda upload "$pkg" --user YOUR_ANACONDA_USERNAME --force
+            anaconda upload "$pkg" --user "$ANACONDA_USERNAME" --force
           done
