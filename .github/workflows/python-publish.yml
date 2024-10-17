@@ -129,5 +129,5 @@ jobs:
           ANACONDA_USERNAME: ${{ secrets.ANACONDA_USERNAME }}
         run: |
           for pkg in dist/*/*.tar.bz2; do
-            anaconda upload -t "$ANACONDA_API_TOKEN" --force
+            anaconda upload "$pkg" -t "$ANACONDA_API_TOKEN" --force
           done
