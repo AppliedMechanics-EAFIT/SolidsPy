@@ -6,7 +6,7 @@ on:
       - main
       - develop_v2.0
     tags:
-      - 'v*.*.*'  # Triggers on version tags like v1.2.4
+      - 'v*.*.*'  # Triggers on version tags like v1.2.5
   pull_request:
     branches:
       - main
