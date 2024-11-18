@@ -6,7 +6,7 @@ on:
       - main
       - develop_v2.0
     tags:
-      - 'v*.*.*'  # Triggers on version tags like v1.2.5
+      - 'v*.*.*'
   pull_request:
     branches:
       - main
@@ -34,7 +34,7 @@ jobs:
 
       - name: Update __version__ in __init__.py
         run: |
-          sed -i 's/__version__ = ".*"/__version__ = "${{ env.VERSION }}"/' solidspy/__init__.py
+          sed -i 's|__version__ = ".*"|__version__ = "${{ env.VERSION }}"|' solidspy/__init__.py
 
       - name: Configure Git
         run: |
