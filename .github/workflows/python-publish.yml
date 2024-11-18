@@ -30,27 +30,41 @@ jobs:
 
       - name: Extract version from tag
         id: extract_version
+        if: startsWith(github.ref, 'refs/tags/')
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
+      - name: Validate VERSION Format
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          if [[ ! "${{ env.VERSION }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format: ${{ env.VERSION }}"
+            exit 1
+          fi
+
       - name: Update __version__ in __init__.py
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           sed -i 's|__version__ = ".*"|__version__ = "${{ env.VERSION }}"|' solidspy/__init__.py
 
       - name: Configure Git
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Commit version update
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           git add solidspy/__init__.py
-          git commit -m "Update version to ${{ env.VERSION }}"
+          git commit -m "Update version to ${{ env.VERSION }}" || echo "No changes to commit"
 
       - name: Push changes
+        if: startsWith(github.ref, 'refs/tags/')
         uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: ${{ secrets.TOKEN_GITHUB }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Use the default GITHUB_TOKEN
           branch: develop_v2.0
+          directory: .
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
