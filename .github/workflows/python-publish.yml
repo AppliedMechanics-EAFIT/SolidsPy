@@ -73,13 +73,14 @@ jobs:
           git add solidspy/__init__.py
           git commit -m "Update version to ${{ env.VERSION }}" || echo "No changes to commit"
 
-      - name: Push changes
+      - name: Push changes (Force)
         if: startsWith(github.ref, 'refs/tags/')
-        uses: ad-m/github-push-action@v0.6.0
+        uses: ad-m/github-push-action@v0.8.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # Use the default GITHUB_TOKEN
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: develop_v2.0
           directory: .
+          force: true
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
