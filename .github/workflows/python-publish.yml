@@ -28,6 +28,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install -e .
+
+      - name: Run tests with coverage
+        run: |
+          pytest --cov=solidspy tests/
+
+      - name: Generate coverage report
+        run: |
+          coverage xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.python-version }}
+          path: coverage.xml
+
+  update-tag-version:
+    name: Update version in files
+    needs: test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
       - name: Extract version from tag
         id: extract_version
         if: startsWith(github.ref, 'refs/tags/')
@@ -82,34 +114,10 @@ jobs:
           directory: .
           force: true
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
-          pip install -e .
-
-      - name: Run tests with coverage
-        run: |
-          pytest --cov=solidspy tests/
-
-      - name: Generate coverage report
-        run: |
-          coverage xml
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report-${{ matrix.python-version }}
-          path: coverage.xml
 
   build-and-publish:
     name: Build and Publish to PyPI
-    needs: test
+    needs: update-tag-version
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
@@ -139,7 +147,7 @@ jobs:
 
   build-and-publish-conda:
     name: Build and Publish Conda Package
-    needs: test
+    needs: update-tag-version
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
