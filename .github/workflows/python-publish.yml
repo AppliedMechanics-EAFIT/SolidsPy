@@ -46,6 +46,21 @@ jobs:
         run: |
           sed -i 's|__version__ = ".*"|__version__ = "${{ env.VERSION }}"|' solidspy/__init__.py
 
+      - name: Update version in setup.py
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          sed -i 's|version=.*|version='\''${{ env.VERSION }}'\'',|' setup.py
+
+      - name: Update version in conda-recipe/meta.yaml
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          sed -i 's|{% set version = ".*" %}|{% set version = "'${{ env.VERSION }}'" %}|' conda-recipe/meta.yaml
+
+      - name: Update release in docs/conf.py
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          sed -i 's|release = .*$|release = '\''${{ env.VERSION }}'\''|' docs/conf.py
+
       - name: Configure Git
         if: startsWith(github.ref, 'refs/tags/')
         run: |
