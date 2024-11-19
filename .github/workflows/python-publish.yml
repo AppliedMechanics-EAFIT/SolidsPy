@@ -53,130 +53,100 @@ jobs:
           name: coverage-report-${{ matrix.python-version }}
           path: coverage.xml
 
-  update-tag-version:
-    name: Update version in files
-    needs: test
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    release:
+      name: Release Process
+      runs-on: ubuntu-latest
+      if: startsWith(github.ref, 'refs/tags/v')
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
 
-      - name: Extract version from tag
-        id: extract_version
-        if: startsWith(github.ref, 'refs/tags/')
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        - name: Extract version from tag
+          run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-      - name: Validate VERSION Format
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          if [[ ! "${{ env.VERSION }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Invalid version format: ${{ env.VERSION }}"
-            exit 1
-          fi
+        - name: Validate VERSION Format
+          run: |
+            if [[ ! "${{ env.VERSION }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Invalid version format: ${{ env.VERSION }}"
+              exit 1
+            fi
 
-      - name: Update __version__ in __init__.py
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          sed -i 's|__version__ = ".*"|__version__ = "${{ env.VERSION }}"|' solidspy/__init__.py
+        - name: Update __version__ in __init__.py
+          run: |
+            sed -i 's|__version__ = ".*"|__version__ = "${{ env.VERSION }}"|' solidspy/__init__.py
 
-      - name: Update version in setup.py
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          sed -i 's|version=.*|version='\''${{ env.VERSION }}'\'',|' setup.py
+        - name: Update version in setup.py
+          run: |
+            sed -i 's|version=.*|version='\''${{ env.VERSION }}'\'',|' setup.py
 
-      - name: Update version in conda-recipe/meta.yaml
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          sed -i 's|{% set version = ".*" %}|{% set version = "'${{ env.VERSION }}'" %}|' conda-recipe/meta.yaml
+        - name: Update version in conda-recipe/meta.yaml
+          run: |
+            sed -i 's|{% set version = ".*" %}|{% set version = "'${{ env.VERSION }}'" %}|' conda-recipe/meta.yaml
 
-      - name: Update release in docs/conf.py
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          sed -i 's|release = ".*"|release = "${{ env.VERSION }}",|' docs/conf.py
+        - name: Update release in docs/conf.py
+          run: |
+            sed -i 's|release = ".*"|release = "${{ env.VERSION }}",|' docs/conf.py
 
-      - name: Configure Git
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+        - name: Configure Git
+          run: |
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Commit version update
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          git add .
-          git commit -m "Update version to ${{ env.VERSION }}" || echo "No changes to commit"
+        - name: Commit version update
+          run: |
+            git add .
+            git commit -m "Update version to ${{ env.VERSION }}" || echo "No changes to commit"
 
-      - name: Push changes (Force)
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: ad-m/github-push-action@v0.8.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: develop_v2.0
-          directory: .
-          force: true
+        - name: Push changes (Force)
+          uses: ad-m/github-push-action@v0.8.0
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: develop_v2.0
+            directory: .
+            force: true
 
-  build-and-publish:
-    name: Build and Publish to PyPI
-    needs: update-tag-version
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+        # Build and Publish Steps
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.8'
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        - name: Install build tools
+          run: |
+            python -m pip install --upgrade pip
+            pip install build twine
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.8'
+        - name: Build Python package
+          run: python -m build
 
-      - name: Install build tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install build twine
+        - name: Publish package to TestPyPI
+          env:
+            TWINE_USERNAME: '__token__'
+            TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          run: |
+            python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
 
-      - name: Build Python package
-        run: python -m build
+        - name: Set up Miniconda
+          uses: conda-incubator/setup-miniconda@v2
+          with:
+            auto-update-conda: true
+            python-version: '3.10'
+            channels: conda-forge
+            use-mamba: false
 
-      - name: Publish package to TestPyPI
-        env:
-          TWINE_USERNAME: '__token__'
-          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        run: |
-          python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
+        - name: Install conda-build and anaconda-client via conda
+          run: |
+            conda install -y conda-build anaconda-client
+            conda list anaconda-client
 
-  build-and-publish-conda:
-    name: Build and Publish Conda Package
-    needs: update-tag-version
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+        - name: Build Conda package
+          run: conda build conda-recipe --output-folder dist -c conda-forge
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          python-version: '3.10'
-          channels: conda-forge
-          use-mamba: false  # Disable mamba to avoid libarchive error
-
-      - name: Install conda-build and anaconda-client via conda
-        run: |
-          conda install -y conda-build anaconda-client
-          conda list anaconda-client
-
-      - name: Build Conda package
-        run: conda build conda-recipe --output-folder dist -c conda-forge
-
-      - name: Upload Conda package
-        env:
-          ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
-        run: |
-          for pkg in dist/*/*.tar.bz2; do
-            conda run -n base anaconda upload "$pkg" --force
-          done
+        - name: Upload Conda package
+          env:
+            ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+          run: |
+            for pkg in dist/*/*.tar.bz2; do
+              conda run -n base anaconda upload "$pkg" --force
+            done
