@@ -55,6 +55,7 @@ jobs:
 
   release:
     name: Release Process
+    needs: test
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
