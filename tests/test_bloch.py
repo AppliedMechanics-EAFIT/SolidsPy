@@ -4,7 +4,7 @@ Test for functions in ``blochutil`` module
 """
 import numpy as np
 from numpy import array, exp, pi
-from src.blochutil import bloch_transform_mat
+from solidspy.blochutil import bloch_transform_mat
 
 
 def test_bloch_transform_mat():

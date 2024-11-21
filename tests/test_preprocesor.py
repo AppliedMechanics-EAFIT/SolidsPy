@@ -4,7 +4,7 @@ Test cases for functions on ``preprocesor`` module
 
 """
 import numpy as np
-import src.preprocesor as pre
+import solidspy.preprocesor as pre
 
 
 def test_rect_grid():

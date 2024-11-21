@@ -3,8 +3,8 @@ requires = ["setuptools >= 68.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "SolidsPyKevin"
-version = "1.4.2"
+name = "solidspy"
+version = "1.3.9"
 description = "A simple Finite Element program"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 license = {file = "LICENSE"}
@@ -21,6 +21,7 @@ classifiers = [
     "Intended Audience :: Education",
     "Topic :: Scientific/Engineering",
     "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -41,12 +42,14 @@ dev = [
     "pytest",
     "coverage",
     "pytest-cov",
+    "black",
+    "flake8"
 ]
 
 [project.urls]
 Homepage = "https://github.com/AppliedMechanics-EAFIT/SolidsPy"
 Repository = "https://github.com/AppliedMechanics-EAFIT/SolidsPy"
-"Bug Tracker" = "https://github.com/AppliedMechanics-EAFIT/SolidsPy/issues"
+BugTracker = "https://github.com/AppliedMechanics-EAFIT/SolidsPy/issues"
 
-[project.scripts]
-sample = "sample:main"
+[tool.setuptools.packages.find]
+where = ["src"]

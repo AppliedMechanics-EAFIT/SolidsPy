@@ -7,8 +7,8 @@ This module contains functions to postprocess results.
 
 """
 import numpy as np
-import src.femutil as fe
-import src.uelutil as uel
+import solidspy.femutil as fe
+import solidspy.uelutil as uel
 import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
 from typing import Optional, Tuple, List

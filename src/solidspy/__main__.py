@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-from src.solids_GUI import solids_GUI
+from solidspy.solids_GUI import solids_GUI
 
 solids_GUI()

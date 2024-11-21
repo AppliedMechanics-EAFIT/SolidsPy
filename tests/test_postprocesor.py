@@ -4,7 +4,7 @@ Test cases for functions on ``postprocesor`` module
 
 """
 import numpy as np
-import src.postprocesor as pos
+import solidspy.postprocesor as pos
 
 
 def test_strain_nodes():

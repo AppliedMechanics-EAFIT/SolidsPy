@@ -27,10 +27,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse.linalg import eigsh
 import meshio
-import src.assemutil as ass
-import src.femutil as fem
-import src.gaussutil as gau
-import src.postprocesor as pos
+import solidspy.assemutil as ass
+import solidspy.femutil as fem
+import solidspy.gaussutil as gau
+import solidspy.postprocesor as pos
 
 
 def acoust_diff(r, s, coord, element):
