@@ -87,7 +87,7 @@ jobs:
 
       - name: Update release in docs/conf.py
         run: |
-          sed -i 's|release = ".*"|release = "${{ env.VERSION }}",|' docs/conf.py
+          sed -i 's|release = ".*"|release = "${{ env.VERSION }}"|' docs/conf.py
 
       - name: Configure Git
         run: |
