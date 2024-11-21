@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]  # Herramientas para construir el paquete
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SolidsPyKevin"
+version = "1.3.9"
+description = "A simple Finite Element program"
+readme = "README.rst"
+readme-content-type = "text/x-rst"
+license = {text = "MIT"}
+authors = [
+    {name = "Juan Gomez", email = "jgomezc1@eafit.edu.co"},
+    {name = "Nicolas Guarin-Zapata", email = "nicoguarin@gmail.com"}
+]
+homepage = "https://github.com/AppliedMechanics-EAFIT/SolidsPy"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3"
+]
+keywords = ["finite-elements", "fem", "scientific-computing"]
+
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "easygui",
+    "meshio==3.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "coverage",
+    "pytest-cov",
+    "black",  # Example additional dev tool
+    "flake8"  # Example linting tool
+]
+
+[project.scripts]
+sample = "sample:main"
