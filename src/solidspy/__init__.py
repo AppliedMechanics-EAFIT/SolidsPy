@@ -11,7 +11,7 @@ __all__ = ["assemutil",
            "uelutil",
            "solids_GUI"]
 
-__version__ = "1.4.7"
+__version__ = "1.4.8"
 
 
 __citation__ = """@software{solidspy,
