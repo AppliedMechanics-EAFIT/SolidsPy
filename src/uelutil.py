@@ -9,8 +9,8 @@ New elements can be added by including additional subroutines.
 
 """
 import numpy as np
-import solidspy.femutil as fem
-import solidspy.gaussutil as gau
+import src.femutil as fem
+import src.gaussutil as gau
 from numpy import ndarray
 from typing import Tuple, Sequence
 

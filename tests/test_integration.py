@@ -5,9 +5,9 @@ Integration tests for solidspy
 """
 import numpy as np
 from scipy.sparse.linalg import eigsh
-import solidspy.postprocesor as pos
-import solidspy.assemutil as ass
-import solidspy.solutil as sol
+import src.postprocesor as pos
+import src.assemutil as ass
+import src.solutil as sol
 
 
 def test_4_elements():

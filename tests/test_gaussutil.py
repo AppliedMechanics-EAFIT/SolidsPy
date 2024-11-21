@@ -4,7 +4,7 @@ Test cases for functions on ``gaussutil`` module
 
 """
 import numpy as np
-import solidspy.gaussutil as gauss
+import src.gaussutil as gauss
 
 
 def test_gauss_nd():

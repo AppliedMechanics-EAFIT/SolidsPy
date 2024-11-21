@@ -6,7 +6,7 @@ Test cases for functions on ``solutil`` module
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse import rand
-import solidspy.solutil as sol
+import src.solutil as sol
 
 
 def test_static_solve():

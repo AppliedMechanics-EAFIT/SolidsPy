@@ -4,7 +4,7 @@ Test cases for functions on ``uelutil`` module
 
 """
 import numpy as np
-import solidspy.uelutil as uel
+import src.uelutil as uel
 
 
 #%% Continuum elements

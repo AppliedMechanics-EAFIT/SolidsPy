@@ -20,7 +20,7 @@ References
 
 """
 import numpy as np
-import solidspy.gaussutil as gau
+import src.gaussutil as gau
 from typing import Tuple, Callable
 from numpy.typing import NDArray
 
