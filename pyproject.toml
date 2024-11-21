@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "solidspy"
-version = "1.3.9"
+version = "1.4.7"
 description = "A simple Finite Element program"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 license = {file = "LICENSE"}
