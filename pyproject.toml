@@ -41,8 +41,6 @@ dev = [
     "pytest",
     "coverage",
     "pytest-cov",
-    "black",
-    "flake8"
 ]
 
 [project.urls]
