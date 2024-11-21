@@ -1,18 +1,17 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 FEM routines
 ------------
-
+    
 Functions to compute kinematics variables for the Finite
 Element Analysis.
-
+    
 The elements included are:
     1. 4 node bilinear quadrilateral.
     2. 6 node quadratic triangle.
     3. 3 node linear triangle.
 
 The notation used is similar to the one used by Bathe [1]_.
-
 
 References
 ----------
@@ -22,17 +21,19 @@ References
 """
 import numpy as np
 import solidspy.gaussutil as gau
+from typing import Tuple, Callable
+from numpy.typing import NDArray
 
 
-def eletype(eletype):
+def eletype(eletype: int) -> Tuple[int, int, int]:
     """Assigns number to degrees of freedom
 
-    According to iet assigns number of degrees of freedom, number of
+    According to `eletype` assigns number of degrees of freedom, number of
     nodes and minimum required number of integration points.
 
     Parameters
     ----------
-    eletype :  int
+    eletype : int
       Type of element. These are:
         1. 4 node bilinear quadrilateral.
         2. 6 node quadratic triangle.
@@ -51,6 +52,11 @@ def eletype(eletype):
     ngpts : int
       Number of Gauss points for the selected element.
 
+    Raises
+    ------
+    ValueError
+        If an invalid element type is provided.
+
     """
     elem_id = {
         1: (8, 4, 4),
@@ -63,14 +69,14 @@ def eletype(eletype):
         8: (6, 2, 3)}
     try:
         return elem_id[eletype]
-    except:
+    except KeyError:
         raise ValueError("You entered an invalid type of element.")
 
 
 #%% Shape functions and derivatives
 
 # Triangles
-def shape_tri3(r, s):
+def shape_tri3(r: float, s: float) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
     Shape functions and derivatives for a linear element
 
@@ -83,9 +89,9 @@ def shape_tri3(r, s):
 
     Returns
     -------
-    N : ndarray (float)
+    N : NDArray[np.float64]
         Array with the shape functions evaluated at the point (r, s).
-    dNdr : ndarray (float)
+    dNdr : NDArray[np.float64]
         Array with the derivative of the shape functions evaluated at
         the point (r, s).
 
@@ -96,17 +102,19 @@ def shape_tri3(r, s):
 
     >>> N, _ = shape_tri3(0, 0)
     >>> N_ex = np.array([
-    ...    [1, 0, 0, 0, 0, 0],
-    ...    [0, 1, 0, 0, 0, 0]])
+    ...    [1, 0, 0],
+    ...    [0, 1, 0],
+    ...    [0, 0, 1]])
     >>> np.allclose(N, N_ex)
     True
 
     and
 
-    >>> N, _ = shape_tri3(1/2, 1/2)
+    >>> N, _ = shape_tri3(0.5, 0.5)
     >>> N_ex = np.array([
-    ...    [0, 0, 1/2, 0, 1/2, 0],
-    ...    [0, 0, 0, 1/2, 0, 1/2]])
+    ...    [0, 0.5, 0.5],
+    ...    [0, 1, 0],
+    ...    [0, 0, 1]])
     >>> np.allclose(N, N_ex)
     True
 
@@ -118,9 +126,9 @@ def shape_tri3(r, s):
     return N, dNdr
 
 
-def shape_tri6(r, s):
+def shape_tri6(r: float, s: float) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
-    Shape functions and derivatives for a quadratic element
+    Shape functions and derivatives for a quadratic triangular element.
 
     Parameters
     ----------
@@ -131,26 +139,63 @@ def shape_tri6(r, s):
 
     Returns
     -------
-    N : ndarray (float)
-        Array with the shape functions evaluated at the point (r, s).
-    dNdr : ndarray (float)
-        Array with the derivative of the shape functions evaluated at
-        the point (r, s).
+    N : NDArray[np.float64]
+        Shape functions evaluated at the point (r, s).
+    dNdrds : NDArray[np.float64]
+        Derivatives of the shape functions with respect to r and s.
+
     """
-    N = np.array(
-        [(1 - r - s) - 2*r*(1 - r - s) - 2*s*(1 - r - s),
-         r - 2*r*(1 - r - s) - 2*r*s,
-         s - 2*r*s - 2*s*(1-r-s),
-         4*r*(1 - r - s),
-         4*r*s,
-         4*s*(1 - r - s)])
-    dNdr = np.array([
-        [4*r + 4*s - 3, 4*r - 1, 0, -8*r - 4*s + 4, 4*s, -4*s],
-        [4*r + 4*s - 3, 0, 4*s - 1, -4*r, 4*r, -4*r - 8*s + 4]])
-    return N, dNdr
+    # Convert inputs to NumPy arrays
+    r = np.asarray(r)
+    s = np.asarray(s)
+    
+    # Check if inputs are scalar
+    scalar_input = False
+    if r.ndim == 0 and s.ndim == 0:
+        r = r.reshape(1)
+        s = s.reshape(1)
+        scalar_input = True
+
+    # Compute shape functions N1 to N6
+    N = np.vstack((
+        (1 - r - s) - 2 * r * (1 - r - s) - 2 * s * (1 - r - s),
+        r - 2 * r * (1 - r - s) - 2 * r * s,
+        s - 2 * r * s - 2 * s * (1 - r - s),
+        4 * r * (1 - r - s),
+        4 * r * s,
+        4 * s * (1 - r - s)
+    )).T  # Shape: (n_points, 6)
+
+    # Compute derivatives with respect to r
+    dNdr = np.vstack((
+        4 * r + 4 * s - 3,
+        4 * r - 1,
+        np.zeros_like(r),
+        -8 * r - 4 * s + 4,
+        4 * s,
+        -4 * s
+    )).T  # Shape: (n_points, 6)
+
+    # Compute derivatives with respect to s
+    dNds = np.vstack((
+        4 * r + 4 * s - 3,
+        np.zeros_like(r),
+        4 * s - 1,
+        -4 * r,
+        4 * r,
+        -4 * r - 8 * s + 4
+    )).T  # Shape: (n_points, 6)
+
+    # Stack derivatives into a single array
+    dNdrds = np.stack((dNdr, dNds), axis=1)  # Shape: (n_points, 2, 6)
+
+    if scalar_input:
+        return N[0], dNdrds[0]
+    else:
+        return N, dNdrds
 
 # Quadrilaterals
-def shape_quad4(r, s):
+def shape_quad4(r: float, s: float) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
     Shape functions and derivatives for a bilinear element
 
@@ -163,9 +208,9 @@ def shape_quad4(r, s):
 
     Returns
     -------
-    N : ndarray (float)
+    N : NDArray[np.float64]
         Array with the shape functions evaluated at the point (r, s).
-    dNdr : ndarray (float)
+    dNdr : NDArray[np.float64]
         Array with the derivative of the shape functions evaluated at
         the point (r, s).
 
@@ -176,8 +221,8 @@ def shape_quad4(r, s):
 
     >>> N, _ = shape_quad4(0, 0)
     >>> N_ex = np.array([
-    ...    [1/4, 0, 1/4, 0, 1/4, 0, 1/4, 0],
-    ...    [0, 1/4, 0, 1/4, 0, 1/4, 0, 1/4]])
+    ...    [0.25, 0.0, 0.25, 0.0, 0.25, 0.0, 0.25, 0.0],
+    ...    [0.0, 0.25, 0.0, 0.25, 0.0, 0.25, 0.0, 0.25]])
     >>> np.allclose(N, N_ex)
     True
 
@@ -185,8 +230,8 @@ def shape_quad4(r, s):
 
     >>> N, _ = shape_quad4(1, 1)
     >>> N_ex = np.array([
-    ...    [0, 0, 0, 0, 1, 0, 0, 0],
-    ...    [0, 0, 0, 0, 0, 1, 0, 0]])
+    ...    [0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0],
+    ...    [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0]])
     >>> np.allclose(N, N_ex)
     True
 
@@ -202,7 +247,7 @@ def shape_quad4(r, s):
     return N, dNdr
 
 
-def shape_quad9(r, s):
+def shape_quad9(r: float, s: float) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
     Shape functions and derivatives for a biquadratic element
 
@@ -215,9 +260,9 @@ def shape_quad9(r, s):
 
     Returns
     -------
-    N : ndarray (float)
+    N : NDArray[np.float64]
         Array with the shape functions evaluated at the point (r, s).
-    dNdr : ndarray (float)
+    dNdr : NDArray[np.float64]
         Array with the derivative of the shape functions evaluated at
         the point (r, s).
     """
@@ -253,10 +298,9 @@ def shape_quad9(r, s):
     return N, dNdr
 
 
-
-def shape_quad8(r, s):
+def shape_quad8(r: float, s: float) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
-    Shape functions and derivatives for a 8-noded serendipity element
+    Shape functions and derivatives for an 8-noded serendipity element
 
     Parameters
     ----------
@@ -267,12 +311,13 @@ def shape_quad8(r, s):
 
     Returns
     -------
-    N : ndarray (float)
+    N : NDArray[np.float64]
         Array with the shape functions evaluated at the point (r, s).
-    dNdr : ndarray (float)
+    dNdr : NDArray[np.float64]
         Array with the derivative of the shape functions evaluated at
         the point (r, s).
     """
+
     N = 0.25*np.array(
         [(1.0 - r)*(1.0 - s) - (1.0 - r)*(1.0 - s**2) - (1.0 - s)*(1.0 - r**2),
          (1.0 + r)*(1.0 - s) - (1.0 + r)*(1.0 - s**2) - (1.0 - s)*(1.0 - r**2),
@@ -302,8 +347,9 @@ def shape_quad8(r, s):
     return N, dNdr
 
 
-## 3D elements
-def shape_tet4(r, s, t):
+
+# 3D elements
+def shape_tet4(r: float, s: float, t: float) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
     Shape functions and derivatives for a linear tetrahedron
 
@@ -318,9 +364,9 @@ def shape_tet4(r, s, t):
 
     Returns
     -------
-    N : ndarray (float)
+    N : NDArray[np.float64]
         Array with the shape functions evaluated at the point (r, s, t).
-    dNdr : ndarray (float)
+    dNdr : NDArray[np.float64]
         Array with the derivative of the shape functions evaluated at
         the point (r, s, t).
     """
@@ -332,7 +378,7 @@ def shape_tet4(r, s, t):
     return N, dNdr
 
 
-def shape_hex8(r, s, t):
+def shape_hex8(r: float, s: float, t: float) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
     Shape functions and derivatives for a trilinear element
 
@@ -347,9 +393,9 @@ def shape_hex8(r, s, t):
 
     Returns
     -------
-    N : ndarray (float)
+    N : NDArray[np.float64]
         Array with the shape functions evaluated at the point (r, s, t).
-    dNdr : ndarray (float)
+    dNdr : NDArray[np.float64]
         Array with the derivative of the shape functions evaluated at
         the point (r, s, t).
     """
@@ -375,7 +421,12 @@ def shape_hex8(r, s, t):
 
 
 #%% Derivative matrices
-def elast_diff_2d(r, s, coord, element):
+def elast_diff_2d(
+    r: float,
+    s: float,
+    coord: NDArray[np.float64],
+    element: Callable[[float, float], Tuple[NDArray[np.float64], NDArray[np.float64]]]
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], float]:
     """
     Interpolation matrices for elements for plane elasticity
 
@@ -385,19 +436,22 @@ def elast_diff_2d(r, s, coord, element):
         Horizontal coordinate of the evaluation point.
     s : float
         Vertical coordinate of the evaluation point.
-    coord : ndarray (float)
+    coord : NDArray[np.float64]
         Coordinates of the element.
+    element : Callable
+        Shape function generator for the element.
 
     Returns
     -------
-    H : ndarray (float)
+    H : NDArray[np.float64]
         Array with the shape functions evaluated at the point (r, s)
         for each degree of freedom.
-    B : ndarray (float)
+    B : NDArray[np.float64]
         Array with the displacement to strain matrix evaluated
         at the point (r, s).
     det : float
         Determinant of the Jacobian.
+
     """
     N, dNdr = element(r, s)
     det, jaco_inv = jacoper(dNdr, coord)
@@ -413,9 +467,14 @@ def elast_diff_2d(r, s, coord, element):
     return H, B, det
 
 
-def elast_diff_axi(r, s, coord, element):
+def elast_diff_axi(
+    r: float,
+    s: float,
+    coord: NDArray[np.float64],
+    element: Callable[[float, float], Tuple[NDArray[np.float64], NDArray[np.float64]]]
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], float]:
     """
-    Interpolation matrices for elements for axisymetric elasticity
+    Interpolation matrices for elements for axisymmetric elasticity
 
     Parameters
     ----------
@@ -423,19 +482,27 @@ def elast_diff_axi(r, s, coord, element):
         Horizontal coordinate of the evaluation point.
     s : float
         Vertical coordinate of the evaluation point.
-    coord : ndarray (float)
+    coord : NDArray[np.float64]
         Coordinates of the element.
+    element : Callable
+        Shape function generator for the element.
 
     Returns
     -------
-    H : ndarray (float)
+    H : NDArray[np.float64]
         Array with the shape functions evaluated at the point (r, s)
         for each degree of freedom.
-    B : ndarray (float)
+    B : NDArray[np.float64]
         Array with the displacement to strain matrix evaluated
         at the point (r, s).
     det : float
         Determinant of the Jacobian.
+
+    Raises
+    ------
+    ValueError
+        If the radial coordinate `x` is negative.
+
     """
     N, dNdr = element(r, s)
     x = N.dot(coord[:, 0])
@@ -456,11 +523,15 @@ def elast_diff_axi(r, s, coord, element):
     return H, B, det
 
 
-## 3D elements
-def elast_diff_3d(r, s, t, coord, interp=shape_hex8):
+def elast_diff_3d(
+    r: float,
+    s: float,
+    t: float,
+    coord: NDArray[np.float64],
+    interp: Callable[[float, float, float], Tuple[NDArray[np.float64], NDArray[np.float64]]] = shape_hex8
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], float]:
     """
-    Interpolation matrices for a trilinear element for
-    elasticity
+    Interpolation matrices for a trilinear element for elasticity
 
     Parameters
     ----------
@@ -470,19 +541,22 @@ def elast_diff_3d(r, s, t, coord, interp=shape_hex8):
         Horizontal coordinate of the evaluation point.
     t : float
         Vertical coordinate of the evaluation point.
-    coord : ndarray (float)
+    coord : NDArray[np.float64]
         Coordinates of the element.
+    interp : Callable, optional
+        Shape function generator for the element. Defaults to `shape_hex8`.
 
     Returns
     -------
-    H : ndarray (float)
+    H : NDArray[np.float64]
         Array with the shape functions evaluated at the point (r, s, t)
         for each degree of freedom.
-    B : ndarray (float)
+    B : NDArray[np.float64]
         Array with the displacement to strain matrix evaluated
         at the point (r, s, t).
     det : float
         Determinant of the Jacobian.
+
     """
     N, dNdr = interp(r, s, t)
     det, jaco_inv = jacoper(dNdr, coord)
@@ -505,23 +579,33 @@ def elast_diff_3d(r, s, t, coord, interp=shape_hex8):
 
 
 #%%
-def jacoper(dNdr, coord):
+def jacoper(
+    dNdr: NDArray[np.float64],
+    coord: NDArray[np.float64]
+) -> Tuple[float, NDArray[np.float64]]:
     """
     Compute the Jacobian of the transformation evaluated at
     the Gauss point
 
     Parameters
     ----------
-    dNdr : ndarray
+    dNdr : NDArray[np.float64]
       Derivatives of the interpolation function with respect to the
       natural coordinates.
-    coord : ndarray
+    coord : NDArray[np.float64]
       Coordinates of the nodes of the element (nnodes, ndim).
 
     Returns
     -------
-    jaco_inv : ndarray (ndim, ndim)
-      Jacobian of the transformation evaluated at a point.
+    det : float
+      Determinant of the Jacobian.
+    jaco_inv : NDArray[np.float64]
+      Inverse of the Jacobian matrix.
+
+    Raises
+    ------
+    ValueError
+        If the Jacobian determinant is close to zero or negative.
 
     """
     jaco = dNdr @ coord
@@ -537,14 +621,14 @@ def jacoper(dNdr, coord):
 
 
 #%% Material routines
-def umat(params):
-    """2D Elasticity consitutive matrix in plane stress
+def umat(params: Tuple[float, float]) -> NDArray[np.float64]:
+    """2D Elasticity constitutive matrix in plane stress
 
     For plane strain use effective properties.
 
     Parameters
     ----------
-    params : tuple
+    params : Tuple[float, float]
         Material parameters in the following order:
 
             E : float
@@ -554,13 +638,13 @@ def umat(params):
 
     Returns
     -------
-    C : ndarray
+    C : NDArray[np.float64]
       Constitutive tensor in Voigt notation.
 
     Examples
     --------
 
-    >>> params = 8/3, 1/3
+    >>> params = (8/3, 1/3)
     >>> C = umat(params)
     >>> C_ex = np.array([
     ...    [3, 1, 0],
@@ -583,14 +667,14 @@ def umat(params):
     return C
 
 
-def elast_mat_2d(params):
-    """2D Elasticity consitutive matrix in plain stress
+def elast_mat_2d(params: Tuple[float, float]) -> NDArray[np.float64]:
+    """2D Elasticity constitutive matrix in plane stress
 
-    For plane stress use effective properties.
+    For plane strain use effective properties.
 
     Parameters
     ----------
-    params : tuple
+    params : Tuple[float, float]
         Material parameters in the following order:
 
             E : float
@@ -600,7 +684,7 @@ def elast_mat_2d(params):
 
     Returns
     -------
-    C : ndarray
+    C : NDArray[np.float64]
       Constitutive tensor in Voigt notation.
 
     """
@@ -615,12 +699,12 @@ def elast_mat_2d(params):
     return C
 
 
-def elast_mat_axi(params):
-    """Elasticity consitutive matrix for axisymmetric problems.
+def elast_mat_axi(params: Tuple[float, float]) -> NDArray[np.float64]:
+    """Elasticity constitutive matrix for axisymmetric problems.
 
     Parameters
     ----------
-    params : tuple
+    params : Tuple[float, float]
         Material parameters in the following order:
 
             E : float
@@ -630,7 +714,7 @@ def elast_mat_axi(params):
 
     Returns
     -------
-    C : ndarray
+    C : NDArray[np.float64]
       Constitutive tensor in Voigt notation.
 
     """
@@ -645,12 +729,12 @@ def elast_mat_axi(params):
     return C
 
 
-def elast_mat(params):
-    """3D Elasticity consitutive matrix.
+def elast_mat(params: Tuple[float, float]) -> NDArray[np.float64]:
+    """3D Elasticity constitutive matrix.
 
     Parameters
     ----------
-    params : tuple
+    params : Tuple[float, float]
         Material parameters in the following order:
 
             E : float
@@ -660,7 +744,7 @@ def elast_mat(params):
 
     Returns
     -------
-    C : ndarray
+    C : NDArray[np.float64]
         Constitutive tensor in Voigt notation.
 
     """
@@ -677,25 +761,27 @@ def elast_mat(params):
     return C
 
 
-
 #%% Elemental strains
-def str_el3(coord, ul):
+def str_el3(
+    coord: NDArray[np.float64],
+    ul: NDArray[np.float64]
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """Compute the strains at each element integration point
 
     This one is used for 3-noded triangular elements.
 
     Parameters
     ----------
-    coord : ndarray
+    coord : NDArray[np.float64]
       Coordinates of the nodes of the element (nn, 2).
-    ul : ndarray
+    ul : NDArray[np.float64]
       Array with displacements for the element.
 
     Returns
     -------
-    epsGT : ndarray
+    epsGT : NDArray[np.float64]
       Strain components for the Gauss points.
-    xl : ndarray
+    xl : NDArray[np.float64]
       Configuration of the Gauss points after deformation.
 
     """
@@ -711,23 +797,26 @@ def str_el3(coord, ul):
     return epsG.T, xl
 
 
-def str_el6(coord, ul):
+def str_el6(
+    coord: NDArray[np.float64],
+    ul: NDArray[np.float64]
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """Compute the strains at each element integration point
 
     This one is used for 6-noded triangular elements.
 
     Parameters
     ----------
-    coord : ndarray
+    coord : NDArray[np.float64]
       Coordinates of the nodes of the element (6, 2).
-    ul : ndarray
+    ul : NDArray[np.float64]
       Array with displacements for the element.
 
     Returns
     -------
-    epsGT : ndarray
+    epsGT : NDArray[np.float64]
       Strain components for the Gauss points.
-    xl : ndarray
+    xl : NDArray[np.float64]
       Configuration of the Gauss points after deformation.
 
     """
@@ -743,23 +832,26 @@ def str_el6(coord, ul):
     return epsG.T, xl
 
 
-def str_el4(coord, ul):
+def str_el4(
+    coord: NDArray[np.float64],
+    ul: NDArray[np.float64]
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """Compute the strains at each element integration point
 
     This one is used for 4-noded quadrilateral elements.
 
     Parameters
     ----------
-    coord : ndarray
+    coord : NDArray[np.float64]
       Coordinates of the nodes of the element (4, 2).
-    ul : ndarray
+    ul : NDArray[np.float64]
       Array with displacements for the element.
 
     Returns
     -------
-    epsGT : ndarray
+    epsGT : NDArray[np.float64]
       Strain components for the Gauss points.
-    xl : ndarray
+    xl : NDArray[np.float64]
       Configuration of the Gauss points after deformation.
 
     """

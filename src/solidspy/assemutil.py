@@ -8,12 +8,16 @@ analysis.
 
 """
 import numpy as np
-from scipy.sparse import coo_matrix
+from numpy.typing import NDArray
+from scipy.sparse import coo_matrix, csr_matrix, spmatrix
+from typing import Callable, Optional, Tuple
 import solidspy.uelutil as ue
 import solidspy.femutil as fem
 
 
-def eqcounter(cons, ndof_node=2):
+def eqcounter(
+    cons: NDArray[np.int_], ndof_node: int = 2
+) -> Tuple[int, NDArray[np.int_]]:
     """Count active equations
 
     Creates boundary conditions array bc_array
@@ -22,6 +26,9 @@ def eqcounter(cons, ndof_node=2):
     ----------
     cons : ndarray.
       Array with constraints for each node.
+
+    ndof_node : int, optional
+      Number of degrees of freedom per node. Default is 2.
 
     Returns
     -------
@@ -44,7 +51,13 @@ def eqcounter(cons, ndof_node=2):
     return neq, bc_array
 
 
-def DME(cons, elements, ndof_node=2, ndof_el_max=18, ndof_el=None):
+def DME(
+    cons: NDArray[np.int_],
+    elements: NDArray[np.int_],
+    ndof_node: int = 2,
+    ndof_el_max: int = 18,
+    ndof_el: Optional[Callable[[int], int]] = None,
+) -> Tuple[NDArray[np.int_], NDArray[np.int_], int]:
     """Create assembly array operator
 
     Count active equations, create boundary conditions array ``bc_array``
@@ -62,7 +75,7 @@ def DME(cons, elements, ndof_node=2, ndof_el_max=18, ndof_el=None):
       Number of maximum degrees of freedom per element. By default it is
       18.
     ndof_el : callable, optional
-      Function that return number of degrees of freedom for elements. It
+      Function that returns the number of degrees of freedom for elements. It
       is needed for user elements.
 
     Returns
@@ -76,7 +89,7 @@ def DME(cons, elements, ndof_node=2, ndof_el_max=18, ndof_el=None):
 
     """
     nels = elements.shape[0]
-    assem_op = np.zeros([nels, ndof_el_max], dtype=np.integer)
+    assem_op = np.zeros([nels, ndof_el_max], dtype=int)
     neq, bc_array = eqcounter(cons, ndof_node=ndof_node)
     for ele in range(nels):
         iet = elements[ele, 1]
@@ -88,7 +101,7 @@ def DME(cons, elements, ndof_node=2, ndof_el_max=18, ndof_el=None):
     return assem_op, bc_array, neq
 
 
-def ele_fun(eletype):
+def ele_fun(eletype: int) -> Callable[[NDArray[np.float64], NDArray[np.float64]], Tuple[NDArray[np.float64], NDArray[np.float64]]]:
     """Return the function for the element type given
 
     Parameters
@@ -109,14 +122,23 @@ def ele_fun(eletype):
         5: ue.spring,
         6: ue.truss2D,
         7: ue.beam2DU,
-        8: ue.beam2D}
+        8: ue.beam2D,
+    }
     try:
         return elem_id[eletype]
-    except:
+    except KeyError:
         raise ValueError("You entered an invalid type of element.")
 
 
-def retriever(elements, mats, nodes, ele, uel=None):
+def retriever(
+    elements: NDArray[np.int_],
+    mats: NDArray[np.float64],
+    nodes: NDArray[np.float64],
+    ele: int,
+    uel: Optional[
+        Callable[[NDArray[np.float64], NDArray[np.float64]], Tuple[NDArray[np.float64], NDArray[np.float64]]]
+    ] = None,
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """Computes the elemental stiffness matrix of element ``ele``
 
     Parameters
@@ -129,6 +151,8 @@ def retriever(elements, mats, nodes, ele, uel=None):
       Array with the nodal numbers and coordinates.
     ele : int.
       Identifier of the element to be assembled.
+    uel : callable, optional
+      User element function that returns stiffness and mass matrices.
 
     Returns
     -------
@@ -146,7 +170,17 @@ def retriever(elements, mats, nodes, ele, uel=None):
     return kloc, mloc
 
 
-def assembler(elements, mats, nodes, neq, assem_op, sparse=True, uel=None):
+def assembler(
+    elements: NDArray[np.int_],
+    mats: NDArray[np.float64],
+    nodes: NDArray[np.float64],
+    neq: int,
+    assem_op: NDArray[np.int_],
+    sparse: bool = True,
+    uel: Optional[
+        Callable[[NDArray[np.float64], NDArray[np.float64]], Tuple[NDArray[np.float64], NDArray[np.float64]]]
+    ] = None,
+) -> Tuple[spmatrix, spmatrix]:
     """Assembles the global stiffness matrix
 
     Parameters
@@ -169,12 +203,10 @@ def assembler(elements, mats, nodes, neq, assem_op, sparse=True, uel=None):
 
     Returns
     -------
-    kglob : ndarray (float)
-      Array with the global stiffness matrix. It might be
-      dense or sparse, depending on the value of _sparse_
-    mglob : ndarray (float)
-      Array with the global mass matrix. It might be
-      dense or sparse, depending on the value of _sparse_
+    kglob : sparse matrix (float)
+      Array with the global stiffness matrix. It is sparse in CSR format.
+    mglob : sparse matrix (float)
+      Array with the global mass matrix. It is sparse in CSR format.
 
     """
     if sparse:
@@ -187,7 +219,16 @@ def assembler(elements, mats, nodes, neq, assem_op, sparse=True, uel=None):
     return kglob, mglob
 
 
-def dense_assem(elements, mats, nodes, neq, assem_op, uel=None):
+def dense_assem(
+    elements: NDArray[np.int_],
+    mats: NDArray[np.float64],
+    nodes: NDArray[np.float64],
+    neq: int,
+    assem_op: NDArray[np.int_],
+    uel: Optional[
+        Callable[[NDArray[np.float64], NDArray[np.float64]], Tuple[NDArray[np.float64], NDArray[np.float64]]]
+    ] = None,
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
     Assembles the global stiffness matrix
     using a dense storing scheme
@@ -204,13 +245,16 @@ def dense_assem(elements, mats, nodes, neq, assem_op, uel=None):
       Assembly operator.
     neq : int
       Number of active equations in the system.
-    uel : callable function (optional)
+    uel : callable, optional
       Python function that returns the local stiffness matrix.
 
     Returns
     -------
     kglob : ndarray (float)
       Array with the global stiffness matrix in a dense numpy
+      array.
+    mglob : ndarray (float)
+      Array with the global mass matrix in a dense numpy
       array.
 
     """
@@ -233,13 +277,22 @@ def dense_assem(elements, mats, nodes, neq, assem_op, uel=None):
     return kglob, mglob
 
 
-def sparse_assem(elements, mats, nodes, neq, assem_op, uel=None):
+def sparse_assem(
+    elements: NDArray[np.int_],
+    mats: NDArray[np.float64],
+    nodes: NDArray[np.float64],
+    neq: int,
+    assem_op: NDArray[np.int_],
+    uel: Optional[
+        Callable[[NDArray[np.float64], NDArray[np.float64]], Tuple[NDArray[np.float64], NDArray[np.float64]]]
+    ] = None,
+) -> Tuple[csr_matrix, csr_matrix]:
     """
     Assembles the global stiffness matrix
     using a sparse storing scheme
 
     The scheme used to assemble is COOrdinate list (COO), and
-    it converted to Compressed Sparse Row (CSR) afterward
+    it is converted to Compressed Sparse Row (CSR) afterward
     for the solution phase [1]_.
 
     Parameters
@@ -254,13 +307,16 @@ def sparse_assem(elements, mats, nodes, neq, assem_op, uel=None):
       Assembly operator.
     neq : int
       Number of active equations in the system.
-    uel : callable function (optional)
+    uel : callable, optional
       Python function that returns the local stiffness matrix.
 
     Returns
     -------
     kglob : sparse matrix (float)
       Array with the global stiffness matrix in a sparse
+      Compressed Sparse Row (CSR) format.
+    mglob : sparse matrix (float)
+      Array with the global mass matrix in a sparse
       Compressed Sparse Row (CSR) format.
 
     References
@@ -295,7 +351,12 @@ def sparse_assem(elements, mats, nodes, neq, assem_op, uel=None):
     return stiff, mass
 
 
-def loadasem(loads, bc_array, neq, ndof_node=2):
+def loadasem(
+    loads: NDArray[np.float64],
+    bc_array: NDArray[np.int_],
+    neq: int,
+    ndof_node: int = 2,
+) -> NDArray[np.float64]:
     """Assembles the global Right Hand Side Vector
 
     Parameters
@@ -307,6 +368,8 @@ def loadasem(loads, bc_array, neq, ndof_node=2):
     neq : int
       Number of equations in the system after removing the nodes
       with imposed displacements.
+    ndof_node : int, optional
+      Number of degrees of freedom per node. By default it is 2.
 
     Returns
     -------

@@ -11,6 +11,8 @@ import solidspy.femutil as fe
 import solidspy.uelutil as uel
 import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
+from typing import Optional, Tuple, List
+from numpy.typing import NDArray
 
 # Set plotting defaults
 gray = '#757575'
@@ -27,7 +29,13 @@ plt.rcParams["axes.spines.top"] = False
 
 
 #%% Plotting routines
-def fields_plot(elements, nodes, disp, E_nodes=None, S_nodes=None):
+def fields_plot(
+    elements: NDArray[np.int_],
+    nodes: NDArray[np.float64],
+    disp: NDArray[np.float64],
+    E_nodes: Optional[NDArray[np.float64]] = None,
+    S_nodes: Optional[NDArray[np.float64]] = None
+) -> None:
     """Plot contours for displacements, strains and stresses
 
     Parameters
@@ -40,9 +48,9 @@ def fields_plot(elements, nodes, disp, E_nodes=None, S_nodes=None):
         to each element.
     disp : ndarray (float)
         Array with the displacements.
-    E_nodes : ndarray (float)
+    E_nodes : ndarray (float), optional
         Array with strain field in the nodes.
-    S_nodes : ndarray (float)
+    S_nodes : ndarray (float), optional
         Array with stress field in the nodes.
 
     """
@@ -76,9 +84,15 @@ def fields_plot(elements, nodes, disp, E_nodes=None, S_nodes=None):
 
 
 
-
-def tri_plot(tri, field, title="", levels=12, savefigs=False,
-             plt_type="contourf", filename="solution_plot.pdf"):
+def tri_plot(
+    tri: Triangulation,
+    field: NDArray[np.float64],
+    title: str = "",
+    levels: int = 12,
+    savefigs: bool = False,
+    plt_type: str = "contourf",
+    filename: str = "solution_plot.pdf"
+) -> None:
     """Plot contours over triangulation
 
     Parameters
@@ -88,16 +102,16 @@ def tri_plot(tri, field, title="", levels=12, savefigs=False,
         `number coordX coordY BCX BCY`
     field : ndarray (float)
         Array with data to be plotted for each node.
-    title : string (optional)
+    title : string, optional
         Title of the plot.
-    levels : int (optional)
+    levels : int, optional
         Number of levels to be used in ``contourf``.
-    savefigs : bool (optional)
+    savefigs : bool, optional
         Allow to save the figure.
-    plt_type : string (optional)
+    plt_type : string, optional
         Plot the field as one of the options: ``pcolor`` or
         ``contourf``
-    filename : string (optional)
+    filename : string, optional
         Filename to save the figures.
     """
     if plt_type == "pcolor":
@@ -112,9 +126,17 @@ def tri_plot(tri, field, title="", levels=12, savefigs=False,
         plt.savefig(filename)
 
 
-def plot_node_field(field, nodes, elements, plt_type="contourf", levels=12,
-                    savefigs=False, title=None, figtitle=None,
-                    filename=None):
+def plot_node_field(
+    field: NDArray[np.float64],
+    nodes: NDArray[np.float64],
+    elements: NDArray[np.int_],
+    plt_type: str = "contourf",
+    levels: int = 12,
+    savefigs: bool = False,
+    title: Optional[List[str]] = None,
+    figtitle: Optional[List[str]] = None,
+    filename: Optional[List[str]] = None
+) -> None:
     """Plot the nodal displacement using a triangulation
 
     Parameters
@@ -126,22 +148,21 @@ def plot_node_field(field, nodes, elements, plt_type="contourf", levels=12,
         Array with number and nodes coordinates
         `number coordX coordY BCX BCY`
     elements : ndarray (int)
-        Array with the node number for the nodes that correspond
-        to each  element.
-    plt_type : string (optional)
+        Array with the node number for the nodes that correspond to each  element.
+    plt_type : string, optional
         Plot the field as one of the options: ``pcolor`` or
         ``contourf``.
-    levels : int (optional)
+    levels : int, optional
         Number of levels to be used in ``contourf``.
-    savefigs : bool (optional)
+    savefigs : bool, optional
         Allow to save the figure.
-    title : Tuple of strings (optional)
+    title : Tuple of strings, optional
         Titles of the plots. If not provided the plots will not have
         a title.
-    figtitle : Tuple of strings (optional)
+    figtitle : Tuple of strings, optional
         Titles of the plotting windows. If not provided the
         windows will not have a title.
-    filename : Tuple of strings (optional)
+    filename : Tuple of strings, optional
         Filenames to save the figures. Only used when `savefigs=True`.
         If not provided the name of the figures would be "outputk.pdf",
         where `k` is the number of the column.
@@ -172,9 +193,18 @@ def plot_node_field(field, nodes, elements, plt_type="contourf", levels=12,
             plt.savefig(filename[cont])
 
 
-def plot_truss(nodes, elements, mats, stresses=None, max_val=4,
-               min_val=0.5, savefigs=False, title=None, figtitle=None,
-               filename=None):
+def plot_truss(
+    nodes: NDArray[np.float64],
+    elements: NDArray[np.int_],
+    mats: NDArray[np.float64],
+    stresses: Optional[NDArray[np.float64]] = None,
+    max_val: float = 4,
+    min_val: float = 0.5,
+    savefigs: bool = False,
+    title: Optional[str] = None,
+    figtitle: Optional[str] = None,
+    filename: Optional[str] = None
+) -> None:
     """Plot a truss and encodes the stresses in a colormap
 
     Parameters
@@ -191,22 +221,21 @@ def plot_truss(nodes, elements, mats, stresses=None, max_val=4,
         Array with material profiles.
     loads : ndarray (float)
         Array with loads.
-    tol : float (optional)
+    tol : float, optional
         Minimum difference between cross-section areas of the members
         to be considered different.
-    savefigs : bool (optional)
+    savefigs : bool, optional
         Allow to save the figure.
-    title : Tuple of strings (optional)
+    title : Tuple of strings, optional
         Titles of the plots. If not provided the plots will not have
         a title.
-    figtitle : Tuple of strings (optional)
+    figtitle : Tuple of strings, optional
         Titles of the plotting windows. If not provided the
         windows will not have a title.
-    filename : Tuple of strings (optional)
+    filename : Tuple of strings, optional
         Filenames to save the figures. Only used when `savefigs=True`.
         If not provided the name of the figures would be "outputk.pdf",
         where `k` is the number of the column.
-
     """
     min_area = mats[:, 1].min()
     max_area = mats[:, 1].max()
@@ -242,7 +271,10 @@ def plot_truss(nodes, elements, mats, stresses=None, max_val=4,
 
 
 #%% Auxiliar functions for plotting
-def mesh2tri(nodes, elements):
+def mesh2tri(
+    nodes: NDArray[np.float64],
+    elements: NDArray[np.int_]
+) -> Triangulation:
     """Generate a  matplotlib.tri.Triangulation object from the mesh
 
     Parameters
@@ -290,7 +322,12 @@ def mesh2tri(nodes, elements):
 
 
 #%% Auxiliar variables computation
-def complete_disp(bc_array, nodes, sol, ndof_node=2):
+def complete_disp(
+    bc_array: NDArray[np.int_],
+    nodes: NDArray[np.float64],
+    sol: NDArray[np.float64],
+    ndof_node: int = 2
+) -> NDArray[np.float64]:
     """
     Fill the displacement vectors with imposed and computed values.
 
@@ -311,7 +348,7 @@ def complete_disp(bc_array, nodes, sol, ndof_node=2):
 
     """
     nnodes = nodes.shape[0]
-    sol_complete = np.zeros([nnodes, ndof_node], dtype=np.float)
+    sol_complete = np.zeros([nnodes, ndof_node], dtype=float)
     for row in range(nnodes):
         for col in range(ndof_node):
             cons = bc_array[row, col]
@@ -322,7 +359,12 @@ def complete_disp(bc_array, nodes, sol, ndof_node=2):
     return sol_complete
 
 
-def strain_nodes(nodes, elements, mats, sol_complete):
+def strain_nodes(
+    nodes: NDArray[np.float64],
+    elements: NDArray[np.int_],
+    mats: NDArray[np.float64],
+    sol_complete: NDArray[np.float64]
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """Compute averaged strains and stresses at nodes
 
     First, the variable is extrapolated from the Gauss
@@ -347,14 +389,15 @@ def strain_nodes(nodes, elements, mats, sol_complete):
     -------
     E_nodes : ndarray
         Strains evaluated at the nodes.
-
+    S_nodes : ndarray
+        Stresses evaluated at the nodes.
 
     References
     ----------
     .. [1] O.C. Zienkiewicz and J.Z. Zhu, The Superconvergent patch
-        recovery and a posteriori error estimators. Part 1. The
-        recovery technique, Int. J. Numer. Methods Eng., 33,
-        1331-1364 (1992).
+       recovery and a posteriori error estimators. Part 1. The
+       recovery technique, Int. J. Numer. Methods Eng., 33,
+       1331-1364 (1992).
     """
     nelems = elements.shape[0]
     nnodes = nodes.shape[0]
@@ -369,7 +412,7 @@ def strain_nodes(nodes, elements, mats, sol_complete):
     IELCON = elements[:, 3:]
 
     for el in range(nelems):
-        young, poisson = mats[np.int(elements[el, 2]), :]
+        young, poisson = mats[int(elements[el, 2]), :]
         shear = young/(2*(1 + poisson))
         fact1 = young/(1 - poisson**2)
         fact2 = poisson*young/(1 - poisson**2)
@@ -401,7 +444,12 @@ def strain_nodes(nodes, elements, mats, sol_complete):
     return E_nodes, S_nodes
 
 
-def stress_truss(nodes, elements, mats, disp):
+def stress_truss(
+    nodes: NDArray[np.float64],
+    elements: NDArray[np.int_],
+    mats: NDArray[np.float64],
+    disp: NDArray[np.float64]
+) -> NDArray[np.float64]:
     r"""Compute axial stresses in truss members
 
     Parameters
@@ -536,8 +584,8 @@ def stress_truss(nodes, elements, mats, disp):
     References
     ----------
     .. [1] William Weaver and James Gere. Matrix Analysis
-        of Framed Structures. Third Edition, Van Nostrand
-        Reinhold, New York (1990).
+       of Framed Structures. Third Edition, Van Nostrand
+       Reinhold, New York (1990).
 
     """
     neles = elements.shape[0]
@@ -556,14 +604,17 @@ def stress_truss(nodes, elements, mats, disp):
     return stress
 
 
-def eigvals(mat, tol=1e-6):
+def eigvals(
+    mat: NDArray[np.float64],
+    tol: float = 1e-6
+) -> Tuple[float, float, NDArray[np.float64], NDArray[np.float64]]:
     """Eigenvalues and eigenvectors for a 2x2 symmetric matrix/tensor
 
     Parameters
     ----------
     mat : ndarray
         Symmetric matrix.
-    tol : float (optional)
+    tol : float, optional
         Tolerance for considering a matrix diagonal.
 
     Returns
@@ -575,7 +626,7 @@ def eigvals(mat, tol=1e-6):
     vec1 : ndarray
         First eigenvector.
     vec2 : ndarray
-        Second eigenvector
+        Second eigenvector.
 
     Examples
     --------
@@ -617,7 +668,9 @@ def eigvals(mat, tol=1e-6):
     return eig1, eig2, vec1, vec2
 
 
-def principal_dirs(field):
+def principal_dirs(
+    field: NDArray[np.float64]
+) -> Tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """Compute the principal directions of a tensor field
 
     Parameters
@@ -656,7 +709,10 @@ def principal_dirs(field):
     return eigs1, eigs2, vecs1, vecs2
 
 
-def energy(disp, stiff):
+def energy(
+    disp: NDArray[np.float64],
+    stiff: NDArray[np.float64]
+) -> float:
     r"""
     Computes the potential energy for the current solution.
 
@@ -674,7 +730,7 @@ def energy(disp, stiff):
 
     """
     force = stiff.dot(disp)
-    el_energy = -0.5*force.dot(disp)
+    el_energy = -0.5 * force.dot(disp)
     return el_energy
 
 

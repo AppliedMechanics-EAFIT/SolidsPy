@@ -3,26 +3,30 @@
 """
 Bloch analysis utilities
 ------------------------
-Routines used in Bloch Analisis.
+Routines used in Bloch Analysis.
 
 """
 import numpy as np
-from scipy.sparse import coo_matrix
+from scipy.sparse import coo_matrix, csr_matrix
+from typing import List, Dict
 
 
-#%% Auxiliar
-def reassign_dof_bloch(ndofs, dofs_ima, dofs_ref):
+#%% Auxiliary
+def reassign_dof_bloch(
+    ndofs: int,
+    dofs_ima: List[int],
+    dofs_ref: List[int]
+) -> List[int]:
     """Find dof number after applying boundary conditions
 
     Parameters
     ----------
     ndofs : int
         Number of degrees of freedom.
-    dofs_ima : list, int
+    dofs_ima : list of int
         List with image degrees of freedom.
-    dofs_ref : list, int
+    dofs_ref : list of int
         List with reference degrees of freedom.
-
 
     Examples
     --------
@@ -41,7 +45,7 @@ def reassign_dof_bloch(ndofs, dofs_ima, dofs_ref):
 
     Returns
     -------
-    new_num : list, int
+    new_num : list of int
         List with new numbering for the dof after applying Bloch analysis.
 
     """
@@ -64,9 +68,18 @@ def reassign_dof_bloch(ndofs, dofs_ima, dofs_ref):
 
 
 #%% Sparse matrices
-def bloch_transform_mat(wavevector, coords, ndofs, nodes_ref, nodes_ima,
-                        dofs_ref, dofs_ima, nodes_ref_dof, nodes_ima_dof,
-                        new_num):
+def bloch_transform_mat(
+    wavevector: np.ndarray,
+    coords: np.ndarray,
+    ndofs: int,
+    nodes_ref: List[int],
+    nodes_ima: List[int],
+    dofs_ref: List[int],
+    dofs_ima: List[int],
+    nodes_ref_dof: Dict[int, List[int]],
+    nodes_ima_dof: Dict[int, List[int]],
+    new_num: List[int]
+) -> csr_matrix:
     """Form transformation matrices for Bloch conditions
 
     Parameters
@@ -77,19 +90,18 @@ def bloch_transform_mat(wavevector, coords, ndofs, nodes_ref, nodes_ima,
         Coordinates array.
     ndofs : int
         Number of degrees of freedom.
-    nodes_ref : list, int
+    nodes_ref : list of int
         List with reference nodes.
-    nodes_ima : list, int
+    nodes_ima : list of int
         List with image nodes.
-    dofs_ref : list, int
+    dofs_ref : list of int
         List with reference degrees of freedom.        
-    dofs_ima : list, int
+    dofs_ima : list of int
         List with image degrees of freedom.
-    nodes_ref_dof : dictionary
+    nodes_ref_dof : dict of int to list of int
         Dictionary that maps nodes to dof for reference nodes.
-    nodes_ima_dof : dictionary
+    nodes_ima_dof : dict of int to list of int
         Dictionary that maps nodes to dof for image nodes.
-
 
     Examples
     --------

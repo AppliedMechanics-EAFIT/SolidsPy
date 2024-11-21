@@ -19,33 +19,43 @@ import solidspy.preprocesor as pre
 import solidspy.postprocesor as pos
 import solidspy.assemutil as ass
 import solidspy.solutil as sol
+from typing import Optional, Tuple, Dict, Any, Union
 
 
-def solids_GUI(plot_contours=True, compute_strains=False, folder=None):
+def solids_GUI(
+    plot_contours: bool = True,
+    compute_strains: bool = False,
+    folder: Optional[str] = None
+) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]:
     """
     Run a complete workflow for a Finite Element Analysis
 
     Parameters
     ----------
-    plot_contours : Bool (optional)
+    plot_contours : bool, optional
         Boolean variable to plot contours of the computed variables.
         By default it is True.
-    compute_strains : Bool (optional)
+    compute_strains : bool, optional
         Boolean variable to compute Strains and Stresses at nodes.
         By default it is False.
-    folder : string (optional)
+    folder : Optional[str], optional
         String with the path to the input files. If not provided
-        it would ask for it in a pop-up window.
+        it will ask for it in a pop-up window.
 
     Returns
     -------
-    UC : ndarray (nnodes, 2)
-        Displacements at nodes.
-    E_nodes : ndarray (nnodes, 3), optional
-        Strains at nodes. It is returned when `compute_strains` is True.
-    S_nodes : ndarray (nnodes, 3), optional
-        Stresses at nodes. It is returned when `compute_strains` is True.
-
+    Union[np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]
+        - If `compute_strains` is False:
+            UC : ndarray (nnodes, 2)
+                Displacements at nodes.
+        - If `compute_strains` is True:
+            Tuple containing:
+                UC : ndarray (nnodes, 2)
+                    Displacements at nodes.
+                E_nodes : ndarray (nnodes, 3)
+                    Strains at nodes.
+                S_nodes : ndarray (nnodes, 3)
+                    Stresses at nodes.
     """
     if folder is None:
         folder = pre.initial_params()
@@ -92,9 +102,12 @@ def solids_GUI(plot_contours=True, compute_strains=False, folder=None):
         return disp_complete
 
 
-
-def solids_auto(data, plot_contours=True, compute_strains=False,
-                verbose=True):
+def solids_auto(
+    data: Dict[str, Any],
+    plot_contours: bool = True,
+    compute_strains: bool = False,
+    verbose: bool = True
+) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]:
     """
     Run a complete workflow for a Finite Element Analysis
 
@@ -103,22 +116,30 @@ def solids_auto(data, plot_contours=True, compute_strains=False,
     data : dict
         Simulation data composed of nodes, constrains, elements,
         materials and loads.
-    plot_contours : Bool (optional)
+    plot_contours : bool, optional
         Boolean variable to plot contours of the computed variables.
         By default it is True.
-    compute_strains : Bool (optional)
+    compute_strains : bool, optional
         Boolean variable to compute Strains and Stresses at nodes.
         By default it is False.
+    verbose : bool, optional
+        If True, prints detailed information during execution.
+        By default it is True.
 
     Returns
     -------
-    UC : ndarray (nnodes, 2)
-        Displacements at nodes.
-    E_nodes : ndarray (nnodes, 3), optional
-        Strains at nodes. It is returned when `compute_strains` is True.
-    S_nodes : ndarray (nnodes, 3), optional
-        Stresses at nodes. It is returned when `compute_strains` is True.
-
+    Union[np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]
+        - If `compute_strains` is False:
+            UC : ndarray (nnodes, 2)
+                Displacements at nodes.
+        - If `compute_strains` is True:
+            Tuple containing:
+                UC : ndarray (nnodes, 2)
+                    Displacements at nodes.
+                E_nodes : ndarray (nnodes, 3)
+                    Strains at nodes.
+                S_nodes : ndarray (nnodes, 3)
+                    Stresses at nodes.
     """
     # Retrieving data
     nodes = data["nodes"]
@@ -126,7 +147,6 @@ def solids_auto(data, plot_contours=True, compute_strains=False,
     elements = data["elements"]
     mats = data["mats"]
     loads = data["loads"]
-
 
     # Pre-processing
     assem_op, bc_array, neq = ass.DME(cons, elements)

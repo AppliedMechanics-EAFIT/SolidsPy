@@ -1,0 +1,153 @@
+name: SolidsPy CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop_v2.0
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches:
+      - main
+      - develop_v2.0
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test on Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.7', '3.8', '3.9', '3.10']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+          pip install -e .[dev]
+
+      - name: Run tests with coverage
+        run: |
+          pytest --cov=solidspy tests/
+
+      - name: Generate coverage report
+        run: |
+          coverage xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.python-version }}
+          path: coverage.xml
+
+  release:
+    name: Release Process
+    needs: test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Validate VERSION Format
+        run: |
+          if [[ ! "${{ env.VERSION }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format: ${{ env.VERSION }}"
+            exit 1
+          fi
+
+      - name: Update __version__ in __init__.py
+        run: |
+          sed -i 's|__version__ = ".*"|__version__ = "${{ env.VERSION }}"|' src/solidspy/__init__.py
+
+      - name: Update version in pyproject.toml
+        run: |
+          sed -i 's/version = ".*"/version = "${{ env.VERSION }}"/' pyproject.toml
+
+      - name: Update version in conda-recipe/meta.yaml
+        run: |
+          sed -i 's|{% set version = ".*" %}|{% set version = "'${{ env.VERSION }}'" %}|' conda-recipe/meta.yaml
+
+      - name: Update release in docs/conf.py
+        run: |
+          sed -i 's|release = ".*"|release = "${{ env.VERSION }}"|' docs/conf.py
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit version update
+        run: |
+          git add .
+          git commit -m "Update version to ${{ env.VERSION }}" || echo "No changes to commit"
+
+      - name: Push changes (Force)
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: develop_v2.0
+          directory: .
+          force: true
+
+      # Build and Publish Steps
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build Python package
+        run: python -m build
+
+      - name: Publish package to TestPyPI
+        env:
+          TWINE_USERNAME: '__token__'
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: |
+          python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
+
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: '3.10'
+          channels: conda-forge
+          use-mamba: false
+
+      - name: Install conda-build and anaconda-client via conda
+        run: |
+          conda install -y conda-build anaconda-client
+          conda list anaconda-client
+
+      - name: Build Conda package
+        run: conda build conda-recipe --output-folder dist -c conda-forge
+
+      - name: Upload Conda package
+        env:
+          ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_API_TOKEN }}
+        run: |
+          for pkg in dist/*/*.tar.bz2; do
+            conda run -n base anaconda upload "$pkg" --force
+          done

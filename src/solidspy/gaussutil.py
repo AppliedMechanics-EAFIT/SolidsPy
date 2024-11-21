@@ -3,22 +3,25 @@
 Numeric integration routines
 ----------------------------
 Weights and coordinates for Gauss-Legendre quadrature [WGAUSS]_. The
-values for triangles is presented in section 5.5 of Bathe book [BATHE]_.
+values for triangles are presented in section 5.5 of Bathe's book [BATHE]_.
 
 References
 ----------
 .. [WGAUSS] Wikipedia contributors. "Gaussian quadrature." Wikipedia,
    The Free Encyclopedia, 2 Nov.  2015. Web. 25 Dec. 2015.
-   url: https://en.wikipedia.org/wiki/Gaussian_quadrature
-.. [BATHE] Bathe, Klaus-Jürgen. Finite element procedures. Prentice Hall,
-   Pearson Education, 2006.
+   URL: https://en.wikipedia.org/wiki/Gaussian_quadrature
+.. [BATHE] Bathe, Klaus-Jürgen. Finite Element Procedures.
+   Prentice Hall, Pearson Education, 2006.
 """
+
 from itertools import product
 import numpy as np
+from typing import Tuple, List
+from numpy.typing import NDArray
 
 
 #%% General
-def gauss_1d(npts):
+def gauss_1d(npts: int) -> Tuple[List[float], List[float]]:
     """Return Gauss points and weights for Gauss quadrature in 1D
 
     Parameters
@@ -28,10 +31,15 @@ def gauss_1d(npts):
 
     Returns
     -------
-    wts : ndarray
-      Weights for the Gauss-Legendre quadrature.
-    pts : ndarray
+    pts : List[float]
       Points for the Gauss-Legendre quadrature.
+    wts : List[float]
+      Weights for the Gauss-Legendre quadrature.
+
+    Raises
+    ------
+    ValueError
+        If the number of points is not between 2 and 10.
     """
     if npts == 2:
         pts = [-0.577350269189625764, 0.577350269189625764]
@@ -103,7 +111,7 @@ def gauss_1d(npts):
     return pts, wts
 
 
-def gauss_nd(npts, ndim=2):
+def gauss_nd(npts: int, ndim: int = 2) -> Tuple[NDArray[np.float64], List[float]]:
     """
     Return Gauss points and weights for Gauss quadrature in
     an ND hypercube.
@@ -111,14 +119,21 @@ def gauss_nd(npts, ndim=2):
     Parameters
     ----------
     npts : int
-      Number of quadrature points.
+      Number of quadrature points per dimension.
+    ndim : int, optional
+      Number of dimensions (default is 2).
 
     Returns
     -------
-    nd_wts : ndarray
-      Weights for the Gauss-Legendre quadrature.
-    nd_pts : ndarray
+    nd_pts : NDArray[np.float64]
       Points for the Gauss-Legendre quadrature.
+    nd_wts : List[float]
+      Weights for the Gauss-Legendre quadrature.
+
+    Raises
+    ------
+    ValueError
+        If the number of points is not between 2 and 10.
     """
     pts, wts = gauss_1d(npts)
     nd_pts = np.array(list(product(pts, repeat=ndim)))
@@ -127,20 +142,30 @@ def gauss_nd(npts, ndim=2):
     return nd_pts, nd_wts
 
 
-def gauss_tri(order=2):
+def gauss_tri(order: int = 2) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
-    Gauss points and weights for a triangle up to order 7
+    Gauss points and weights for a triangle up to order 7.
+
+    Parameters
+    ----------
+    order : int, optional
+      Order of the quadrature rule (default is 2).
 
     Returns
     -------
-    pts : ndarray
+    pts : NDArray[np.float64]
       Points for the Gauss-Legendre quadrature.
-    wts : ndarray
+    wts : NDArray[np.float64]
       Weights for the Gauss-Legendre quadrature.
+
+    Raises
+    ------
+    ValueError
+        If the order is not between 1 and 7.
 
     References
     ----------
-    .. [BATHE] Bathe, Klaus-Jürgen. Finite element procedures.
+    .. [BATHE] Bathe, Klaus-Jürgen. Finite Element Procedures.
        Prentice Hall, Pearson Education, 2006.
     """
     if order == 1:
@@ -192,16 +217,26 @@ def gauss_tri(order=2):
     return pts, wts
 
 
-def gauss_tet(order=3):
+def gauss_tet(order: int = 3) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
     """
-    Gauss points and weights for a tetrahedron up to order 10
+    Gauss points and weights for a tetrahedron up to order 10.
+
+    Parameters
+    ----------
+    order : int, optional
+      Order of the quadrature rule (default is 3).
 
     Returns
     -------
-    pts : ndarray
+    pts : NDArray[np.float64]
       Points for the Gauss-Legendre quadrature.
-    wts : ndarray
+    wts : NDArray[np.float64]
       Weights for the Gauss-Legendre quadrature.
+
+    Raises
+    ------
+    ValueError
+        If the order is not between 1 and 10.
 
     References
     ----------
@@ -213,7 +248,6 @@ def gauss_tet(order=3):
        Matthieu Ancellin, & Darius Arnold. (2020, May 5).
        nschloe/quadpy v0.14.11 (Version v0.14.11). Zenodo.
        http://doi.org/10.5281/zenodo.3786435
-
     """
     if order == 1:
         pts = np.array([[0.25, 0.25, 0.25]])

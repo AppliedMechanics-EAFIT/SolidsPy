@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools >= 68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SolidsPyKevin"
+version = "1.4.9"
+description = "A simple Finite Element program"
+readme = {file = "README.rst", content-type = "text/x-rst"}
+license = {file = "LICENSE"}
+authors = [
+    {name = "Juan Gomez", email = "jgomezc1@eafit.edu.co"},
+    {name = "Nicolas Guarin-Zapata", email = "nicoguarin@gmail.com"}
+]
+maintainers = [
+    {name = "Juan Gomez", email = "jgomezc1@eafit.edu.co"}
+]
+requires-python = ">=3.7"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10"
+]
+keywords = ["finite-elements", "fem", "scientific-computing"]
+
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "easygui",
+    "meshio==3.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "coverage",
+    "pytest-cov",
+    "black",
+    "flake8"
+]
+
+[project.urls]
+Homepage = "https://github.com/AppliedMechanics-EAFIT/SolidsPy"
+Repository = "https://github.com/AppliedMechanics-EAFIT/SolidsPy"
+BugTracker = "https://github.com/AppliedMechanics-EAFIT/SolidsPy/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
