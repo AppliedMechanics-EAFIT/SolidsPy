@@ -75,7 +75,7 @@ jobs:
 
       - name: Update __version__ in __init__.py
         run: |
-          sed -i 's|__version__ = ".*"|__version__ = "${{ env.VERSION }}"|' solidspy/__init__.py
+          sed -i 's|__version__ = ".*"|__version__ = "${{ env.VERSION }}"|' src/solidspy/__init__.py
 
       - name: Update version in pyproject.toml
         run: |
