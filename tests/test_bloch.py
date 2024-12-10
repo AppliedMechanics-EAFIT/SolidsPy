@@ -6,7 +6,6 @@ import numpy as np
 from numpy import array, exp, pi
 from solidspy.blochutil import bloch_transform_mat
 
-
 def test_bloch_transform_mat():
 
     # Square made with springs and mass in the center
