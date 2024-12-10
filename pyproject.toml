@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "SolidsPyKevin"
-version = "1.4.9"
+version = "1.5.1"
 description = "A simple Finite Element program"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 license = {file = "LICENSE"}

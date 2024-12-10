@@ -1,5 +1,5 @@
 {% set name = "solidspy" %}
-{% set version = "1.4.9" %}
+{% set version = "1.5.1" %}
 
 package:
   name: {{ name|lower }}
