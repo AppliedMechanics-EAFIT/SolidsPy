@@ -2,4 +2,4 @@ numpy
 scipy
 matplotlib
 easygui
-meshio==3.0
+meshio==5.3.5
