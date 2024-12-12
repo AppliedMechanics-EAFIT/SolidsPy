@@ -443,6 +443,85 @@ def strain_nodes(
     S_nodes[:, 2] /= el_nodes
     return E_nodes, S_nodes
 
+def strain_nodes_3d(
+    nodes: NDArray[np.float64],
+    elements: NDArray[np.int_],
+    mats: NDArray[np.float64],
+    sol_complete: NDArray[np.float64]
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """
+    Compute averaged strains and stresses at nodes for 3D elements.
+
+    Parameters
+    ----------
+    nodes : ndarray (float)
+        Array with node coordinates.
+    elements : ndarray (int)
+        Array with the node numbers for the nodes that correspond
+        to each element.
+    mats : ndarray (float)
+        Array with material profiles.
+    sol_complete : ndarray (float)
+        Array with the displacements. This one contains both, the
+        computed and imposed values.
+
+    Returns
+    -------
+    E_nodes : ndarray
+        Strains evaluated at the nodes.
+    S_nodes : ndarray
+        Stresses evaluated at the nodes.
+    """
+    nelems = elements.shape[0]
+    nnodes = nodes.shape[0]
+    iet = elements[0, 1]
+    ndof, nnodes_elem, _ = fe.eletype(iet)  # Assuming this is updated for 3D elements
+
+    elcoor = np.zeros([nnodes_elem, 3])  # Now handling x, y, z
+    E_nodes = np.zeros([nnodes, 6])  # Six components of strain in 3D
+    S_nodes = np.zeros([nnodes, 6])  # Six components of stress in 3D
+    el_nodes = np.zeros([nnodes], dtype=int)
+    ul = np.zeros([ndof])
+    IELCON = elements[:, 3:]
+
+    for el in range(nelems):
+        young, poisson = mats[int(elements[el, 2]), :]
+        shear = young / (2 * (1 + poisson))
+        fact1 = young / ((1 + poisson) * (1 - 2 * poisson))
+        fact2 = poisson * fact1
+        fact3 = fact1 - fact2
+
+        # Extract node coordinates for this element
+        elcoor[:, 0] = nodes[IELCON[el, :], 1]  # x
+        elcoor[:, 1] = nodes[IELCON[el, :], 2]  # y
+        elcoor[:, 2] = nodes[IELCON[el, :], 3]  # z
+
+        # Extract displacements for this element
+        ul[0::3] = sol_complete[IELCON[el, :], 0]
+        ul[1::3] = sol_complete[IELCON[el, :], 1]
+        ul[2::3] = sol_complete[IELCON[el, :], 2]
+
+        # Compute strains at Gauss points (modify `fe` methods for 3D support)
+        if iet == 9:  # Example for a hexahedron element
+            epsG, _ = fe.str_el8(elcoor, ul)
+        else:
+            raise ValueError(f"Element type {iet} not supported for 3D.")
+
+        # Accumulate strains and stresses for nodes
+        for cont, node in enumerate(IELCON[el, :]):
+            E_nodes[node, :3] += epsG[cont, :3]  # Normal strains
+            E_nodes[node, 3:] += epsG[cont, 3:]  # Shear strains
+            S_nodes[node, :3] += fact3 * epsG[cont, :3] + fact2 * sum(epsG[cont, :3])
+            S_nodes[node, 3:] += shear * epsG[cont, 3:]
+            el_nodes[node] += 1
+
+    # Average strains and stresses at nodes
+    for i in range(6):
+        E_nodes[:, i] /= el_nodes
+        S_nodes[:, i] /= el_nodes
+
+    return E_nodes, S_nodes
+
 
 def stress_truss(
     nodes: NDArray[np.float64],
