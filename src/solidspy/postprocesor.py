@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
 from typing import Optional, Tuple, List
 from numpy.typing import NDArray
+import pyvista as pv
 
 # Set plotting defaults
 gray = '#757575'
@@ -82,6 +83,172 @@ def fields_plot(
                                       "Stress sigma-yy",
                                       "Stress tau-xy"])
 
+def fields_plot_3d(
+    nodes: NDArray[np.float64], 
+    els: NDArray[np.int_], 
+    loads: NDArray[np.float64], 
+    idx_BC: NDArray[np.float64], 
+    S_nodes: NDArray[np.float64] = None,
+    E_nodes: NDArray[np.float64] = None,
+    nnodes: int = 8,
+    data_type: str = 'stress',
+    show_BC: bool = False,
+    show_loads: bool = False,
+    arrow_scale: float = 1.0,
+    arrow_color: str = "red",
+    cmap: str = "viridis",
+    show_axes: bool = True,
+    show_bounds: bool = True,
+    show_edges: bool = True,
+    style: str = "surface"
+) -> None:
+    """
+    Plots a 3D finite element mesh with stress/strain data using PyVista. 
+    Optionally shows load arrows and allows customization of plot properties.
+
+    Parameters
+    ----------
+    nodes : NDArray[np.float64]
+        Nodal data array of shape (Nnodes, 4), where columns are [node_id, x, y, z].
+    els : NDArray[np.int_]
+        Element connectivity array of shape (Nelems, 3 + nnodes). 
+        Typically columns might be [elem_id, mat_id, sec_id, node1, node2, ..., nodeN].
+    loads : NDArray[np.float64]
+        Load array of shape (Nloads, 4): [node_num, Fx, Fy, Fz].
+    idx_BC : NDArray[np.float64]
+        Indices or flags for boundary conditions (not used in this example, but included for completeness).
+    E_nodes : ndarray
+        Strains evaluated at the nodes.
+    S_nodes : ndarray
+        Stresses evaluated at the nodes.
+    nnodes : int, optional
+        Number of nodes per element (4 or 8). Default is 8.
+    data_type : str, optional
+        Either 'stress' or 'strain'. Default is 'stress'.
+    show_BC : bool, optional
+        Whether to show BC arrows. Default is False.
+    show_loads : bool, optional
+        Whether to show load arrows. Default is False.
+    arrow_scale : float, optional
+        Scale factor for load arrows. Default is 1.0.
+    arrow_color : str, optional
+        Color for the load arrows. Default is 'red'.
+    cmap : str, optional
+        Colormap for the scalar field. Default is 'viridis'.
+    show_axes : bool, optional
+        Whether to show the coordinate axes. Default is True.
+    show_bounds : bool, optional
+        Whether to show bounding box around the model. Default is True.
+    show_edges : bool, optional
+        Whether to show mesh edges. Default is True.
+    style : str, optional
+        Style of the mesh ('surface' or 'wireframe'). Default is 'surface'.
+    """
+
+    assert nnodes in [4, 8], "nnodes must be either 4 or 8 (3D elements)"
+    assert data_type in ['stress', 'strain'], "data_type must be either 'stress' or 'strain'"
+
+    # 1. Extract nodal coordinates
+    points = nodes[:, 1:4]  # x, y, z coordinates
+
+    # 2. Construct the connectivity array for UnstructuredGrid
+    element_connectivity = els[:, 3:].astype(int)  # node indices for each element
+    num_elems = element_connectivity.shape[0]
+
+    cells = []
+    for i in range(num_elems):
+        cells.append(nnodes)
+        cells.extend(element_connectivity[i])
+    cells = np.array(cells, dtype=int)
+
+    # 3. Define the cell types
+    n_type = 12 if nnodes == 8 else 10
+    cell_types = np.full(num_elems, n_type, dtype=np.uint8)
+
+    # 4. Create the UnstructuredGrid
+    grid = pv.UnstructuredGrid(cells, cell_types, points)
+
+    # 5. Attach either stress or strain data as point data
+
+    if data_type == 'stress' and S_nodes is not None:
+        S_magnitude = np.linalg.norm(S_nodes, axis=1)
+        grid.point_data["Stress_Magnitude"] = S_magnitude
+        scalars = "Stress_Magnitude"
+    elif data_type == 'strain' and E_nodes is not None:
+        E_magnitude = np.linalg.norm(E_nodes, axis=1)
+        grid.point_data["Strain_Magnitude"] = E_magnitude
+        scalars = "Strain_Magnitude"
+
+    plotter = pv.Plotter()
+
+    # 6. Add the FE mesh to the plot
+    plotter.add_mesh(
+        grid, 
+        scalars=scalars, 
+        cmap=cmap, 
+        show_edges=show_edges,
+        style=style
+    )
+
+    # 7. Optionally, show load vectors as arrows
+    if show_loads and loads is not None and loads.size > 0:
+        # Collect load vectors and their corresponding node coordinates
+        load_points = []
+        load_vectors = []
+        for row in loads:
+            node_num, Fx, Fy, Fz = row
+            load_points.append(points[int(node_num)])
+            load_vectors.append([Fx, Fy, Fz])
+
+        load_points = np.array(load_points, dtype=np.float64)
+        load_vectors = np.array(load_vectors, dtype=np.float64)
+
+        if len(load_points) > 0:
+            # Create a PyVista PolyData from these points
+            load_polydata = pv.PolyData(load_points)
+            load_polydata["LoadVectors"] = load_vectors
+
+            # Use glyph to create arrow objects at each loaded node
+            arrows = load_polydata.glyph(
+                orient="LoadVectors",       # which array to orient arrows
+                scale="LoadVectors",        # which array to scale arrows
+                factor=arrow_scale          # global scale factor
+            )
+            plotter.add_mesh(arrows, color=arrow_color, name='LoadArrows')
+
+    # 8. Optionally, show BC as arrows
+    if show_BC and idx_BC is not None and idx_BC.size > 0:
+        BC_points = []
+        BC_vectors = []
+        for id in idx_BC:
+            BC_points.append(points[int(id)])
+            BC_vectors.append(nodes[int(id),-3:])
+
+        BC_points = np.array(BC_points, dtype=np.float64)
+        BC_vectors = np.array(BC_vectors, dtype=np.float64)
+
+        if len(BC_points) > 0:
+            # Create a PyVista PolyData from these points
+            BC_polydata = pv.PolyData(BC_points)
+            BC_polydata["BCVectors"] = BC_vectors
+
+            # Use glyph to create arrow objects at each loaded node
+            arrows = BC_polydata.glyph(
+                orient="BCVectors",       # which array to orient arrows
+                scale="BCVectors",        # which array to scale arrows
+                factor=arrow_scale          # global scale factor
+            )
+            plotter.add_mesh(arrows, color='red', name='BCVectors')
+
+    # 9. Show/hide axes and bounds
+    if show_axes:
+        plotter.add_axes()
+
+    if show_bounds:
+        plotter.show_bounds(grid="front")
+
+    # 10. Show the final plot
+    plotter.show()
 
 
 def tri_plot(

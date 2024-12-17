@@ -34,7 +34,8 @@ dependencies = [
     "scipy",
     "matplotlib",
     "easygui",
-    "meshio==5.3.5"
+    "meshio==5.3.5",
+    "pyvista"
 ]
 
 [project.optional-dependencies]
