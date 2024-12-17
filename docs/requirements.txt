@@ -3,3 +3,4 @@ scipy
 matplotlib
 easygui
 meshio==5.3.5
+pyvista
