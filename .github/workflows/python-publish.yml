@@ -4,13 +4,13 @@ on:
   push:
     branches:
       - main
-      - develop_v2.0
+      - "2.0"
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
   pull_request:
     branches:
       - main
-      - develop_v2.0
+      - "2.0"
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11', '3.12', '3.13']
+        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
       - name: Checkout code
@@ -103,7 +103,7 @@ jobs:
         uses: ad-m/github-push-action@v0.8.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: develop_v2.0
+          branch: "2.0"
           directory: .
           force: true
 
@@ -111,7 +111,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: "3.8"
 
       - name: Install build tools
         run: |
@@ -123,7 +123,7 @@ jobs:
 
       - name: Publish package to TestPyPI
         env:
-          TWINE_USERNAME: '__token__'
+          TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
         run: |
           python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
@@ -132,7 +132,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
-          python-version: '3.10'
+          python-version: "3.10"
           channels: conda-forge
           use-mamba: false
 
