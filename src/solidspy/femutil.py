@@ -20,7 +20,7 @@ References
 
 """
 import numpy as np
-import solidspy.gaussutil as gau
+from . import gaussutil as gau
 from typing import Tuple, Callable
 from numpy.typing import NDArray
 
@@ -42,6 +42,7 @@ def eletype(eletype: int) -> Tuple[int, int, int]:
         6. 2 node truss element.
         7. 2 node beam (3 DOF per node).
         8. 2 node beam with axial force (3 DOF per node).
+        8. 8 node hexahedral elements (3 DOF per node).
 
     Returns
     -------
@@ -66,7 +67,8 @@ def eletype(eletype: int) -> Tuple[int, int, int]:
         5: (4, 2, 3),
         6: (4, 2, 3),
         7: (6, 2, 3),
-        8: (6, 2, 3)}
+        8: (6, 2, 3),
+        9: (24, 8, 8)}
     try:
         return elem_id[eletype]
     except KeyError:
@@ -866,6 +868,52 @@ def str_el4(
         xl[i, 1] = np.dot(H[0, ::2], coord[:, 0])
     return epsG.T, xl
 
+def str_el8(
+    coord: NDArray[np.float64],
+    ul: NDArray[np.float64]
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """Compute the strains at each element integration point for 8-node hexahedral elements.
+
+    Parameters
+    ----------
+    coord : NDArray[np.float64]
+      Coordinates of the nodes of the element (8, 3).
+    ul : NDArray[np.float64]
+      Array with displacements for the element (24,).
+
+    Returns
+    -------
+    epsG : NDArray[np.float64]
+      Strain components for the Gauss points (6, 8).
+    xl : NDArray[np.float64]
+      Configuration of the Gauss points after deformation (8, 3).
+
+    """
+
+    epsG = np.zeros((6, 8))  # Six strain components at 8 Gauss points
+    xl = np.zeros((8, 3))  # Deformed configuration at 8 Gauss points
+
+    # Gauss points for 2x2x2 integration
+    gpts, gwts = gau.gauss_nd(2, ndim=3)
+
+    for i in range(gpts.shape[0]):
+        ri, si, ti = gpts[i, :]  # Gauss point coordinates
+
+        # Compute shape functions, derivatives, and Jacobian for 3D hexahedral element
+        H, B, detJ = elast_diff_3d(ri, si, ti, coord, shape_hex8)
+
+        if detJ <= 0:
+            raise ValueError(f"Non-positive Jacobian determinant: detJ = {detJ}")
+
+        # Compute strains at Gauss point
+        epsG[:, i] = B @ ul
+
+        # Compute deformed configuration at Gauss point
+        xl[i, 0] = np.dot(H[0, ::3], coord[:, 0])  # x-coordinate
+        xl[i, 1] = np.dot(H[0, ::3], coord[:, 1])  # y-coordinate
+        xl[i, 2] = np.dot(H[0, ::3], coord[:, 2])  # z-coordinate
+
+    return epsG.T, xl
 
 if __name__ == "__main__":
     import doctest

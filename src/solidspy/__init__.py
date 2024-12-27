@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-from solidspy.solids_GUI import solids_GUI
+from .solids_GUI import solids_GUI
 
 __all__ = ["assemutil",
            "femutil",
@@ -11,7 +11,7 @@ __all__ = ["assemutil",
            "uelutil",
            "solids_GUI"]
 
-__version__ = "1.4.9"
+__version__ = "1.5.5"
 
 
 __citation__ = """@software{solidspy,

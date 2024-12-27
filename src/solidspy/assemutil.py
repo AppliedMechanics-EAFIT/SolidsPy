@@ -11,8 +11,8 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy.sparse import coo_matrix, csr_matrix, spmatrix
 from typing import Callable, Optional, Tuple
-import solidspy.uelutil as ue
-import solidspy.femutil as fem
+from . import uelutil as ue
+from . import femutil as fem
 
 
 def eqcounter(

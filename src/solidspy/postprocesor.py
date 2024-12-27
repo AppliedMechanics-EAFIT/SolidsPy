@@ -7,12 +7,13 @@ This module contains functions to postprocess results.
 
 """
 import numpy as np
-import solidspy.femutil as fe
-import solidspy.uelutil as uel
+from . import femutil as fe
+from . import uelutil as uel
 import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
 from typing import Optional, Tuple, List
 from numpy.typing import NDArray
+import pyvista as pv
 
 # Set plotting defaults
 gray = '#757575'
@@ -82,6 +83,177 @@ def fields_plot(
                                       "Stress sigma-yy",
                                       "Stress tau-xy"])
 
+def fields_plot_3d(
+    nodes: NDArray[np.float64], 
+    els: NDArray[np.int_], 
+    loads: NDArray[np.float64], 
+    idx_BC: NDArray[np.float64], 
+    S_nodes: NDArray[np.float64] = None,
+    E_nodes: NDArray[np.float64] = None,
+    rho: NDArray[np.float64] = None,
+    nnodes: int = 8,
+    data_type: str = 'stress',
+    show_BC: bool = False,
+    show_loads: bool = False,
+    arrow_scale: float = 1.0,
+    arrow_color: str = "red",
+    cmap: str = "viridis",
+    show_axes: bool = True,
+    show_bounds: bool = True,
+    show_edges: bool = True,
+    style: str = "surface"
+) -> None:
+    """
+    Plots a 3D finite element mesh with stress/strain data using PyVista. 
+    Optionally shows load arrows and allows customization of plot properties.
+
+    Parameters
+    ----------
+    nodes : NDArray[np.float64]
+        Nodal data array of shape (Nnodes, 4), where columns are [node_id, x, y, z].
+    els : NDArray[np.int_]
+        Element connectivity array of shape (Nelems, 3 + nnodes). 
+        Typically columns might be [elem_id, mat_id, sec_id, node1, node2, ..., nodeN].
+    loads : NDArray[np.float64]
+        Load array of shape (Nloads, 4): [node_num, Fx, Fy, Fz].
+    idx_BC : NDArray[np.float64]
+        Indices or flags for boundary conditions (not used in this example, but included for completeness).
+    E_nodes : ndarray
+        Strains evaluated at the nodes.
+    S_nodes : ndarray
+        Stresses evaluated at the nodes.
+    nnodes : int, optional
+        Number of nodes per element (4 or 8). Default is 8.
+    data_type : str, optional
+        Either 'stress' or 'strain'. Default is 'stress'.
+    show_BC : bool, optional
+        Whether to show BC arrows. Default is False.
+    show_loads : bool, optional
+        Whether to show load arrows. Default is False.
+    arrow_scale : float, optional
+        Scale factor for load arrows. Default is 1.0.
+    arrow_color : str, optional
+        Color for the load arrows. Default is 'red'.
+    cmap : str, optional
+        Colormap for the scalar field. Default is 'viridis'.
+    show_axes : bool, optional
+        Whether to show the coordinate axes. Default is True.
+    show_bounds : bool, optional
+        Whether to show bounding box around the model. Default is True.
+    show_edges : bool, optional
+        Whether to show mesh edges. Default is True.
+    style : str, optional
+        Style of the mesh ('surface' or 'wireframe'). Default is 'surface'.
+    """
+
+    assert nnodes in [4, 8], "nnodes must be either 4 or 8 (3D elements)"
+    assert data_type in ['stress', 'strain'], "data_type must be either 'stress' or 'strain'"
+    if rho is not None:
+        # Filter elements based on rho values
+        valid_elements = rho >= 0.5
+        els = els[valid_elements]
+
+    # 1. Extract nodal coordinates
+    points = nodes[:, 1:4]  # x, y, z coordinates
+
+    # 2. Construct the connectivity array for UnstructuredGrid
+    element_connectivity = els[:, 3:].astype(int)  # node indices for each element
+    num_elems = element_connectivity.shape[0]
+
+    cells = []
+    for i in range(num_elems):
+        cells.append(nnodes)
+        cells.extend(element_connectivity[i])
+    cells = np.array(cells, dtype=int)
+
+    # 3. Define the cell types
+    n_type = 12 if nnodes == 8 else 10
+    cell_types = np.full(num_elems, n_type, dtype=np.uint8)
+
+    # 4. Create the UnstructuredGrid
+    grid = pv.UnstructuredGrid(cells, cell_types, points)
+
+    # 5. Attach either stress or strain data as point data
+
+    if data_type == 'stress' and S_nodes is not None:
+        S_magnitude = np.linalg.norm(S_nodes, axis=1)
+        grid.point_data["Stress_Magnitude"] = S_magnitude
+        scalars = "Stress_Magnitude"
+    elif data_type == 'strain' and E_nodes is not None:
+        E_magnitude = np.linalg.norm(E_nodes, axis=1)
+        grid.point_data["Strain_Magnitude"] = E_magnitude
+        scalars = "Strain_Magnitude"
+
+    plotter = pv.Plotter()
+
+    # 6. Add the FE mesh to the plot
+    plotter.add_mesh(
+        grid, 
+        scalars=scalars, 
+        cmap=cmap, 
+        show_edges=show_edges,
+        style=style
+    )
+
+    # 7. Optionally, show load vectors as arrows
+    if show_loads and loads is not None and loads.size > 0:
+        # Collect load vectors and their corresponding node coordinates
+        load_points = []
+        load_vectors = []
+        for row in loads:
+            node_num, Fx, Fy, Fz = row
+            load_points.append(points[int(node_num)])
+            load_vectors.append([Fx, Fy, Fz])
+
+        load_points = np.array(load_points, dtype=np.float64)
+        load_vectors = np.array(load_vectors, dtype=np.float64)
+
+        if len(load_points) > 0:
+            # Create a PyVista PolyData from these points
+            load_polydata = pv.PolyData(load_points)
+            load_polydata["LoadVectors"] = load_vectors
+
+            # Use glyph to create arrow objects at each loaded node
+            arrows = load_polydata.glyph(
+                orient="LoadVectors",       # which array to orient arrows
+                scale="LoadVectors",        # which array to scale arrows
+                factor=arrow_scale          # global scale factor
+            )
+            plotter.add_mesh(arrows, color=arrow_color, name='LoadArrows')
+
+    # 8. Optionally, show BC as arrows
+    if show_BC and idx_BC is not None and idx_BC.size > 0:
+        BC_points = []
+        BC_vectors = []
+        for id in idx_BC:
+            BC_points.append(points[int(id)])
+            BC_vectors.append(nodes[int(id),-3:])
+
+        BC_points = np.array(BC_points, dtype=np.float64)
+        BC_vectors = np.array(BC_vectors, dtype=np.float64)
+
+        if len(BC_points) > 0:
+            # Create a PyVista PolyData from these points
+            BC_polydata = pv.PolyData(BC_points)
+            BC_polydata["BCVectors"] = BC_vectors
+
+            # Use glyph to create arrow objects at each loaded node
+            arrows = BC_polydata.glyph(
+                orient="BCVectors",       # which array to orient arrows
+                scale="BCVectors",        # which array to scale arrows
+                factor=arrow_scale          # global scale factor
+            )
+            plotter.add_mesh(arrows, color='red', name='BCVectors')
+
+    # 9. Show/hide axes and bounds
+    if show_axes:
+        plotter.add_axes()
+
+    if show_bounds:
+        plotter.show_bounds(grid="front")
+
+    # 10. Show the final plot
+    plotter.show()
 
 
 def tri_plot(
@@ -441,6 +613,85 @@ def strain_nodes(
     S_nodes[:, 0] /= el_nodes
     S_nodes[:, 1] /= el_nodes
     S_nodes[:, 2] /= el_nodes
+    return E_nodes, S_nodes
+
+def strain_nodes_3d(
+    nodes: NDArray[np.float64],
+    elements: NDArray[np.int_],
+    mats: NDArray[np.float64],
+    sol_complete: NDArray[np.float64]
+) -> Tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """
+    Compute averaged strains and stresses at nodes for 3D elements.
+
+    Parameters
+    ----------
+    nodes : ndarray (float)
+        Array with node coordinates.
+    elements : ndarray (int)
+        Array with the node numbers for the nodes that correspond
+        to each element.
+    mats : ndarray (float)
+        Array with material profiles.
+    sol_complete : ndarray (float)
+        Array with the displacements. This one contains both, the
+        computed and imposed values.
+
+    Returns
+    -------
+    E_nodes : ndarray
+        Strains evaluated at the nodes.
+    S_nodes : ndarray
+        Stresses evaluated at the nodes.
+    """
+    nelems = elements.shape[0]
+    nnodes = nodes.shape[0]
+    iet = elements[0, 1]
+    ndof, nnodes_elem, _ = fe.eletype(iet)  # Assuming this is updated for 3D elements
+
+    elcoor = np.zeros([nnodes_elem, 3])  # Now handling x, y, z
+    E_nodes = np.zeros([nnodes, 6])  # Six components of strain in 3D
+    S_nodes = np.zeros([nnodes, 6])  # Six components of stress in 3D
+    el_nodes = np.zeros([nnodes], dtype=int)
+    ul = np.zeros([ndof])
+    IELCON = elements[:, 3:]
+
+    for el in range(nelems):
+        young, poisson = mats[int(elements[el, 2]), :]
+        shear = young / (2 * (1 + poisson))
+        fact1 = young / ((1 + poisson) * (1 - 2 * poisson))
+        fact2 = poisson * fact1
+        fact3 = fact1 - fact2
+
+        # Extract node coordinates for this element
+        elcoor[:, 0] = nodes[IELCON[el, :], 1]  # x
+        elcoor[:, 1] = nodes[IELCON[el, :], 2]  # y
+        elcoor[:, 2] = nodes[IELCON[el, :], 3]  # z
+
+        # Extract displacements for this element
+        ul[0::3] = sol_complete[IELCON[el, :], 0]
+        ul[1::3] = sol_complete[IELCON[el, :], 1]
+        ul[2::3] = sol_complete[IELCON[el, :], 2]
+
+        # Compute strains at Gauss points (modify `fe` methods for 3D support)
+        if iet == 9:  # Example for a hexahedron element
+            epsG, _ = fe.str_el8(elcoor, ul)
+        else:
+            raise ValueError(f"Element type {iet} not supported for 3D.")
+
+        # Accumulate strains and stresses for nodes
+        for cont, node in enumerate(IELCON[el, :]):
+            E_nodes[node, :3] += epsG[cont, :3]  # Normal strains
+            E_nodes[node, 3:] += epsG[cont, 3:]  # Shear strains
+            S_nodes[node, :3] += fact3 * epsG[cont, :3] + fact2 * sum(epsG[cont, :3])
+            S_nodes[node, 3:] += shear * epsG[cont, 3:]
+            el_nodes[node] += 1
+
+    # Average strains and stresses at nodes
+    for i in range(6):
+        E_nodes[:, i] /= el_nodes
+        S_nodes[:, i] /= el_nodes
+
     return E_nodes, S_nodes
 
 

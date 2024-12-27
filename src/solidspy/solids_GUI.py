@@ -15,10 +15,10 @@ Created by Juan Gomez and Nicolas Guarin-Zapata.
 from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
-import solidspy.preprocesor as pre
-import solidspy.postprocesor as pos
-import solidspy.assemutil as ass
-import solidspy.solutil as sol
+from . import preprocesor as pre
+from . import postprocesor as pos
+from . import assemutil as ass
+from . import solutil as sol
 from typing import Optional, Tuple, Dict, Any, Union
 
 
