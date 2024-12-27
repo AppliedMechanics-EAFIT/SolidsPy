@@ -90,6 +90,7 @@ def fields_plot_3d(
     idx_BC: NDArray[np.float64], 
     S_nodes: NDArray[np.float64] = None,
     E_nodes: NDArray[np.float64] = None,
+    rho: NDArray[np.float64] = None,
     nnodes: int = 8,
     data_type: str = 'stress',
     show_BC: bool = False,
@@ -147,6 +148,10 @@ def fields_plot_3d(
 
     assert nnodes in [4, 8], "nnodes must be either 4 or 8 (3D elements)"
     assert data_type in ['stress', 'strain'], "data_type must be either 'stress' or 'strain'"
+    if rho is not None:
+        # Filter elements based on rho values
+        valid_elements = rho >= 0.5
+        els = els[valid_elements]
 
     # 1. Extract nodal coordinates
     points = nodes[:, 1:4]  # x, y, z coordinates
