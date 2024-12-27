@@ -153,3 +153,13 @@ jobs:
           for pkg in dist/*/*.tar.bz2; do
             conda run -n base anaconda upload "$pkg" --force
           done
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: "v${{ env.VERSION }}"
+          release_name: "v${{ env.VERSION }}"
+          body: "Automated release for version ${{ env.VERSION }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
