@@ -5,12 +5,14 @@ on:
     branches:
       - main
       - "2.0"
+      - "2.0_merge"
     tags:
       - "v*.*.*"
   pull_request:
     branches:
       - main
       - "2.0"
+      - "2.0_merge"
 
 concurrency:
   group: ci-${{ github.ref }}
