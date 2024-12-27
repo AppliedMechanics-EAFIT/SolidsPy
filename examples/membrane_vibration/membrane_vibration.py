@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
 
     # Assembly
-    assem_op, bc_array, neq = ass.DME(cons, elements,
+    assem_op, bc_array, neq = ass.node2dof(cons, elements,
                                     ndof_node=1, ndof_el_max=6)
     stiff_mat, mass_mat = ass.assembler(elements, mats, nodes, neq,
                                         assem_op, uel=acoust_tri6)

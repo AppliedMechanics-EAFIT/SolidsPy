@@ -42,7 +42,7 @@ def test_4_elements():
             [6, 0, 2],
             [2, 0, 1]])
     mater = np.array([[1.0, 0.3]])
-    assem_op, bc_array, neq = ass.DME(cons, eles)
+    assem_op, bc_array, neq = ass.node2dof(cons, eles)
     stiff, _ = ass.assembler(eles, mater, nodes, neq, assem_op)
     load_vec = ass.loadasem(loads, bc_array, neq)
     disp = sol.static_sol(stiff, load_vec)
@@ -83,7 +83,7 @@ def test_2_elements():
             [2, 0, -0.5],
             [5, 0, -0.5]])
     mater = np.array([[1.0, 0.3]])
-    assem_op, bc_array, neq = ass.DME(cons, eles)
+    assem_op, bc_array, neq = ass.node2dof(cons, eles)
     stiff, _ = ass.assembler(eles, mater, nodes, neq, assem_op)
     load_vec = ass.loadasem(loads, bc_array, neq)
     disp = sol.static_sol(stiff, load_vec)
@@ -117,7 +117,7 @@ def test_beams():
         [1, 8, 0, 1, 2]])
     loads = np.array([
         [1, -12000, -24000, -6000]])
-    assem_op, bc_array, neq = ass.DME(cons, elements, ndof_node=3)
+    assem_op, bc_array, neq = ass.node2dof(cons, elements, ndof_node=3)
     stiff, _ = ass.assembler(elements, mats, nodes, neq, assem_op,
                              sparse=False)
     load_vec = ass.loadasem(loads, bc_array, neq, ndof_node=3)
@@ -145,7 +145,7 @@ def test_eigs_truss():
     elements[:, 3] = range(nnodes - 1)
     elements[:, 4] = range(1, nnodes)
     
-    assem_op, bc_array, neq = ass.DME(cons, elements)
+    assem_op, bc_array, neq = ass.node2dof(cons, elements)
     stiff, mass = ass.assembler(elements, mats, nodes, neq, assem_op)
     
     vals, _ = eigsh(stiff, M=mass, which="SM")
@@ -171,7 +171,7 @@ def test_eigs_beam():
     elements[:, 3] = range(nnodes - 1)
     elements[:, 4] = range(1, nnodes)
     
-    assem_op, bc_array, neq = ass.DME(cons, elements, ndof_node=3)
+    assem_op, bc_array, neq = ass.node2dof(cons, elements, ndof_node=3)
     stiff, mass = ass.assembler(elements, mats, nodes, neq, assem_op)
     
     vals, _ = eigsh(stiff, M=mass, which="SM")

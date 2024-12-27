@@ -133,7 +133,7 @@ def test_dense_assem():
         [3, 4, 7, 6],
         [4, 5, 8, 7]])
     mats = np.array([[1, 0.3]])
-    assemp_op, bc_array, neq = ass.DME(cons, elements)
+    assemp_op, bc_array, neq = ass.node2dof(cons, elements)
     stiff, _ = ass.assembler(elements, mats, nodes, neq, assem_op,
                              sparse=False, uel=uel_ones)
     stiff_exact = np.array([

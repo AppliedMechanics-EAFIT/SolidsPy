@@ -731,7 +731,7 @@ def stress_truss(
     >>> import solidspy.solutil as sol
 
     >>> def fem_sol(nodes, elements, mats, loads):
-    ...     assem_op, bc_array , neq = ass.DME(nodes[:, 3:], elements)
+    ...     assem_op, bc_array , neq = ass.node2dof(nodes[:, 3:], elements)
     ...     stiff, _ = ass.assembler(elements, mats, nodes, neq, assem_op)
     ...     rhs = ass.loadasem(loads, bc_array, neq)
     ...     disp = sol.static_sol(stiff, rhs)
