@@ -14,5 +14,6 @@ Contributions
 
 * Edward Villegas Pulgarin (`@cosmoscalibur`)
 * Guillaume Huet (`@guillaumehuet`)
+* Marc Gehring (`mg494`)
 
 

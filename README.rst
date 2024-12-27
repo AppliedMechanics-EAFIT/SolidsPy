@@ -2,9 +2,7 @@ SolidsPy: 2D-Finite Element Analysis with Python
 ================================================
 
 .. figure:: https://raw.githubusercontent.com/AppliedMechanics-EAFIT/SolidsPy/master/docs/img/wrench.png
-   :alt: Wrench under bending.
-
-
+   :alt: Wrench under bending
 
 .. image:: https://img.shields.io/pypi/v/solidspy.svg
    :target: https://pypi.python.org/pypi/continuum_mechanics
@@ -18,6 +16,8 @@ SolidsPy: 2D-Finite Element Analysis with Python
    :target: https://pypistats.org/packages/solidspy
    :alt: Downloads frequency
 
+.. image:: https://zenodo.org/badge/48294591.svg
+   :target: https://zenodo.org/badge/latestdoi/48294591
 
 
 A simple finite element analysis code for 2D elasticity problems.
@@ -57,8 +57,8 @@ Features
 Installation
 ------------
 
-The code is written in Python and it depends on ``numpy``, ``scipy`` and
-``sympy``. It has been tested under Windows, Mac, Linux and Android.
+The code is written in Python and it depends on ``numpy``, and ``scipy``
+and. It has been tested under Windows, Mac, Linux and Android.
 
 To install *SolidsPy* open a terminal and type:
 
@@ -90,63 +90,54 @@ Let's suppose that we have a simple model represented by the following
 files (see `tutorials/square example <http://solidspy.readthedocs.io/en/latest/tutorials/square_example.html>`__
 for further explanation).
 
+
+- ``nodes.txt``
+
+::
+
+    0  0.00  0.00   0  -1
+    1  2.00  0.00   0  -1
+    2  2.00  2.00   0   0
+    3  0.00  2.00   0   0
+    4  1.00  0.00  -1  -1
+    5  2.00  1.00   0   0
+    6  1.00  2.00   0   0
+    7  0.00  1.00   0   0
+    8  1.00  1.00   0   0
+
+- ``eles.txt``
+
+::
+
+    0   1   0   0   4   8   7
+    1   1   0   4   1   5   8
+    2   1   0   7   8   6   3
+    3   1   0   8   5   2   6
+
+- ``mater.txt``
+
+::
+
+    1.0  0.3
+
+- ``loads.txt``
+
+::
+
+    3  0.0  1.0
+    6  0.0  2.0
+    2  0.0  1.0
+
+Run it in Python as follows:
+
 .. code:: python
 
-    import numpy as np
-    from solidspy.solids_GUI import solids_auto
+    import matplotlib.pyplot as plt  # load matplotlib
+    from solidspy import solids_GUI  # import our package
+    disp = solids_GUI()  # run the Finite Element Analysis
+    plt.show()    # plot contours
 
-    ### Define the data
-    nodes = np.array([
-        [0, 0.00, 0.00],
-        [1, 2.00, 0.00],
-        [2, 2.00, 2.00],
-        [3, 0.00, 2.00],
-        [4, 1.00, 0.00],
-        [5, 2.00, 1.00],
-        [6, 1.00, 2.00],
-        [7, 0.00, 1.00],
-        [8, 1.00, 1.00]])
-
-    cons = np.array([
-        [0, -1],
-        [0, -1],
-        [0,  0],
-        [0,  0],
-        [-1, -1],
-        [0,  0],
-        [0,  0],
-        [0,  0],
-        [0,  0]])
-
-    elements = np.array([
-        [0, 1, 0, 0, 4, 8, 7],
-        [1, 1, 0, 4, 1, 5, 8],
-        [2, 1, 0, 7, 8, 6, 3],
-        [3, 1, 0, 8, 5, 2, 6]])
-
-    mats = np.array([[1.0, 0.3]])
-
-    loads = np.array([
-        [2, 0.0, 1.0],
-        [3, 0.0, 1.0],
-        [6, 0.0, 2.0]])
-
-    data = {"nodes": nodes,
-            "cons": cons,
-            "elements": elements,
-            "mats": mats,
-            "loads": loads}
-
-    ### Run the simulation
-    disp = solids_auto(data)
-    plt.show()
-
-
-Save it as ``example_solidspy.py`` and run it in your terminal:
-
-.. code:: bash
-
-    python example_solidspy.py
+For Mac users it is suggested to use an IPython console to run the example.
 
 
 License
@@ -162,8 +153,8 @@ Citation
 
 To cite SolidsPy in publications use
 
-    Juan Gómez, Nicolás Guarín-Zapata (2018). SolidsPy: 2D-Finite
-    Element Analysis with Python, <https://github.com/AppliedMechanics-EAFIT/SolidsPy>.
+    Nicolás Guarín-Zapata, Juan Gomez (2020). SolidsPy: Version 1.0.16
+    (Version v1.0.16). Zenodo. http://doi.org/10.5281/zenodo.4029270
 
 A BibTeX entry for LaTeX users is
 
@@ -171,12 +162,14 @@ A BibTeX entry for LaTeX users is
 
     @software{solidspy,
      title = {SolidsPy: 2D-Finite Element Analysis with Python},
-     author = {Gómez, Juan and Guarín-Zapata, Nicolás},
-     year = 2018,
+     version = {1.0.16},
+     author = {Guarín-Zapata, Nicolás and Gómez, Juan},
+     year = 2020,
      keywords = {Python, Finite elements, Scientific computing, Computational mechanics},
      abstract = {SolidsPy is a simple finite element analysis code for
        2D elasticity problems. The code uses as input simple-to-create text
        files defining a model in terms of nodal, element, material and
        load data.},
-     url = {https://github.com/AppliedMechanics-EAFIT/SolidsPy}
+     url = {https://github.com/AppliedMechanics-EAFIT/SolidsPy},
+     doi = {http://doi.org/10.5281/zenodo.4029270}
     }
