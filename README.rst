@@ -2,6 +2,7 @@ SolidsPy: 2D-Finite Element Analysis with Python
 ================================================
 
 .. figure:: https://raw.githubusercontent.com/AppliedMechanics-EAFIT/SolidsPy/master/docs/img/wrench.png
+   :alt: Wrench under bending
 
 .. image:: https://img.shields.io/pypi/v/solidspy.svg
    :target: https://pypi.python.org/pypi/continuum_mechanics
