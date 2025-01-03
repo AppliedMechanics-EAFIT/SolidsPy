@@ -1,4 +1,4 @@
-SolidsPy: 2D-Finite Element Analysis with Python
+SolidsPy: 2D/3D-Finite Element Analysis with Python
 ================================================
 
 .. figure:: https://raw.githubusercontent.com/AppliedMechanics-EAFIT/SolidsPy/master/docs/img/wrench.png
@@ -20,66 +20,70 @@ SolidsPy: 2D-Finite Element Analysis with Python
    :target: https://zenodo.org/badge/latestdoi/48294591
 
 
-A simple finite element analysis code for 2D elasticity problems.
-The code uses as input simple-to-create text files
-defining a model in terms of nodal, element, material and load data.
+A simple finite element analysis code for 2D/3D elasticity problems, written in Python.  
+The code uses easily created text files defining a model in terms of nodal, element,
+material, and load data.
 
-- Documentation: http://solidspy.readthedocs.io
-- GitHub: https://github.com/AppliedMechanics-EAFIT/SolidsPy
-- PyPI: https://pypi.org/project/solidspy/
-- Free and open source software: `MIT license <http://en.wikipedia.org/wiki/MIT_License>`__
-
-
+- **Documentation**: http://solidspy.readthedocs.io  
+- **GitHub**: https://github.com/AppliedMechanics-EAFIT/SolidsPy  
+- **PyPI**: https://pypi.org/project/solidspy/  
+- **License**: `MIT license <http://en.wikipedia.org/wiki/MIT_License>`__  
+- **Year**: 2025
 
 Features
 --------
 
-* It is based on an open-source environment.
+* **Open-Source Environment**  
+  Entirely written in Python, leveraging popular libraries like NumPy and SciPy.  
 
-* It is easy to use.
+* **Easy to Use**  
+  Simple text input files; minimal overhead to set up new simulations.
 
-* The code allows to find displacement, strain and stress solutions for
-  arbitrary two-dimensional domains discretized into finite elements and
-  subject to point loads.
+* **2D/3D Elasticity**  
+  Solve displacement, strain, and stress for arbitrary 2D/3D domains using finite elements.
 
-* The code is organized in independent modules for pre-processing, assembly and
-  post-processing allowing the user to easily modify it or add features like
-  new elements or analyses pipelines.
+* **Modular Code**  
+  Independent modules for pre-processing, assembly, and post-processing. Extend or modify as needed.
 
-* It was created with academic and research purposes.
+* **Academic & Research**  
+  Ideal for teaching courses such as:
+  
+  - Computational Modeling
+  - Introduction to the Finite Element Methods
+  
+  and for rapid prototyping of new FEM elements.
 
-* It has been used to tech the following courses:
-
-  - Computational Modeling.
-  - Introduction to the Finite Element Methods.
-
+* **Wide Compatibility**  
+  Tested under Windows, macOS, Linux, and even Android (via Termux).
 
 Installation
 ------------
 
-The code is written in Python and it depends on ``numpy``, and ``scipy``
-and. It has been tested under Windows, Mac, Linux and Android.
+SolidsPy runs on Python 3.11+ and depends on ``numpy`` and ``scipy``.
 
-To install *SolidsPy* open a terminal and type:
-
-::
+Install via PyPI:
+    
+.. code-block:: console
 
     pip install solidspy
 
-To specify through a GUI the folder where the input
-files are stored  you will need to install `easygui <http://easygui.readthedocs.org/en/master/>`__.
+For a GUI file selector, install:
 
-To easily generate the required SolidsPy text files out of a
-`Gmsh <http://gmsh.info/>`__ model you will need
-`meshio <https://github.com/nschloe/meshio>`__.
-
-These two can be installed with:
-
-::
+.. code-block:: console
 
     pip install easygui
+
+To convert Gmsh models (`gmsh.info <http://gmsh.info/>`__) to SolidsPy input files, install:
+
+.. code-block:: console
+
     pip install meshio
 
+Install via Conda:
+    
+.. code-block:: console
+
+    conda install solidspy
 
 How to run a simple model
 -------------------------
@@ -153,21 +157,21 @@ Citation
 
 To cite SolidsPy in publications use
 
-    Nicolás Guarín-Zapata, Juan Gomez (2020). SolidsPy: Version 1.0.16
-    (Version v1.0.16). Zenodo. http://doi.org/10.5281/zenodo.4029270
+    Nicolás Guarín-Zapata, Juan Gomez (2025). SolidsPy: Version 2.0.0
+    (Version v2.0.0). Zenodo. http://doi.org/10.5281/zenodo.4029270
 
 A BibTeX entry for LaTeX users is
 
 .. code:: bibtex
 
     @software{solidspy,
-     title = {SolidsPy: 2D-Finite Element Analysis with Python},
-     version = {1.0.16},
+     title = {SolidsPy: 2D/3D-Finite Element Analysis with Python},
+     version = {2.0.0},
      author = {Guarín-Zapata, Nicolás and Gómez, Juan},
      year = 2020,
      keywords = {Python, Finite elements, Scientific computing, Computational mechanics},
      abstract = {SolidsPy is a simple finite element analysis code for
-       2D elasticity problems. The code uses as input simple-to-create text
+       2D/3D elasticity problems. The code uses as input simple-to-create text
        files defining a model in terms of nodal, element, material and
        load data.},
      url = {https://github.com/AppliedMechanics-EAFIT/SolidsPy},

@@ -1,5 +1,5 @@
 ---
-title: 'SolidsPy: 2D-Finite Element Analysis with Python'
+title: 'SolidsPy: 2D/3D-Finite Element Analysis with Python'
 tags:
   - Python
   - finite elements
@@ -35,7 +35,7 @@ JOSS welcomes submissions from broadly diverse research areas. For this reason, 
 
 The Finite Element Method is a numerical method for the solution of  problems in engineering and physics [@bathe]. These problems are commonly written as boundary value problems and involve partial differential equations.
 
-``SolidsPy`` is a simple finite element analysis code for 2D elasticity problems and was designed to be used by researchers in computational mechanics and by
+``SolidsPy`` is a simple finite element analysis code for 2D/3D elasticity problems and was designed to be used by researchers in computational mechanics and by
 students in courses on Computational modeling. It has also been used in graduate
 courses on Introduction to the Finite Element Method. It uses as input simple-to-create text files defining a model in terms of nodal, element, material and load data. Some feature of ``SolidsPy`` are:
 - It is based on an open-source environment.

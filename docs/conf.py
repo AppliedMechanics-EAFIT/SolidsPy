@@ -53,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'SolidsPy'
-copyright = u'2023, Nicolás Guarín-Zapata & Juan Gómez'
+copyright = u'2025, Nicolás Guarín-Zapata & Juan Gómez'
 author = u'Nicolás Guarín-Zapata & Juan Gómez'
 
 # The version info for the project you're documenting, acts as replacement for

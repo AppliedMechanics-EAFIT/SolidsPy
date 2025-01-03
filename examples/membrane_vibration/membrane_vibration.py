@@ -103,14 +103,13 @@ if __name__ == "__main__":
     mesh = meshio.read("square.msh")
     points = mesh.points
     cells = mesh.cells
-    tri6 = cells["triangle6"]
-    line3 = cells["line3"]
+    tri6 = next(cell for cell in cells if cell.type == "triangle6").data
+    line3 = next(cell for cell in cells if cell.type == "line3").data
     npts = points.shape[0]
     nels = tri6.shape[0]
 
     nodes = np.zeros((npts, 3))
     nodes[:, 1:] = points[:, 0:2] 
-
 
     # Constraints
     line_nodes = list(set(line3.flatten()))
@@ -150,7 +149,6 @@ if __name__ == "__main__":
     plt.ylabel("Eigenvale")
 
     # Visualization
-
     sol = pos.complete_disp(bc_array, nodes, eigvecs[:, 0], ndof_node=1)
     pos.plot_node_field(sol[:, 0], nodes, elements)
 

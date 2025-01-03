@@ -1,6 +1,14 @@
 History
 -------
 
+2.0.0 (2025-01-01)
+~~~~~~~~~~~~~~~~~~~~
+
+* Fix compatibility with Python 3.11, 3.12 and 3.13
+* Update meshio version to 5.3.5
+* Add 3D elements
+* Add 3D visualization using pyvista
+
 1.1.0 (2023-11-03)
 ~~~~~~~~~~~~~~~~~~~~
 
