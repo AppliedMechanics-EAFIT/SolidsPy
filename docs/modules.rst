@@ -15,28 +15,28 @@ SolidsPy have the following modules:
    -  ``postprocesor.py``: Several results handling subroutines.
 
 
-.. automodule:: solids_GUI
+.. automodule:: solidspy.solids_GUI
    :members:
 
-.. automodule:: assemutil
+.. automodule:: solidspy.assemutil
    :members:
 
-.. automodule:: femutil
+.. automodule:: solidspy.femutil
    :members:
 
-.. automodule:: gaussutil
+.. automodule:: solidspy.gaussutil
    :members:
 
-.. automodule:: preprocesor
+.. automodule:: solidspy.preprocesor
    :members:
 
-.. automodule:: postprocesor
+.. automodule:: solidspy.postprocesor
    :members:
 
-.. automodule:: solutil
+.. automodule:: solidspy.solutil
    :members:
 
-.. automodule:: uelutil
+.. automodule:: solidspy.uelutil
    :members:
 
 
