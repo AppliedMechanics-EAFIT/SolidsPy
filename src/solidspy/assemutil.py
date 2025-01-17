@@ -51,7 +51,7 @@ def eqcounter(
     return neq, bc_array
 
 
-def DME(
+def node2dof(
     cons: NDArray[np.int_],
     elements: NDArray[np.int_],
     ndof_node: int = 2,

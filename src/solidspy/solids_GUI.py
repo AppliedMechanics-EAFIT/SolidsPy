@@ -66,7 +66,7 @@ def solids_GUI(
     nodes, mats, elements, loads = pre.readin(folder=folder)
     if echo:
         pre.echomod(nodes, mats, elements, loads, folder=folder)
-    assem_op, bc_array, neq = ass.DME(nodes[:, -2:], elements)
+    assem_op, bc_array, neq = ass.node2dof(nodes[:, -2:], elements)
     print("Number of nodes: {}".format(nodes.shape[0]))
     print("Number of elements: {}".format(elements.shape[0]))
     print("Number of equations: {}".format(neq))
@@ -149,7 +149,7 @@ def solids_auto(
     loads = data["loads"]
 
     # Pre-processing
-    assem_op, bc_array, neq = ass.DME(cons, elements)
+    assem_op, bc_array, neq = ass.node2dof(cons, elements)
     if verbose:
         print("Number of nodes: {}".format(nodes.shape[0]))
         print("Number of elements: {}".format(elements.shape[0]))

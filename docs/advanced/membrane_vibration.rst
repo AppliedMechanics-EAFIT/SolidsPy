@@ -190,7 +190,7 @@ to compute the matrices.
 
 .. code:: ipython3
 
-    assem_op, bc_array, neq = ass.DME(cons, elements,
+    assem_op, bc_array, neq = ass.node2dof(cons, elements,
                                       ndof_node=1, ndof_el_max=6)
 
 .. code:: ipython3

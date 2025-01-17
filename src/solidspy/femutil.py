@@ -7,16 +7,18 @@ Functions to compute kinematics variables for the Finite
 Element Analysis.
     
 The elements included are:
+
     1. 4 node bilinear quadrilateral.
     2. 6 node quadratic triangle.
     3. 3 node linear triangle.
 
-The notation used is similar to the one used by Bathe [1]_.
+    
+The notation used is similar to the one used by Bathe [BATHE]_.
 
 References
 ----------
-.. [1] Bathe, Klaus-Jürgen. Finite element procedures. Prentice Hall,
-   Pearson Education, 2006.
+.. [BATHE] Bathe, Klaus-Jürgen. Finite element procedures. 
+   Prentice Hall, Pearson Education, 2006.
 
 """
 import numpy as np
@@ -43,6 +45,7 @@ def eletype(eletype: int) -> Tuple[int, int, int]:
         7. 2 node beam (3 DOF per node).
         8. 2 node beam with axial force (3 DOF per node).
         8. 8 node hexahedral elements (3 DOF per node).
+
 
     Returns
     -------

@@ -2,7 +2,7 @@
 # Visit https://bit.ly/cffinit to generate yours today!
 
 cff-version: 1.1.0
-title: 'SolidsPy: 2D-Finite Element Analysis with Python'
+title: 'SolidsPy: 2D/3D-Finite Element Analysis with Python'
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
@@ -23,7 +23,7 @@ identifiers:
 url: 'https://github.com/AppliedMechanics-EAFIT/SolidsPy'
 abstract: >-
   SolidsPy is a simple finite element analysis code
-  for 2D elasticity problems. The code uses as input
+  for 2D/3D elasticity problems. The code uses as input
   simple-to-create text files defining a model in
   terms of nodal, element, material, and load data.
 keywords:
